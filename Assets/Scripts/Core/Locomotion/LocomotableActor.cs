@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(KinematicBody2D))]
 [RequireComponent(typeof(LocomotableInput))]
 public class LocomotableActor : MonoBehaviour, IActivatable
 {
@@ -18,6 +19,7 @@ public class LocomotableActor : MonoBehaviour, IActivatable
     }
 
     private LocomotableInput virtualInput;
+    private KinematicBody2D kinematicBody;
 
     private Vector2 NormalizedFacingDirection
     {
@@ -42,6 +44,7 @@ public class LocomotableActor : MonoBehaviour, IActivatable
 
     private void Awake()
     {
+        kinematicBody = GetComponent<KinematicBody2D>();
         virtualInput = GetComponent<LocomotableInput>();
     }
 
@@ -54,6 +57,7 @@ public class LocomotableActor : MonoBehaviour, IActivatable
         var facingRotation = Quaternion.FromToRotation(NormalizedFacingDirection, Vector3.up);
         var relativeMovementDirection = facingRotation * movementDirection;
         var deltaPosition = movementDirection * properties.EvaluateSpeed(relativeMovementDirection) * Time.deltaTime;
-        transform.Translate(deltaPosition);
+
+        kinematicBody.MoveAndCollide(deltaPosition);
     }
 }

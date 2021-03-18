@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using Cinemachine;
 
 public class PlanetSurfaceSceneInitializer : MonoBehaviour
 {
@@ -9,8 +9,15 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
     [SerializeField]
     private PlayerInputBinder inputBinder;
 
+    [SerializeField]
+    private CinemachineVirtualCamera virtualCamera;
+
+    [SerializeField]
+    private Transform cameraTarget;
+
     private void Start()
     {
         inputBinder.Bind(inputSource.MainSource);
+        virtualCamera.Follow = cameraTarget;
     }
 }
