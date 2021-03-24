@@ -15,5 +15,8 @@ public class PlanetRegion : MonoBehaviour
         {
             Gizmos.DrawLine(edge.p1, edge.p2);
         }
+
+        Bounds bounds = shape.BoundingRect;
+        Gizmos.DrawWireCube(bounds.center + transform.position, bounds.size);
     }
 }

@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 448a30b1a1fdb44f293dad04dda89df2
+guid: 574ea05c36bc24d95b6e29c4bd0bdb85
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4110190382144230805
-    second: Grass-00010
-  - first:
-      213: 2359123372518453729
-    second: Grass-0001_0
-  - first:
-      213: -3285313295622891957
-    second: Grass-00011
-  - first:
-      213: 5013261466503316852
-    second: Grass-00012
+      213: -6398082924370426459
+    second: Void-00010
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -91,7 +82,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Grass-00010
+      name: Void-00010
       rect:
         serializedVersion: 2
         x: 1
@@ -105,8 +96,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5951fe630645a0930800000000000000
-      internalID: 4110190382144230805
+      spriteID: 5a588619a717537a0800000000000000
+      internalID: -6398082924370426459
       vertices: []
       indices: 
       edges: []
