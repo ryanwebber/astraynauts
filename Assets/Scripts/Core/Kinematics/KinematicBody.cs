@@ -2,10 +2,11 @@
 using System.Collections;
 using System;
 using Extensions;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class KinematicBody2D : MonoBehaviour
+public class KinematicBody : MonoBehaviour
 {
     const float kMinMovementValue = 0.001f;
 
@@ -18,7 +19,25 @@ public class KinematicBody2D : MonoBehaviour
         public RaycastHit2D below;
         public RaycastHit2D left;
         public RaycastHit2D right;
+
+        public bool HasCollision => above || below || left || right;
+
+        public IEnumerable<RaycastHit2D> GetCollisions()
+        {
+            foreach (var collision in new[] { above, below, left, right })
+            {
+                if (collision)
+                    yield return collision;
+            }
+        }
+
+        public static implicit operator bool(Collision collision)
+        {
+            return collision.HasCollision;
+        }
     }
+
+    public Event<Collider2D, Collision> OnCollision;
 
     [SerializeField]
     private LayerMask collisionMask;
@@ -79,6 +98,21 @@ public class KinematicBody2D : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
     }
 
+    private void OnEnable()
+    {
+        ResetCollisionState();
+    }
+
+    private void OnDisable()
+    {
+        ResetCollisionState();
+    }
+
+    private void LateUpdate()
+    {
+        ResetCollisionState();
+    }
+
     public Vector2 MoveAndCollide(Vector2 translation)
     {
         Collision _;
@@ -99,6 +133,10 @@ public class KinematicBody2D : MonoBehaviour
             transform.position += (Vector3)translation;
 
         collision = collisionState;
+
+        if (collision)
+            OnCollision?.Invoke(boxCollider, collision);
+
         return translation;
     }
 

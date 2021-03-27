@@ -3,6 +3,7 @@ using System.Collections;
 
 [RequireComponent(typeof(LineRenderer))]
 [RequireComponent(typeof(EdgeCollider2D))]
+[RequireComponent(typeof(CollisionReceiver))]
 public class PlanetRegionEdge : MonoBehaviour
 {
     private LineRenderer lineRenderer;
@@ -12,6 +13,7 @@ public class PlanetRegionEdge : MonoBehaviour
     {
         lineRenderer = GetComponent<LineRenderer>();
         edgeCollider = GetComponent<EdgeCollider2D>();
+        GetComponent<CollisionReceiver>().OnCollisionTrigger += OnCollisionTriggered;
     }
 
     public void SetEdge(Edge edge)
@@ -26,5 +28,10 @@ public class PlanetRegionEdge : MonoBehaviour
             edge.p1,
             edge.p2
         };
+    }
+
+    private void OnCollisionTriggered(CollisionTrigger trigger)
+    {
+        Debug.Log("Collision wth region edge");
     }
 }
