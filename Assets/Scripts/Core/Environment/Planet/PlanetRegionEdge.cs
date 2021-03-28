@@ -32,6 +32,13 @@ public class PlanetRegionEdge : MonoBehaviour
 
     private void OnCollisionTriggered(CollisionTrigger trigger)
     {
-        Debug.Log("Collision wth region edge");
+        var sceneController = SceneController.Instance;
+        if (!sceneController.IsSceneLoadInProgress)
+        {
+            sceneController.LoadScene(SceneIdentifier.PLANET_SURFACE, unloader =>
+            {
+                
+            });
+        }
     }
 }

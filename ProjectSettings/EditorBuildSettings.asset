@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Game/PlanetSurface/PlanetSurfaceScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Persistant/Persistant.unity
+    path: Assets/Scenes/Persistant/PersistantScene.unity
     guid: 23e22106f04e248869e208e76e20c454
   m_configObjects: {}

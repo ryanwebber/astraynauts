@@ -24,6 +24,13 @@ public static class StaticBoot
         Application.targetFrameRate = 60;
 #endif
 
+        if (SceneManager.sceneCount > 0)
+        {
+            var currentScene = SceneManager.GetSceneAt(0);
+            SceneManager.SetActiveScene(currentScene);
+            Debug.Log($"Active scene is: {currentScene.name}");
+        }    
+
         SceneManager.LoadScene(SceneIdentifier.PERSISTANT, LoadSceneMode.Additive);
     }
 }
