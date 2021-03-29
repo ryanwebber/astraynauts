@@ -24,12 +24,12 @@ public class SceneUnloader: ISceneUnloader
     private Dictionary<SceneStoreKey, GameObject> gameObjectStore;
     private Dictionary<GameObject, SceneStoreKey> reverseGameObjectStore;
 
-    public SceneUnloader(Scene persistantScene, Transform storageParent)
+    public SceneUnloader(Scene persistantScene, Dictionary<Type, object> contextStore, Transform storageParent)
     {
         Assert.IsTrue(persistantScene.isLoaded);
         this.persistantScene = persistantScene;
         this.storageParent = storageParent;
-        this.contextStore = new Dictionary<Type, object>();
+        this.contextStore = contextStore;
         this.gameObjectStore = new Dictionary<SceneStoreKey, GameObject>();
         this.reverseGameObjectStore = new Dictionary<GameObject, SceneStoreKey>();
     }

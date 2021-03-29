@@ -26,24 +26,13 @@ public class PlanetRegionLoader : MonoBehaviour
         region = GetComponent<PlanetRegion>();
     }
 
-    private void Start()
+    private void OnDestroy()
     {
-        LoadRegion();
+        DebugUI.Instance.Unset("planet.region");
     }
 
-    private void LoadRegion()
+    private void LoadTiles(TerrainData terrainData)
     {
-        LoadTiles();
-        LoadEdges();
-    }
-
-    private void LoadTiles()
-    {
-        var pallet = new FillTerrainInstruction.FillPallet { baseTile = fillTile };
-        TerrainData terrainData = new TerrainData(new ITerrainInstruction[] {
-            new FillTerrainInstruction(pallet)
-        });
-
         var painter = new PlanetRegionTilePainter(tileManager);
         var shape = new PlanetRegionShape(region.Bounds, tileManager.CellSize);
 
@@ -63,5 +52,13 @@ public class PlanetRegionLoader : MonoBehaviour
             var edgeInstance = Instantiate(edgePrefab, transform);
             edgeInstance.SetEdge(edge);
         }
+    }
+
+    public void LoadRegion(int region, PlanetData planetData)
+    {
+        DebugUI.Instance.Set("planet.region", region.ToString());
+
+        LoadTiles(planetData.regions[region].terrain);
+        LoadEdges();
     }
 }

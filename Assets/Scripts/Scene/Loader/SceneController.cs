@@ -22,6 +22,7 @@ public class SceneController : MonoBehaviour, ISceneController
 
     private SceneTransition transition;
     private bool sceneLoadInProgress = false;
+    private Dictionary<Type, object> contextStore;
 
     private Scene PersistantScene => gameObject.scene;
 
@@ -33,6 +34,7 @@ public class SceneController : MonoBehaviour, ISceneController
         instance = this;
 
         transition = GetComponent<SceneTransition>();
+        contextStore = new Dictionary<Type, object>();
     }
 
     public void LoadScene(SceneIdentifier scene, System.Action<ISceneUnloader> scope)
@@ -51,7 +53,7 @@ public class SceneController : MonoBehaviour, ISceneController
 
         Debug.Log($"Scene change requested: targetScene={scene.name}");
 
-        var unloader = new SceneUnloader(PersistantScene, temporaryStorage);
+        var unloader = new SceneUnloader(PersistantScene, contextStore, temporaryStorage);
 
         // 1. UI animation
 

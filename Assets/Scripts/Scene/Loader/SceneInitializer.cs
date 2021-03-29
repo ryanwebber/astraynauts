@@ -6,18 +6,19 @@ public class SceneInitializer : MonoBehaviour
 {
     public Event OnSceneInitializationComplete;
 
-    private HashSet<System.Action<ISceneLoader, System.Action>> hooks;
-
-    private void Awake()
-    {
-        hooks = new HashSet<System.Action<ISceneLoader, System.Action>>();
-    }
+    private HashSet<System.Action<ISceneLoader, System.Action>> hooks =
+        new HashSet<System.Action<ISceneLoader, System.Action>>();
 
     public void RegisterCallback(System.Action<ISceneLoader, System.Action> callback)
     {
         hooks.Add(callback);
     }
 
+    public void RegisterEditorCallback(System.Action callback)
+    {
+        if (SceneController.Instance == null || !SceneController.Instance.IsSceneLoadInProgress)
+            StartCoroutine(Coroutines.Next(callback));
+    }
 
     public void InitializeScene(ISceneLoader loader, System.Action callback)
     {
