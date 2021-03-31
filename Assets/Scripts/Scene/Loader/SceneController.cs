@@ -12,7 +12,7 @@ public interface ISceneController
 }
 
 [RequireComponent(typeof(SceneTransition))]
-public class SceneController : MonoBehaviour, ISceneController
+public class SceneController : MonoBehaviour, ISceneController, IPersistantInstantiator
 {
     private static SceneController instance;
     public static ISceneController Instance => instance;
@@ -35,6 +35,27 @@ public class SceneController : MonoBehaviour, ISceneController
 
         transition = GetComponent<SceneTransition>();
         contextStore = new Dictionary<Type, object>();
+    }
+
+    private void Start()
+    {
+        StartCoroutine(Coroutines.Next(() =>
+        {
+            var currentScene = SceneManager.GetActiveScene();
+            if (TryExtractInitializer(currentScene, out var initializer))
+            {
+                Debug.Log($"Loading scene for editor playback: {currentScene.name}");
+
+                var seeder = new DebugSceneSeeder(contextStore, this);
+                initializer.SeedEditorScene(seeder);
+                var loader = seeder.UnloadInScene(currentScene);
+                initializer.InitializeScene(loader, () =>
+                {
+                    Assert.IsTrue(temporaryStorage.childCount == 0);
+                    Debug.Log("Finished loading scene for editor playback");
+                });
+            }
+        }));
     }
 
     public void LoadScene(SceneIdentifier scene, System.Action<ISceneUnloader> scope)
@@ -89,16 +110,10 @@ public class SceneController : MonoBehaviour, ISceneController
 
         // 5. Scene init
 
-        foreach (var gameObject in newScene.GetRootGameObjects())
-        {
-            if (gameObject.TryGetComponent<SceneInitializer>(out var initializer))
-            {
-                initializer.InitializeScene(unloader.UnloadInScene(newScene), CompleteSceneLoad);
-                yield break;
-            }
-        }
-
-        CompleteSceneLoad();
+        if (TryExtractInitializer(newScene, out var initializer))
+            initializer.InitializeScene(unloader.UnloadInScene(newScene), CompleteSceneLoad);
+        else
+            CompleteSceneLoad();
     }
 
     private void CompleteSceneLoad()
@@ -118,5 +133,25 @@ public class SceneController : MonoBehaviour, ISceneController
 
         Debug.Log("Scene initialization complete");
         sceneLoadInProgress = false;
+    }
+
+    private bool TryExtractInitializer(Scene rootScene, out SceneInitializer initializer)
+    {
+        foreach (var gameObject in rootScene.GetRootGameObjects())
+        {
+            if (gameObject.TryGetComponent<SceneInitializer>(out var found))
+            {
+                initializer = found;
+                return true;
+            }
+        }
+
+        initializer = null;
+        return false;
+    }
+
+    T IPersistantInstantiator.Instantiate<T>(T prefab)
+    {
+        return Instantiate(prefab, temporaryStorage);
     }
 }

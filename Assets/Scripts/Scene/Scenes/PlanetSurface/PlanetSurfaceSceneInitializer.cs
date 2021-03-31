@@ -28,11 +28,16 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
     private void Awake()
     {
         GetComponent<SceneInitializer>().RegisterCallback(InitializeScene);
-        GetComponent<SceneInitializer>().RegisterEditorCallback(InitializeSceneForDebugMode);
+        GetComponent<SceneInitializer>().RegisterEditorSceneSeeder(SeedSceneWithMockData);
     }
 
     private void InitializeScene(ISceneLoader loader, System.Action callback)
     {
+        // TODO: instantiate the player controls as a prefab for editor mode
+        // and bind the camera in a camera controller
+        virtualCamera.Follow = cameraTarget;
+        inputBinder.Bind(inputSource.MainSource);
+
         if (loader.TryGetContext<PlanetSurfaceData>(out var surfaceData) &&
             loader.TryGetContext<PlanetSurfaceRegionIndex>(out var regionInfo))
         {
@@ -46,11 +51,8 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
         callback?.Invoke();
     }
 
-    private void InitializeSceneForDebugMode()
+    private void SeedSceneWithMockData(IDebugSceneSeeder seeder)
     {
-        inputBinder.Bind(inputSource.MainSource);
-        virtualCamera.Follow = cameraTarget;
-
         var pallet = new FillTerrainInstruction.FillPallet { baseTile = fillTile };
         TerrainData terrainData = new TerrainData(new ITerrainInstruction[] {
             new FillTerrainInstruction(pallet)
@@ -76,6 +78,10 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
             }
         };
 
-        planetRegionLoader.LoadRegion(0, planetData);
+        var planetSurfaceData = new PlanetSurfaceData { planetData = planetData };
+        var planetSurfaceRegionIndex = new PlanetSurfaceRegionIndex { regionIndex = 0 };
+
+        seeder.SetContext(planetSurfaceData);
+        seeder.SetContext(planetSurfaceRegionIndex);
     }
 }

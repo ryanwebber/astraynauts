@@ -9,15 +9,25 @@ public class SceneInitializer : MonoBehaviour
     private HashSet<System.Action<ISceneLoader, System.Action>> hooks =
         new HashSet<System.Action<ISceneLoader, System.Action>>();
 
+    private HashSet<System.Action<IDebugSceneSeeder>> seeders =
+        new HashSet<System.Action<IDebugSceneSeeder>>();
+
     public void RegisterCallback(System.Action<ISceneLoader, System.Action> callback)
     {
         hooks.Add(callback);
     }
 
-    public void RegisterEditorCallback(System.Action callback)
+    public void RegisterEditorSceneSeeder(System.Action<IDebugSceneSeeder> callback)
     {
-        if (SceneController.Instance == null || !SceneController.Instance.IsSceneLoadInProgress)
-            StartCoroutine(Coroutines.Next(callback));
+        seeders.Add(callback);
+    }
+
+    public void SeedEditorScene(IDebugSceneSeeder seeder)
+    {
+        foreach (var provider in seeders)
+        {
+            provider?.Invoke(seeder);
+        }
     }
 
     public void InitializeScene(ISceneLoader loader, System.Action callback)

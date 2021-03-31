@@ -42,5 +42,7 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if (currentSource != null)
             locomotionInput.MovementDirection = currentSource.MovementValue;
+        else
+            locomotionInput.MovementDirection = Vector2.zero;
     }
 }
