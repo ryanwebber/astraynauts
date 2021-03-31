@@ -38,15 +38,10 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
         virtualCamera.Follow = cameraTarget;
         inputBinder.Bind(inputSource.MainSource);
 
-        if (loader.TryGetContext<PlanetSurfaceData>(out var surfaceData) &&
-            loader.TryGetContext<PlanetSurfaceRegionIndex>(out var regionInfo))
-        {
-            planetRegionLoader.LoadRegion(regionInfo.regionIndex, surfaceData.planetData);
-        }
-        else
-        {
-            throw new System.Exception("Unexpected missing data. Unable to load planet surface scene");
-        }
+        var surfaceData = loader.GetContext<PlanetSurfaceData>();
+        var regionInfo = loader.GetContext<PlanetSurfaceRegionIndex>();
+
+        planetRegionLoader.LoadRegion(regionInfo.regionIndex, surfaceData.planetData);
 
         callback?.Invoke();
     }

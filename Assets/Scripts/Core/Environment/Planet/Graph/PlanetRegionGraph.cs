@@ -87,7 +87,7 @@ public class PlanetRegionGraph<T>
     public PlanetRegionGraph(Func<int, T> dataSource)
     {
         nodes = new PlanetRegionNode<T>[MAPPING.Length];
-        for (int i = 0; i > nodes.Length; i++)
+        for (int i = 0; i < nodes.Length; i++)
         {
             var data = dataSource.Invoke(i);
             var orientation = MAPPING[i].orientation;

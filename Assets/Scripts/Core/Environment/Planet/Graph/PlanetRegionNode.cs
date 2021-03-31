@@ -7,6 +7,10 @@ public class PlanetRegionNode<T>
     private PlanetRegionOrientation orientation;
     private T data;
 
+    public T Data => data;
+    public int Index => index;
+    public PlanetRegionOrientation Orientation => orientation;
+
     public PlanetRegionNode(int index, PlanetRegionGraph<T> graph, PlanetRegionOrientation orientation, T data)
     {
         this.index = index;
@@ -16,8 +20,8 @@ public class PlanetRegionNode<T>
     }
 
 
-    public PlanetRegionNode<T> GetNeighbor(int neightbor)
+    public PlanetRegionNode<T> GetNeighbor(int neighbor)
     {
-        return graph.GetNode(index, neightbor);
+        return graph.GetNode(index, neighbor);
     }
 }
