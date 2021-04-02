@@ -30,7 +30,7 @@ public class SceneUnloader : ISceneUnloader
 
     public void SetContext<T>(T context)
     {
-        contextStore.Add(typeof(T), context);
+        contextStore[typeof(T)] = context;
     }
 
     public SceneStoreKey StoreGameObject(GameObject gameObject)

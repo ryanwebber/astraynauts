@@ -45,20 +45,47 @@ public class PlanetRegionLoader : MonoBehaviour
         }
     }
 
-    private void LoadEdges()
+    private void LoadEdges(int regionIndex, PlanetData planetData)
     {
+        int idx = 0;
         foreach (var edge in region.Bounds.GetEdges())
         {
             var edgeInstance = Instantiate(edgePrefab, transform);
-            edgeInstance.SetEdge(edge);
+            edgeInstance.SetEdge(edge, idx++);
+            edgeInstance.OnCollideWithEdge += GetRegionEdgeHandler(regionIndex, planetData);
         }
     }
 
-    public void LoadRegion(int region, PlanetData planetData)
+    private Event<PlanetRegionEdge> GetRegionEdgeHandler(int currentRegionIndex, PlanetData planetData)
     {
-        DebugUI.Instance.Set("planet.region", region.ToString());
+        return edge =>
+        {
+            var sceneController = SceneController.Instance;
+            if (!sceneController.IsSceneLoadInProgress)
+            {
+                // This should actually use the graph to figure out the right index
+                var requestedRegionIndex = planetData.regions.GetNode(currentRegionIndex, edge.Index).Index;
 
-        LoadTiles(planetData.regions[region].terrain);
-        LoadEdges();
+                Debug.Log($"Requested transition to region: {requestedRegionIndex}");
+
+                sceneController.LoadScene(SceneIdentifier.PLANET_SURFACE, unloader =>
+                {
+                    var surfaceData = new PlanetSurfaceData { planetData = planetData };
+                    var surfaceIndex = new PlanetSurfaceRegionIndex { regionIndex = requestedRegionIndex };
+                    unloader.SetContext(surfaceData);
+                    unloader.SetContext(surfaceIndex);
+                });
+            }
+        };
+    }
+
+    public void LoadRegion(int regionIdx, PlanetData planetData)
+    {
+        DebugUI.Instance.Set("planet.region", regionIdx.ToString());
+
+        region.Orientation = planetData.regions.GetNode(regionIdx).Orientation;
+
+        LoadTiles(planetData.regions[regionIdx].terrain);
+        LoadEdges(regionIdx, planetData);
     }
 }

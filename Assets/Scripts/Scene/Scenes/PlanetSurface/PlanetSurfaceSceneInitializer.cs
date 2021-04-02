@@ -56,21 +56,7 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
         var regionData = new RegionData { terrain = terrainData };
         var planetData = new PlanetData
         {
-            regions = new[]
-            {
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-                regionData,
-            }
+            regions = PlanetRegionGraph<RegionData>.Make(_ => regionData)
         };
 
         var planetSurfaceData = new PlanetSurfaceData { planetData = planetData };

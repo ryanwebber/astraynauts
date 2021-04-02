@@ -6,8 +6,22 @@ using System.Collections;
 [RequireComponent(typeof(CollisionReceiver))]
 public class PlanetRegionEdge : MonoBehaviour
 {
+    public Event<PlanetRegionEdge> OnCollideWithEdge;
+
     private LineRenderer lineRenderer;
     private EdgeCollider2D edgeCollider;
+
+    private int? index;
+    public int Index
+    {
+        get
+        {
+            if (index is int idx)
+                return idx;
+            else
+                throw new System.NullReferenceException("Region index for edge has not been assigned yet");
+        }
+    }
 
     private void Awake()
     {
@@ -16,7 +30,7 @@ public class PlanetRegionEdge : MonoBehaviour
         GetComponent<CollisionReceiver>().OnCollisionTrigger += OnCollisionTriggered;
     }
 
-    public void SetEdge(Edge edge)
+    public void SetEdge(Edge edge, int index)
     {
         lineRenderer.positionCount = 2;
         lineRenderer.SetPositions(new Vector3[] {
@@ -28,17 +42,12 @@ public class PlanetRegionEdge : MonoBehaviour
             edge.p1,
             edge.p2
         };
+
+        this.index = index;
     }
 
     private void OnCollisionTriggered(CollisionTrigger trigger)
     {
-        var sceneController = SceneController.Instance;
-        if (!sceneController.IsSceneLoadInProgress)
-        {
-            sceneController.LoadScene(SceneIdentifier.PLANET_SURFACE, unloader =>
-            {
-                
-            });
-        }
+        OnCollideWithEdge?.Invoke(this);
     }
 }

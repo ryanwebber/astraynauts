@@ -104,4 +104,19 @@ public class PlanetRegionGraph<T>
     {
         return GetNode(MAPPING[index].neighbors[neighbor]);
     }
+
+    public T this[int index]
+    {
+        get => GetNode(index).Data;
+    }
+
+    public T this[int index, int neighbor]
+    {
+        get => GetNode(index, neighbor).Data;
+    }
+
+    public static PlanetRegionGraph<T> Make(Func<int, T> dataSource)
+    {
+        return new PlanetRegionGraph<T>(dataSource);
+    }
 }

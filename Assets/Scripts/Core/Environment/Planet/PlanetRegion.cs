@@ -8,6 +8,17 @@ public class PlanetRegion : MonoBehaviour
     private Pentagon shape;
     public Pentagon Bounds => shape;
 
+    private PlanetRegionOrientation orientation;
+    public PlanetRegionOrientation Orientation
+    {
+        get => orientation;
+        set
+        {
+            orientation = value;
+            shape.rotation = value == PlanetRegionOrientation.NorthFacing ? 0 : Mathf.PI;
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;

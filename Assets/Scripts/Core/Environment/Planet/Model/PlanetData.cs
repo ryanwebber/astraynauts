@@ -2,5 +2,5 @@
 
 public struct PlanetData
 {
-    public RegionData[] regions;
+    public PlanetRegionGraph<RegionData> regions;
 }
