@@ -11,6 +11,9 @@ public class PlanetRegionLoader : MonoBehaviour
     [SerializeField]
     private PlanetRegionTileManager tileManager;
 
+    [SerializeField]
+    private CameraConstraint cameraConstraint;
+
     [Header("Temporary")]
 
     [SerializeField]
@@ -34,7 +37,7 @@ public class PlanetRegionLoader : MonoBehaviour
     private void LoadTiles(TerrainData terrainData)
     {
         var painter = new PlanetRegionTilePainter(tileManager);
-        var shape = new PlanetRegionShape(region.Bounds, tileManager.CellSize);
+        var shape = new PlanetRegionShape(region.Shape, tileManager.CellSize, region.Orientation);
 
         foreach (var instruction in terrainData.Instructions)
         {
@@ -48,7 +51,7 @@ public class PlanetRegionLoader : MonoBehaviour
     private void LoadEdges(int regionIndex, PlanetData planetData)
     {
         int idx = 0;
-        foreach (var edge in region.Bounds.GetEdges())
+        foreach (var edge in region.Shape.GetEdges())
         {
             var edgeInstance = Instantiate(edgePrefab, transform);
             edgeInstance.SetEdge(edge, idx++);
@@ -84,6 +87,7 @@ public class PlanetRegionLoader : MonoBehaviour
         DebugUI.Instance.Set("planet.region", regionIdx.ToString());
 
         region.Orientation = planetData.regions.GetNode(regionIdx).Orientation;
+        cameraConstraint.SetBounds(region.Shape.BoundingShape.GetPoints());
 
         LoadTiles(planetData.regions[regionIdx].terrain);
         LoadEdges(regionIdx, planetData);

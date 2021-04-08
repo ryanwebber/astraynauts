@@ -19,7 +19,6 @@ public class PlanetRegionNode<T>
         this.data = data;
     }
 
-
     public PlanetRegionNode<T> GetNeighbor(int neighbor)
     {
         return graph.GetNode(index, neighbor);

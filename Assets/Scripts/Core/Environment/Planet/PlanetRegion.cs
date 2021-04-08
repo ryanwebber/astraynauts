@@ -6,7 +6,7 @@ public class PlanetRegion : MonoBehaviour
 {
     [SerializeField]
     private Pentagon shape;
-    public Pentagon Bounds => shape;
+    public Shape Shape => shape;
 
     private PlanetRegionOrientation orientation;
     public PlanetRegionOrientation Orientation

@@ -5,33 +5,24 @@ using UnityEngine;
 
 public class PlanetRegionShape
 {
-    private Pentagon visibleShape;
+    private Shape visibleShape;
     private float cellSize;
     private Lazy<IReadOnlyList<Vector2>> visibleShapePolygon;
 
-    public Pentagon VisibleShape => visibleShape;
+    public readonly PlanetRegionOrientation Orientation;
+
+    public Shape VisibleShape => visibleShape;
     public float CellSize => cellSize;
 
-    public PlanetRegionShape(Pentagon visibleShape, float cellSize)
+    public PlanetRegionShape(Shape visibleShape, float cellSize, PlanetRegionOrientation orientation)
     {
         this.visibleShape = visibleShape;
         this.cellSize = cellSize;
+        this.Orientation = orientation;
         this.visibleShapePolygon = new Lazy<IReadOnlyList<Vector2>>(() =>
         {
             return new List<Vector2>(visibleShape.GetPoints());
         });
-    }
-
-    public PlanetRegionOrientation Orientation
-    {
-        get
-        {
-            float simplifiedRotation = visibleShape.rotation % (2 * Mathf.PI);
-            if (simplifiedRotation > 3 * Mathf.PI / 2 || simplifiedRotation < Mathf.PI / 2)
-                return PlanetRegionOrientation.NorthFacing;
-            else
-                return PlanetRegionOrientation.SouthFacing;
-        }
     }
 
     public bool IsTileVisible(Vector2Int coordinates)

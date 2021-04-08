@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 public class PlanetRegionGraph<T>
 {
@@ -81,10 +82,12 @@ public class PlanetRegionGraph<T>
         },
     };
 
+    public static int NodeCount => MAPPING.Length;
+
     private PlanetRegionNode<T>[] nodes;
     public IEnumerable<PlanetRegionNode<T>> Nodes => nodes;
 
-    public PlanetRegionGraph(Func<int, T> dataSource)
+    private PlanetRegionGraph(Func<int, T> dataSource)
     {
         nodes = new PlanetRegionNode<T>[MAPPING.Length];
         for (int i = 0; i < nodes.Length; i++)
@@ -97,11 +100,13 @@ public class PlanetRegionGraph<T>
 
     public PlanetRegionNode<T> GetNode(int index)
     {
+        Assert.IsTrue(index < NodeCount);
         return nodes[index];
     }
 
     public PlanetRegionNode<T> GetNode(int index, int neighbor)
     {
+        Assert.IsTrue(neighbor < 5);
         return GetNode(MAPPING[index].neighbors[neighbor]);
     }
 

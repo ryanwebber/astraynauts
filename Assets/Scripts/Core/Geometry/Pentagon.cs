@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public struct Pentagon
+public class Pentagon: Shape
 {
     public static float CentralAngle = Mathf.PI * 2 / 5;
 
@@ -23,29 +23,10 @@ public struct Pentagon
     public float Circumradius => 0.1f * Mathf.Sqrt(50 + 10 * Mathf.Sqrt(5)) * SideLength;
     public float Height => Inradius + Circumradius;
 
-    public Bounds BoundingRect
+    private Pentagon(float sideLength, float rotation)
     {
-        get
-        {
-            float minX = 0f;
-            float maxX = 0f;
-            float minY = 0f;
-            float maxY = 0f;
-            foreach (var point in GetPoints())
-            {
-                minX = Mathf.Min(minX, point.x);
-                maxX = Mathf.Max(maxX, point.x);
-                minY = Mathf.Min(minY, point.y);
-                maxY = Mathf.Max(maxY, point.y);
-            }
-
-            Vector2 min = new Vector2(minX, minY);
-            Vector2 max = new Vector2(maxX, maxY);
-            Vector2 center = (max + min) / 2f;
-            Vector2 size = max - min;
-
-            return new Bounds(center, size);
-        }
+        this.sideLength = sideLength;
+        this.rotation = rotation;
     }
 
     private Vector2 GetVertexAtIndex(int index)
@@ -56,7 +37,7 @@ public struct Pentagon
         return new Vector2(x, y) * Circumradius;
     }
 
-    public IEnumerable<Vector2> GetPoints()
+    override public IEnumerable<Vector2> GetPoints()
     {
         for (int i = 0; i < 5; i++)
         {
@@ -64,20 +45,8 @@ public struct Pentagon
         }
     }
 
-    public IEnumerable<Edge> GetEdges()
+    public static Pentagon WithCircumradius(float circumradius, float rotation)
     {
-        foreach (var (p1, p2) in Collections.Pair(GetPoints(), true))
-        {
-            yield return new Edge(p1, p2);
-        }
-    }
-
-    public static Pentagon WithCircumradius(float circumradius, float rotation, Vector2 center)
-    {
-        Pentagon p;
-        p.sideLength = circumradius * 2 * Mathf.Sin(Mathf.PI / 5);
-        p.rotation = rotation;
-
-        return p;
+        return new Pentagon(circumradius * 2 * Mathf.Sin(Mathf.PI / 5), rotation);
     }
 }
