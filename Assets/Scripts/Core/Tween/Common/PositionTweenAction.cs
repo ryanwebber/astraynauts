@@ -13,7 +13,7 @@ public class PositionTweenAction: ITweenAction
         this.tween = tween;
     }
 
-    public IEnumerable GetEnumerable()
+    public IEnumerator GetYieldInstructions()
     {
         return tween.Bind(position => target.position = position);
     }

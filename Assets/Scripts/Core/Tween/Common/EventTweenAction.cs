@@ -10,7 +10,7 @@ public class EventTweenAction: ITweenAction
         this.action = action;
     }
 
-    public IEnumerable GetEnumerable()
+    public IEnumerator GetYieldInstructions()
     {
         action();
         yield break;

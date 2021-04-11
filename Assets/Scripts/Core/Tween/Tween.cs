@@ -16,7 +16,7 @@ public struct Tween<T>
         this.curve = curve;
     }
 
-    public IEnumerable Bind(System.Action<T> action)
+    public IEnumerator Bind(System.Action<T> action)
     {
         float time = 0f;
         while (time < duration)
@@ -24,9 +24,33 @@ public struct Tween<T>
             float t = curve.Evaluate(Mathf.InverseLerp(0, duration, time));
             T value = tweenable.Interpolate(t);
             action(value);
-            yield return 0;
+            yield return null;
+
+            time += Time.deltaTime;
         }
 
         action(tweenable.Interpolate(1f));
+    }
+
+    public Tween<TNew> Map<TNew>(Func<T, TNew> mapper)
+    {
+        var tweenable = new MapTweenable<TNew>
+        {
+            tweenable = this.tweenable,
+            mapper = mapper
+        };
+
+        return new Tween<TNew>(tweenable, duration, curve);
+    }
+
+    private struct MapTweenable<TNew> : ITweenable<TNew>
+    {
+        public ITweenable<T> tweenable;
+        public Func<T, TNew> mapper;
+
+        public TNew Interpolate(float t)
+        {
+            return mapper.Invoke(tweenable.Interpolate(t));
+        }
     }
 }
