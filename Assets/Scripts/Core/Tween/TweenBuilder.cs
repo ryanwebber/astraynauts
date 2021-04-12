@@ -24,7 +24,7 @@ public class TweenBuilder
         return this;
     }
 
-    public TweenBuilder ThenMove(Transform transform, Vector2 position, float duration, AnimationCurve curve)
+    public TweenBuilder ThenMove(Transform transform, Vector2 position, float duration, ITweenCurve curve = default)
     {
         var tweenable = new VectorTweenable(from: transform.position, to: position);
         var tween = new Tween<Vector2>(tweenable, duration, curve);
@@ -32,7 +32,7 @@ public class TweenBuilder
         return Then(action);
     }
 
-    public TweenBuilder ThenScale(Transform transform, Vector2 scale, float duration, AnimationCurve curve)
+    public TweenBuilder ThenScale(Transform transform, Vector2 scale, float duration, ITweenCurve curve = default)
     {
         var tweenable = new VectorTweenable(from: transform.localScale, to: scale);
         var tween = new Tween<Vector2>(tweenable, duration, curve);
@@ -40,7 +40,7 @@ public class TweenBuilder
         return Then(action);
     }
 
-    public TweenBuilder ThenFade(SpriteRenderer renderer, float opacity, float duration, AnimationCurve curve)
+    public TweenBuilder ThenFade(SpriteRenderer renderer, float opacity, float duration, ITweenCurve curve = default)
     {
         var tweenable = new FloatTweenable(from: renderer.color.a, to: opacity);
         var tween = new Tween<float>(tweenable, duration, curve);
@@ -48,7 +48,7 @@ public class TweenBuilder
         return Then(action);
     }
 
-    public TweenBuilder ThenFade(IEnumerable<SpriteRenderer> renderers, float from, float to, float duration, AnimationCurve curve)
+    public TweenBuilder ThenFade(IEnumerable<SpriteRenderer> renderers, float from, float to, float duration, ITweenCurve curve = default)
     {
         var tweenable = new FloatTweenable(from: from, to: to);
         var tween = new Tween<float>(tweenable, duration, curve);

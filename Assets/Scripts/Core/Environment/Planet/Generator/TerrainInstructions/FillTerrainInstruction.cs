@@ -6,7 +6,7 @@ public class FillTerrainInstruction : ITerrainInstruction
 {
     public class FillPallet
     {
-        public TileBase baseTile;
+        public IRandomAccessCollection<TileBase> baseTiles;
     }
 
     private FillPallet pallet;
@@ -30,7 +30,7 @@ public class FillTerrainInstruction : ITerrainInstruction
             {
                 var coordinate = new Vector2Int(x, y);
                 if (shape.IsTileVisible(coordinate))
-                    baseLayer.Tilemap.SetTile((Vector3Int)coordinate, pallet.baseTile);
+                    baseLayer.Tilemap.SetTile((Vector3Int)coordinate, pallet.baseTiles.NextValue());
             }
         }
     }

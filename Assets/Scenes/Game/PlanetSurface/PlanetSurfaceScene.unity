@@ -273,11 +273,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   planetRegionLoader: {fileID: 943797382}
-  fillTile: {fileID: 11400000, guid: 029f4c6a8ce4b4c61bf6d6f5a2888e32, type: 2}
   inputSource: {fileID: 1871974677}
   inputBinder: {fileID: 1825675192}
   virtualCamera: {fileID: 1901422990}
   cameraTarget: {fileID: 1825675188}
+  fillTileset:
+  - weight: 20
+    tile: {fileID: 11400000, guid: ee11c4c4acd1247f49d1dedee3946b57, type: 2}
+  - weight: 1
+    tile: {fileID: 11400000, guid: 38d5f395a35db4c2bb771dec18960508, type: 2}
+  - weight: 1
+    tile: {fileID: 11400000, guid: 1718352ebaac9424eb756e2a8ae05608, type: 2}
+  - weight: 1
+    tile: {fileID: 11400000, guid: da9b513f96fc4433bbea2d29f87bb73c, type: 2}
 --- !u!114 &110944152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -814,8 +822,6 @@ MonoBehaviour:
   edgePrefab: {fileID: 2596233227678838101, guid: 641b902f73f574d498c8db630f8857db, type: 3}
   tileManager: {fileID: 2348021496743803207}
   cameraConstraint: {fileID: 244643934}
-  fillTile: {fileID: 11400000, guid: 029f4c6a8ce4b4c61bf6d6f5a2888e32, type: 2}
-  voidTile: {fileID: 11400000, guid: bc36a9bacf68d415d8889619230e5aed, type: 2}
 --- !u!1 &947991935
 GameObject:
   m_ObjectHideFlags: 0
@@ -1444,7 +1450,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   velocity: {x: 0.257, y: 0.351127}
   sprite: {fileID: 1691821966}
-  collisionSmush: {x: 0.8, y: 0.35}
+  collisionSmush: {x: 0.75, y: 0.25}
   animationDuration: 0.08
   moving: 1
 --- !u!212 &1691821971

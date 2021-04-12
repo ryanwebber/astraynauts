@@ -14,14 +14,6 @@ public class PlanetRegionLoader : MonoBehaviour
     [SerializeField]
     private CameraConstraint cameraConstraint;
 
-    [Header("Temporary")]
-
-    [SerializeField]
-    private TileBase fillTile;
-
-    [SerializeField]
-    private TileBase voidTile;
-
     private PlanetRegion region;
 
     private void Awake()

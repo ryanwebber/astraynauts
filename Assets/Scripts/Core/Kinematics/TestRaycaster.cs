@@ -41,7 +41,7 @@ public class TestRaycaster : MonoBehaviour
             StopAllCoroutines();
             transform.localScale = collisionSmush;
             TweenBuilder.WaitSeconds(0f)
-                .ThenScale(transform, Vector3.one, animationDuration, AnimationCurve.Linear(0, 0, 1, 1))
+                .ThenScale(transform, Vector3.one, animationDuration)
                 .Start(this);
         }
     }

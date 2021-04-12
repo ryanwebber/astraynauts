@@ -5,13 +5,22 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(SceneInitializer))]
 public class PlanetSurfaceSceneInitializer : MonoBehaviour
 {
+    [System.Serializable]
+    public class WeightedPallet: IWeightedElement<TileBase>
+    {
+        [SerializeField]
+        private int weight;
+        public int Weight => weight;
+
+        [SerializeField]
+        private TileBase tile;
+        public TileBase Value => tile;
+    }
+
     [SerializeField]
     private PlanetRegionLoader planetRegionLoader;
 
     [Header("Debugging")]
-
-    [SerializeField]
-    TileBase fillTile;
 
     [SerializeField]
     private AttachableInputSource inputSource;
@@ -24,6 +33,9 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
 
     [SerializeField]
     private Transform cameraTarget;
+
+    [SerializeField]
+    private WeightedPallet[] fillTileset;
 
     private void Awake()
     {
@@ -48,7 +60,7 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
 
     private void SeedSceneWithMockData(IDebugSceneSeeder seeder)
     {
-        var pallet = new FillTerrainInstruction.FillPallet { baseTile = fillTile };
+        var pallet = new FillTerrainInstruction.FillPallet { baseTiles = new RandomAccessCollection<TileBase>(fillTileset) };
         TerrainData terrainData = new TerrainData(new ITerrainInstruction[] {
             new FillTerrainInstruction(pallet)
         });

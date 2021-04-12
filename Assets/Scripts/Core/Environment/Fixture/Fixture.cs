@@ -42,7 +42,7 @@ public class Fixture : MonoBehaviour
         {
             float duration = fadeDuration * durationScale;
             currentAnimation = TweenBuilder.WaitSeconds(0f)
-                .ThenFade(foregroundSprites, currentOpacity, targetOpacity, duration, AnimationCurve.Linear(0f, 0f, 1f, 1f))
+                .ThenFade(foregroundSprites, currentOpacity, targetOpacity, duration)
                 .Start(this);
         }
     }

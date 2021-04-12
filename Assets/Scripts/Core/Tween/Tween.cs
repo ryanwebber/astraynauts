@@ -1,28 +1,28 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public struct Tween<T>
 {
     private ITweenable<T> tweenable;
     private float duration;
-    private AnimationCurve curve;
+    private ITweenCurve curve;
 
-    public Tween(ITweenable<T> tweenable, float duration, AnimationCurve curve)
+    public Tween(ITweenable<T> tweenable, float duration, ITweenCurve curve)
     {
         this.tweenable = tweenable;
         this.duration = duration;
         this.curve = curve;
     }
 
-    public IEnumerator Bind(System.Action<T> action)
+    public IEnumerator Bind(Action<T> action)
     {
         float time = 0f;
         while (time < duration)
         {
-            float t = curve.Evaluate(Mathf.InverseLerp(0, duration, time));
-            T value = tweenable.Interpolate(t);
+            float t0 = Mathf.InverseLerp(0, duration, time);
+            float t1 = curve == null ? Mathf.Clamp01(t0) : curve.Invoke(t0);
+            T value = tweenable.Interpolate(t1);
             action(value);
             yield return null;
 
