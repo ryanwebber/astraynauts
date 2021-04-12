@@ -32,6 +32,14 @@ public class TweenBuilder
         return Then(action);
     }
 
+    public TweenBuilder ThenScale(Transform transform, Vector2 scale, float duration, AnimationCurve curve)
+    {
+        var tweenable = new VectorTweenable(from: transform.localScale, to: scale);
+        var tween = new Tween<Vector2>(tweenable, duration, curve);
+        var action = new ScaleTweenAction(transform, tween);
+        return Then(action);
+    }
+
     public TweenBuilder ThenFade(SpriteRenderer renderer, float opacity, float duration, AnimationCurve curve)
     {
         var tweenable = new FloatTweenable(from: renderer.color.a, to: opacity);

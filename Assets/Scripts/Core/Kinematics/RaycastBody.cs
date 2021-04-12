@@ -69,8 +69,7 @@ public class RaycastBody : MonoBehaviour
                 if (Physics2D.OverlapPoint(ray.origin, collisionMask))
                     continue;
 
-
-                Debug.DrawRay(ray.origin, ray.direction.normalized * velocity.magnitude, Color.gray);
+                // Debug.DrawRay(ray.origin, ray.direction.normalized * velocity.magnitude, Color.gray);
                 var _raycastHit = Physics2D.Raycast(ray.origin, ray.direction, velocity.magnitude, collisionMask);
                 if (_raycastHit && _raycastHit.distance < minHitDistance)
                 {
