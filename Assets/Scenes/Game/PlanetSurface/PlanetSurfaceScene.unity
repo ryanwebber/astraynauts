@@ -277,15 +277,13 @@ MonoBehaviour:
   inputBinder: {fileID: 1825675192}
   virtualCamera: {fileID: 1901422990}
   cameraTarget: {fileID: 1825675188}
-  fillTileset:
-  - weight: 20
-    tile: {fileID: 11400000, guid: ee11c4c4acd1247f49d1dedee3946b57, type: 2}
+  fillTile: {fileID: 11400000, guid: 3457cb9f778134126b31240b8e6bb568, type: 2}
+  noiseDensity: 0.25
+  noiseTilesets:
   - weight: 1
-    tile: {fileID: 11400000, guid: 38d5f395a35db4c2bb771dec18960508, type: 2}
+    tilemap: {fileID: 7063183303179183369, guid: 452e388fd83244df0aef68632a036b3d, type: 3}
   - weight: 1
-    tile: {fileID: 11400000, guid: 1718352ebaac9424eb756e2a8ae05608, type: 2}
-  - weight: 1
-    tile: {fileID: 11400000, guid: da9b513f96fc4433bbea2d29f87bb73c, type: 2}
+    tilemap: {fileID: 8761591461657372291, guid: e7001eade1e4f44a984701c468fbaa9c, type: 3}
 --- !u!114 &110944152
 MonoBehaviour:
   m_ObjectHideFlags: 0

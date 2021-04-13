@@ -4,14 +4,14 @@ using UnityEngine.Tilemaps;
 
 public class FillTerrainInstruction : ITerrainInstruction
 {
-    public class FillPallet
+    public class Pallet
     {
-        public IRandomAccessCollection<TileBase> baseTiles;
+        public TileBase baseTile;
     }
 
-    private FillPallet pallet;
+    private Pallet pallet;
 
-    public FillTerrainInstruction(FillPallet pallet)
+    public FillTerrainInstruction(Pallet pallet)
     {
         this.pallet = pallet;
     }
@@ -30,7 +30,7 @@ public class FillTerrainInstruction : ITerrainInstruction
             {
                 var coordinate = new Vector2Int(x, y);
                 if (shape.IsTileVisible(coordinate))
-                    baseLayer.Tilemap.SetTile((Vector3Int)coordinate, pallet.baseTiles.NextValue());
+                    baseLayer.Tilemap.SetTile((Vector3Int)coordinate, pallet.baseTile);
             }
         }
     }

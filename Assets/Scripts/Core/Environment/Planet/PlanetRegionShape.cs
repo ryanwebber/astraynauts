@@ -25,6 +25,11 @@ public class PlanetRegionShape
         });
     }
 
+    public bool IsTileVisible(Vector3Int coordinates)
+    {
+        return IsTileVisible((Vector2Int)coordinates);
+    }
+
     public bool IsTileVisible(Vector2Int coordinates)
     {
         var tileBounds = GetTileBounds(coordinates);

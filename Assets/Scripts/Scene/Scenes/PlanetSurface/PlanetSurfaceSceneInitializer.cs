@@ -1,20 +1,21 @@
 ﻿using UnityEngine;
 using Cinemachine;
 using UnityEngine.Tilemaps;
+using System.Linq;
 
 [RequireComponent(typeof(SceneInitializer))]
 public class PlanetSurfaceSceneInitializer : MonoBehaviour
 {
     [System.Serializable]
-    public class WeightedPallet: IWeightedElement<TileBase>
+    public class WeightedPallet: IWeightedElement<SerializedTilemap>
     {
         [SerializeField]
         private int weight;
         public int Weight => weight;
 
         [SerializeField]
-        private TileBase tile;
-        public TileBase Value => tile;
+        private SerializedTilemap tilemap;
+        public SerializedTilemap Value => tilemap;
     }
 
     [SerializeField]
@@ -35,7 +36,13 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
     private Transform cameraTarget;
 
     [SerializeField]
-    private WeightedPallet[] fillTileset;
+    private TileBase fillTile;
+
+    [SerializeField]
+    private float noiseDensity = 1f;
+
+    [SerializeField]
+    private WeightedPallet[] noiseTilesets;
 
     private void Awake()
     {
@@ -60,9 +67,17 @@ public class PlanetSurfaceSceneInitializer : MonoBehaviour
 
     private void SeedSceneWithMockData(IDebugSceneSeeder seeder)
     {
-        var pallet = new FillTerrainInstruction.FillPallet { baseTiles = new RandomAccessCollection<TileBase>(fillTileset) };
+        var fillPallet = new FillTerrainInstruction.Pallet { baseTile = fillTile };
+        var noisePallet = new AddNoiseTerrainInstruction.Pallet
+        {
+            templates = new RandomAccessCollection<TilemapTemplate>(
+                noiseTilesets.Select(e => (Weight: e.Weight, Value: e.Value.Template)).ToArray()
+            )
+        };
+
         TerrainData terrainData = new TerrainData(new ITerrainInstruction[] {
-            new FillTerrainInstruction(pallet)
+            new FillTerrainInstruction(fillPallet),
+            new AddNoiseTerrainInstruction(noisePallet, noiseDensity),
         });
 
         var regionData = new RegionData { terrain = terrainData };
