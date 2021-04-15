@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5ccbeeba8b8df41f394aadd236aa7f05
+guid: fa59e8094bbfb4ce0b7ea84b69a3f429
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -12,16 +12,16 @@ ScriptedImporter:
     importType: 0
     transparencyMode: 0
     transparentColor: {r: 1, g: 0, b: 1, a: 1}
-    pixelsPerUnit: 24
-    spriteAlignment: 0
-    spritePivot: {x: 0.5, y: 0.5}
+    pixelsPerUnit: 16
+    spriteAlignment: 9
+    spritePivot: {x: 0.5, y: 0.32}
     generateAnimations: 1
     createAnimationAssets: 0
     bindType: 0
     animType: 0
     baseAnimator: {instanceID: 0}
     buildAtlas: 0
-    tileSize: {x: 512, y: 512}
+    tileSize: {x: 16, y: 16}
     tileNameType: 0
     tileEmpty: 0
   textureImporterSettings:
