@@ -72,7 +72,7 @@ public class SceneController : MonoBehaviour, ISceneController, IPersistantInsta
     {
         yield return 0;
 
-        Debug.Log($"Scene change requested: targetScene={scene.name}");
+        Debug.Log($"Scene change requested: targetScene={scene.Name}");
 
         var unloader = new SceneUnloader(PersistantScene, contextStore, temporaryStorage);
 
@@ -98,11 +98,11 @@ public class SceneController : MonoBehaviour, ISceneController, IPersistantInsta
 
         // 4. Scene loading
 
-        Debug.Log($"Loading in scene: {scene.name}");
+        Debug.Log($"Loading in scene: {scene.Name}");
 
-        var loadOperation = SceneManager.LoadSceneAsync(scene.name, LoadSceneMode.Additive);
+        var loadOperation = SceneManager.LoadSceneAsync(scene.Name, LoadSceneMode.Additive);
         yield return new WaitUntil(() => loadOperation.isDone);
-        var newScene = SceneManager.GetSceneByName(scene.name);
+        var newScene = SceneManager.GetSceneByName(scene.Name);
         SceneManager.SetActiveScene(newScene);
         Assert.IsTrue(newScene.isLoaded);
 

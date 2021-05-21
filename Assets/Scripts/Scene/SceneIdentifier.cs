@@ -1,21 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 
-[System.Serializable]
-public struct SceneIdentifier
+public class SceneIdentifier
 {
-    public static SceneIdentifier PERSISTANT = new SceneIdentifier("PersistantScene");
-    public static SceneIdentifier PLANET_SURFACE = new SceneIdentifier("PlanetSurfaceScene");
+    public static SceneIdentifier PERSISTANT_SCENE = new SceneIdentifier("PersistantScene");
 
-    public readonly string name;
+    private string name;
+    public string Name => name;
 
-    private SceneIdentifier(string name)
+    public SceneIdentifier(string name)
     {
         this.name = name;
     }
 
-    public static implicit operator string(SceneIdentifier identifier)
-    {
-        return identifier.name;
-    }
+    public static implicit operator string(SceneIdentifier identifier) => identifier.name;
 }

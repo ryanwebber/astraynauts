@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Polygon: Shape
+public class Polygon
 {
     public readonly Vector2[] points;
 
@@ -20,7 +20,7 @@ public class Polygon: Shape
         this.points = points;
     }
 
-    public override IEnumerable<Vector2> GetPoints()
+    public IEnumerable<Vector2> GetPoints()
     {
         return points;
     }

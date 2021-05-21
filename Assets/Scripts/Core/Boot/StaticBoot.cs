@@ -31,7 +31,7 @@ public static class StaticBoot
             Debug.Log($"Active scene is: {currentScene.name}");
         }
 
-        if (SceneManager.GetActiveScene().name != SceneIdentifier.PERSISTANT.name)
-            SceneManager.LoadScene(SceneIdentifier.PERSISTANT, LoadSceneMode.Additive);
+        if (SceneManager.GetActiveScene().name != SceneIdentifier.PERSISTANT_SCENE.Name)
+            SceneManager.LoadScene(SceneIdentifier.PERSISTANT_SCENE, LoadSceneMode.Additive);
     }
 }

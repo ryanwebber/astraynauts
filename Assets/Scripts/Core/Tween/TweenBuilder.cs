@@ -80,4 +80,9 @@ public class TweenBuilder
         return new TweenBuilder()
             .ThenWait(duration);
     }
+
+    public static TweenBuilder New()
+    {
+        return new TweenBuilder();
+    }
 }

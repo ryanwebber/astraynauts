@@ -41,7 +41,7 @@ public class Fixture : MonoBehaviour
         if (durationScale > 0)
         {
             float duration = fadeDuration * durationScale;
-            currentAnimation = TweenBuilder.WaitSeconds(0f)
+            currentAnimation = TweenBuilder.New()
                 .ThenFade(foregroundSprites, currentOpacity, targetOpacity, duration)
                 .Start(this);
         }
