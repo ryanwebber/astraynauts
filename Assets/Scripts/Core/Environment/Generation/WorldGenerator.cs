@@ -45,26 +45,81 @@ public static class WorldGenerator
             return sections;
         }
 
-        public int SizeIfIncluding(RectInt newSection)
+        public int SizeMerging(RectInt newSection)
         {
             var allCells = GetUniqueCells();
             allCells.UnionWith(newSection.GetAllPositions());
             return allCells.Count;
         }
+
+        public int OpeningWidthMerging(RectInt newSection)
+        {
+            // For overlapping sctions, the merging width
+            // is the wisth of the gap created by the merge,
+            // computed by looking at the width and height of
+            // the overlapping rectangle
+
+            int maxWidth = 0;
+            foreach (var section in sections)
+            {
+                if (section.Overlaps(newSection))
+                {
+                    var yTop = Mathf.Min(section.yMax, newSection.yMax);
+                    var yBottom = Mathf.Max(section.yMin, newSection.yMin);
+                    var yWidth = yTop - yBottom;
+
+                    var xRight = Mathf.Min(section.xMax, newSection.xMax);
+                    var xLeft = Mathf.Max(section.xMin, newSection.xMin);
+                    var xWidth = xRight - xLeft;
+
+                    maxWidth = Mathf.Max(maxWidth, yWidth, xWidth);
+                }
+            }
+
+            Assert.IsTrue(maxWidth > 0);
+
+            return maxWidth;
+        }
+    }
+
+    public class RoomLayout
+    {
+        private IReadOnlyList<Room> rooms;
+        private IReadOnlyDictionary<Vector2Int, Room> layout;
+
+        public RoomLayout(IReadOnlyList<Room> rooms, IReadOnlyDictionary<Vector2Int, Room> layout)
+        {
+            this.rooms = rooms;
+            this.layout = layout;
+        }
+
+        public IReadOnlyList<Room> AllRooms => rooms;
+        public IReadOnlyDictionary<Vector2Int, Room> Layout => layout;
+    }
+
+    private static class RandomUtils
+    {
+        public static int RandomOddInRange(int min, int max)
+        {
+            return Random.Range(min / 2, max / 2) * 2 + 1;
+        }
     }
 
     private static class RoomGenerator
     {
-        private static Vector2Int MAX_ROOM_SECT_SIZE = new Vector2Int(41, 41);
-        private static Vector2Int MIN_ROOM_SECT_SIZE = new Vector2Int(11, 11);
-        private static int MAX_FAILED_ROOM_GENERATION_ATTEMPTS = 20;
-        private static int MAX_SECTIONS_PER_ROOM = 3;
-        private static int MAX_CELLS_PER_ROOM = 41 * 41 * 2;
+        private static RangeInt VALID_MAX_SECTIONS_PER_ROOM = new RangeInt(1, 8);
+        private static RangeInt VALID_CONSECUTIVE_FAILED_ROOM_INSERTION_ATTEMPTS = new RangeInt(1, 64);
 
-        private static int RandomOddInRange(int min, int max)
-        {
-            return Random.Range(min / 2, max / 2) * 2 + 1;
-        }
+        private static Vector2Int MAX_ROOM_SECT_SIZE = new Vector2Int(31, 31);
+        private static Vector2Int MIN_ROOM_SECT_SIZE = new Vector2Int(9, 9);
+
+        private static int MAX_CELLS_PER_ROOM = 31 * 31 * 4;
+        private static int MIN_OVERLAP_WIDTH = 4;
+
+        private static UnitScalar CONFIG_ROOM_DENSITY = 0.25f;
+        private static UnitScalar CONFIG_ROOM_REGULARITY = 0.5f;
+
+        private static AnimationCurve ROOM_SIZE_DECAY = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         private static bool TryInsertSection(RectInt section, IReadOnlyDictionary<Vector2Int, Room> lookup, out Room updatedRoom)
         {
@@ -88,8 +143,9 @@ public static class WorldGenerator
                 return true;
             }
             else if (overlappingRooms.Count == 1 &&
-                someRoom.SectionCount < MAX_SECTIONS_PER_ROOM &&
-                someRoom.SizeIfIncluding(section) < MAX_CELLS_PER_ROOM)
+                someRoom.SectionCount < VALID_MAX_SECTIONS_PER_ROOM.Resolve(CONFIG_ROOM_REGULARITY.Inverse) &&
+                someRoom.SizeMerging(section) < MAX_CELLS_PER_ROOM &&
+                someRoom.OpeningWidthMerging(section) > MIN_OVERLAP_WIDTH)
             {
                 someRoom.AddSection(section);
                 updatedRoom = someRoom;
@@ -102,27 +158,36 @@ public static class WorldGenerator
             }
         }
 
-        public static ICollection<Room> GenerateRooms(int frameWidth, int frameHeight)
+        public static RoomLayout GenerateRooms(int frameWidth, int frameHeight)
         {
             Assert.IsTrue(frameWidth > MAX_ROOM_SECT_SIZE.x + 2);
             Assert.IsTrue(frameHeight > MAX_ROOM_SECT_SIZE.y + 2);
 
             Dictionary<Vector2Int, Room> roomLookup = new Dictionary<Vector2Int, Room>();
+            HashSet<Room> allRooms = new HashSet<Room>();
 
             int consecutiveFailedAttempts = 0;
+            int maxConsecutiveFailedAttempts = VALID_CONSECUTIVE_FAILED_ROOM_INSERTION_ATTEMPTS.Resolve(CONFIG_ROOM_DENSITY);
 
-            while (consecutiveFailedAttempts < MAX_FAILED_ROOM_GENERATION_ATTEMPTS)
+            while (consecutiveFailedAttempts < maxConsecutiveFailedAttempts)
             {
-                int width = RandomOddInRange(MIN_ROOM_SECT_SIZE.x, MAX_ROOM_SECT_SIZE.x);
-                int height = RandomOddInRange(MIN_ROOM_SECT_SIZE.y, MAX_ROOM_SECT_SIZE.y);
+                float t = ROOM_SIZE_DECAY.Evaluate(consecutiveFailedAttempts / (float)maxConsecutiveFailedAttempts);
+                float maxSectWidth = Mathf.Lerp(MAX_ROOM_SECT_SIZE.x, MIN_ROOM_SECT_SIZE.x, t);
+                float maxSectHeight = Mathf.Lerp(MAX_ROOM_SECT_SIZE.y, MIN_ROOM_SECT_SIZE.y, t);
+                //float maxSectWidth = MAX_ROOM_SECT_SIZE.x;
+                //float maxSectHeight = MAX_ROOM_SECT_SIZE.y;
 
-                int x = RandomOddInRange(1, frameWidth - width);
-                int y = RandomOddInRange(1, frameHeight - height);
+                int width = RandomUtils.RandomOddInRange(MIN_ROOM_SECT_SIZE.x, Mathf.CeilToInt(maxSectWidth));
+                int height = RandomUtils.RandomOddInRange(MIN_ROOM_SECT_SIZE.y, Mathf.CeilToInt(maxSectHeight));
+
+                int x = RandomUtils.RandomOddInRange(1, frameWidth - width);
+                int y = RandomUtils.RandomOddInRange(1, frameHeight - height);
 
                 RectInt section = new RectInt(x, y, width, height);
 
                 if (TryInsertSection(section, roomLookup, out var room))
                 {
+                    allRooms.Add(room);
                     foreach (var cell in section.allPositionsWithin)
                         roomLookup[cell] = room;
 
@@ -134,12 +199,20 @@ public static class WorldGenerator
                 }
             }
 
-            return new HashSet<Room>(roomLookup.Values);
+            return new RoomLayout(new List<Room>(allRooms), roomLookup);
+        }
+    }
+
+    public static class HallwayGenerator
+    {
+        public static void GenerateHallways(RoomLayout roomLayout)
+        {
+
         }
     }
     
-    public static ICollection<Room> Generate(int width, int height)
+    public static IReadOnlyList<Room> Generate(int width, int height)
     {
-        return RoomGenerator.GenerateRooms(width, height);
+        return RoomGenerator.GenerateRooms(width, height).AllRooms;
     }
 }

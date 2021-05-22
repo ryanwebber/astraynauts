@@ -13,4 +13,14 @@ public static class Profile
         st.Stop();
         UnityEngine.Debug.Log($"[{st.ElapsedMilliseconds}ms] {description}");
     }
+
+    public static T Debug<T>(string description, System.Func<T> action)
+    {
+        Stopwatch st = new Stopwatch();
+        st.Start();
+        var value = action.Invoke();
+        st.Stop();
+        UnityEngine.Debug.Log($"[{st.ElapsedMilliseconds}ms] {description}");
+        return value;
+    }
 }
