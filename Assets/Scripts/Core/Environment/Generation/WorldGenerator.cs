@@ -110,20 +110,22 @@ public static class WorldGenerator
         private static RangeInt VALID_MAX_SECTIONS_PER_ROOM = new RangeInt(1, 8);
         private static RangeInt VALID_CONSECUTIVE_FAILED_ROOM_INSERTION_ATTEMPTS = new RangeInt(1, 64);
 
-        private static Vector2Int MAX_ROOM_SECT_SIZE = new Vector2Int(31, 31);
-        private static Vector2Int MIN_ROOM_SECT_SIZE = new Vector2Int(9, 9);
+        private static Vector2Int MAX_ROOM_SECT_SIZE = new Vector2Int(15, 15);
+        private static Vector2Int MIN_ROOM_SECT_SIZE = new Vector2Int(7, 7);
 
-        private static int MAX_CELLS_PER_ROOM = 31 * 31 * 4;
         private static int MIN_OVERLAP_WIDTH = 4;
 
-        private static UnitScalar CONFIG_ROOM_DENSITY = 0.25f;
-        private static UnitScalar CONFIG_ROOM_REGULARITY = 0.5f;
+        private static UnitScalar CONFIG_ROOM_DENSITY = 0.1f;
+        private static UnitScalar CONFIG_ROOM_REGULARITY = 0.1f;
+        private static float CONFIG_MAX_ROOM_SIZE_MULTIPLE = 1.5f;
 
-        private static AnimationCurve ROOM_SIZE_DECAY = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+        private static AnimationCurve ROOM_SIZE_DECAY = AnimationCurve.Constant(0f, 1f, 0f);
 
         private static bool TryInsertSection(RectInt section, IReadOnlyDictionary<Vector2Int, Room> lookup, out Room updatedRoom)
         {
             Room someRoom = null;
+
+            int maxCellsPerRoom = Mathf.FloorToInt(MAX_ROOM_SECT_SIZE.x * MAX_ROOM_SECT_SIZE.y * CONFIG_MAX_ROOM_SIZE_MULTIPLE);
 
             // Get all the rooms this new section would overlap with
             HashSet<Room> overlappingRooms = new HashSet<Room>();
@@ -144,7 +146,7 @@ public static class WorldGenerator
             }
             else if (overlappingRooms.Count == 1 &&
                 someRoom.SectionCount < VALID_MAX_SECTIONS_PER_ROOM.Resolve(CONFIG_ROOM_REGULARITY.Inverse) &&
-                someRoom.SizeMerging(section) < MAX_CELLS_PER_ROOM &&
+                someRoom.SizeMerging(section) < maxCellsPerRoom &&
                 someRoom.OpeningWidthMerging(section) > MIN_OVERLAP_WIDTH)
             {
                 someRoom.AddSection(section);
@@ -162,6 +164,7 @@ public static class WorldGenerator
         {
             Assert.IsTrue(frameWidth > MAX_ROOM_SECT_SIZE.x + 2);
             Assert.IsTrue(frameHeight > MAX_ROOM_SECT_SIZE.y + 2);
+            Assert.IsTrue(CONFIG_MAX_ROOM_SIZE_MULTIPLE >= 1f);
 
             Dictionary<Vector2Int, Room> roomLookup = new Dictionary<Vector2Int, Room>();
             HashSet<Room> allRooms = new HashSet<Room>();
@@ -174,8 +177,6 @@ public static class WorldGenerator
                 float t = ROOM_SIZE_DECAY.Evaluate(consecutiveFailedAttempts / (float)maxConsecutiveFailedAttempts);
                 float maxSectWidth = Mathf.Lerp(MAX_ROOM_SECT_SIZE.x, MIN_ROOM_SECT_SIZE.x, t);
                 float maxSectHeight = Mathf.Lerp(MAX_ROOM_SECT_SIZE.y, MIN_ROOM_SECT_SIZE.y, t);
-                //float maxSectWidth = MAX_ROOM_SECT_SIZE.x;
-                //float maxSectHeight = MAX_ROOM_SECT_SIZE.y;
 
                 int width = RandomUtils.RandomOddInRange(MIN_ROOM_SECT_SIZE.x, Mathf.CeilToInt(maxSectWidth));
                 int height = RandomUtils.RandomOddInRange(MIN_ROOM_SECT_SIZE.y, Mathf.CeilToInt(maxSectHeight));

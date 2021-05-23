@@ -9,10 +9,21 @@ public class Temporary : MonoBehaviour
 
     private IEnumerable<WorldGenerator.Room> rooms;
 
+    private void Awake()
+    {
+        if (TryGetComponent<InspectorRefreshable>(out var refreshable))
+            refreshable.OnInspectorRefresh += GenerateWorld;
+    }
+
     private void Start()
     {
-        rooms = Profile.Debug("Generate World Layout", () => WorldGenerator.Generate(gridSize.x, gridSize.y));
+        GenerateWorld();
     }
+
+    private void GenerateWorld()
+    {
+        rooms = Profile.Debug("Generate World Layout", () => WorldGenerator.Generate(gridSize.x, gridSize.y));
+    }    
 
     private void OnDrawGizmos()
     {
