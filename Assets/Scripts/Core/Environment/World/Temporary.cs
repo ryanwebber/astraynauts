@@ -10,7 +10,7 @@ public class Temporary : MonoBehaviour
     private WorldGenerator.Parameters generationParameters;
 
     private RoomLayout rooms;
-    private bool[,] maze;
+    private List<Hallway> hallways;
 
     private void Awake()
     {
@@ -26,32 +26,15 @@ public class Temporary : MonoBehaviour
     private void GenerateWorld()
     {
         rooms = Profile.Debug("Generate World Layout", () => WorldGenerator.Generate(generationParameters));
-        maze = WorldGenerator.HallwayGenerator.GenerateHallways(generationParameters);
+        hallways = WorldGenerator.HallwayGenerator.GenerateHallways(rooms, generationParameters);
     }    
 
     private void OnDrawGizmos()
     {
-        if (maze == null)
-            return;
-
-        Gizmos.color = Color.white;
-        for (int y = 0; y < maze.GetLength(0); y++)
-        {
-            for (int x = 0; x < maze.GetLength(1); x++)
-            {
-                if (maze[y,x])
-                {
-                    // This -2 here (1.5 due to drawing at the center) is the extra border
-                    // the hallways take to be able to be placed around the outside of rooms
-                    Gizmos.DrawCube(new Vector3(x - 1.5f, y - 1.5f, 1f), Vector3.one);
-                }
-            }
-        }
-
         if (rooms == null)
             return;
 
-        Vector2Int gridSize = generationParameters.CellularDimensions;
+        Vector2Int gridSize = generationParameters.CellularDimensions + Vector2Int.one * 4;
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(0.5f * new Vector3(gridSize.x, gridSize.y, 0f), new Vector3(gridSize.x, gridSize.y, 1f));
@@ -65,6 +48,25 @@ public class Temporary : MonoBehaviour
             foreach (var section in room.GetSections())
             {
                 Gizmos.DrawCube(section.center, new Vector3(section.size.x, section.size.y, 1f));
+            }
+        }
+
+        if (hallways == null)
+            return;
+
+        Gizmos.color = new Color(1f, 1f, 1f, 0.5f);
+
+        HashSet<Vector2Int> doors = new HashSet<Vector2Int>();
+        foreach (var hallway in hallways)
+        {
+            doors.Clear();
+            foreach (var door in hallway.DoorMapping.Values)
+                doors.Add(door);
+
+            foreach (var cell in hallway.GetCells())
+            {
+                Gizmos.color = doors.Contains(cell) ? Color.yellow : Color.white;
+                Gizmos.DrawCube(new Vector3(cell.x + 0.5f, cell.y + 0.5f, 1f), Vector3.one);
             }
         }
     }

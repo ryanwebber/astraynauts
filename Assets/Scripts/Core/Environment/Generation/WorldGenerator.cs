@@ -170,6 +170,21 @@ public static class WorldGenerator
         public IReadOnlyDictionary<Vector2Int, Room> Layout => layout;
     }
 
+    public class Hallway
+    {
+        private List<Vector2Int> path;
+        private Dictionary<Room, Vector2Int> doorMapping;
+
+        public Hallway(List<Vector2Int> path, Dictionary<Room, Vector2Int> doorMapping)
+        {
+            this.path = path;
+            this.doorMapping = doorMapping;
+        }
+
+        public IEnumerable<Vector2Int> GetCells() => path;
+        public IReadOnlyDictionary<Room, Vector2Int> DoorMapping => doorMapping;
+    }
+
     private static class RandomUtils
     {
         public static int RandomOddInRange(int min, int max)
@@ -256,16 +271,19 @@ public static class WorldGenerator
             while (consecutiveFailedAttempts < maxConsecutiveFailedAttempts)
             {
                 float t = parameters.SectorSizeDecay.Evaluate(consecutiveFailedAttempts / (float)maxConsecutiveFailedAttempts);
-                float minSectWidth = parameters.MinimumCellularSectorSize.x;
+                int minSectWidth = parameters.MinimumCellularSectorSize.x;
                 float maxSectWidth = Mathf.Lerp(parameters.MaximumCellularSectorSize.x, parameters.MinimumCellularSectorSize.x, t);
-                float minSectHeight = parameters.MinimumCellularSectorSize.y;
+                int minSectHeight = parameters.MinimumCellularSectorSize.y;
                 float maxSectHeight = Mathf.Lerp(parameters.MaximumCellularSectorSize.y, parameters.MinimumCellularSectorSize.y, t);
 
-                int width = RandomUtils.RandomOddInRange(parameters.MinimumCellularSectorSize.x, Mathf.CeilToInt(maxSectWidth));
-                int height = RandomUtils.RandomOddInRange(parameters.MinimumCellularSectorSize.y, Mathf.CeilToInt(maxSectHeight));
+                int width = RandomUtils.RandomOddInRange(minSectWidth, Mathf.CeilToInt(maxSectWidth));
+                int height = RandomUtils.RandomOddInRange(minSectHeight, Mathf.CeilToInt(maxSectHeight));
 
                 int x = RandomUtils.RandomOddInRange(1, parameters.CellularDimensions.x - width);
                 int y = RandomUtils.RandomOddInRange(1, parameters.CellularDimensions.y - height);
+
+                x += 2;
+                y += 2;
 
                 RectInt section = new RectInt(x, y, width, height);
 
@@ -289,7 +307,15 @@ public static class WorldGenerator
 
     public static class HallwayGenerator
     {
-        public static bool[,] GenerateHallways(Parameters parameters)
+        private static Vector2Int[] DIRECTIONS = new Vector2Int[]
+        {
+            Vector2Int.up,
+            Vector2Int.right,
+            Vector2Int.down,
+            Vector2Int.left,
+        };
+
+        public static List<Hallway> GenerateHallways(RoomLayout rooms, Parameters parameters)
         {
             // Total generated maze size is 4 units bigger per dimension, giving
             // us a 2-width wide border around the normal world size. We place
@@ -298,15 +324,97 @@ public static class WorldGenerator
             // generation, this will let us put halls around the edge of the map.
             Vector2Int gridSize = parameters.CellularDimensions + Vector2Int.one * 4;
 
+            // Generate a spanning maze
+            bool[,] maze = GenerateMaze(gridSize);
+
+            // Filter the maze, isolating cells that form pathways that lead between
+            // rooms and don't overlap rooms, also determing door cells
+            List<Hallway> validHallways = GetConnectingHallways(maze, rooms);
+
+            // Filter the hallways futher, removing redundant hallways and removing
+            // dead ends
+            List<Hallway> reducedHallways = ReduceHallways(validHallways);
+
+            return reducedHallways;
+        }
+
+        private static List<Hallway> ReduceHallways(List<Hallway> validHallways)
+        {
+            return validHallways;
+        }
+
+        private static List<Hallway> GetConnectingHallways(bool[,] maze, RoomLayout rooms)
+        {
+            Vector2Int gridSize = new Vector2Int(maze.GetLength(1), maze.GetLength(0));
+
+            bool IsRoom(Vector2Int pos) => rooms.Layout.ContainsKey(pos);
+            bool IsValid(Vector2Int pos) =>
+                pos.x >= 0 && pos.x < gridSize.x && pos.y > 0 && pos.y < gridSize.y;
+
+            IEnumerable<Vector2Int> ExpandHallway(Vector2Int startingPos)
+            {
+                HashSet<Vector2Int> walkedPositions = new HashSet<Vector2Int>();
+                Queue<Vector2Int> fringe = new Queue<Vector2Int>(new Vector2Int[] { startingPos });
+
+                while (fringe.Count > 0)
+                {
+                    var current = fringe.Dequeue();
+                    walkedPositions.Add(current);
+
+                    foreach (var dir in DIRECTIONS)
+                    {
+                        var newPos = current + dir;
+
+                        if (IsValid(newPos) && maze[newPos.y, newPos.x] && !walkedPositions.Contains(newPos) && !IsRoom(newPos))
+                            fringe.Enqueue(newPos);
+                    }
+
+                    yield return current;
+                }
+            }
+
+            bool[,] colors = new bool[maze.GetLength(0), maze.GetLength(1)];
+            List<Hallway> validHallways = new List<Hallway>();
+
+            for (int y = 0; y < maze.GetLength(0); y++)
+            {
+                for (int x = 0; x < maze.GetLength(1); x++)
+                {
+                    var position = new Vector2Int(x, y);
+
+                    // Skip if either a wall, we've traced this path before, or it's behind a room
+                    if (!maze[y, x] || colors[y, x] || IsRoom(position))
+                        continue;
+
+                    // New path: Track paths to connecting rooms
+                    var path = new List<Vector2Int>(ExpandHallway(position));
+   
+                    var doorMapping = path
+                        .SelectMany(pathPos => DIRECTIONS.Select(d => (from: pathPos, to: pathPos + d)))
+                        .Where(x => IsValid(x.to) && maze[x.to.y, x.to.x] && IsRoom(x.to))
+                        .Select(n => (entrance: n.from, room: rooms.Layout[n.to]))
+                        .ToList();
+
+                    Dictionary<Room, Vector2Int> entrances = new Dictionary<Room, Vector2Int>();
+                    foreach (var (entrance, room) in doorMapping)
+                        entrances[room] = entrance;
+
+                    if (entrances.Count > 1)
+                        validHallways.Add(new Hallway(path, entrances));
+
+                    foreach (var pathPos in path)
+                        colors[pathPos.y, pathPos.x] = true;
+                }
+            }
+
+            return validHallways;
+        }
+
+        private static bool[,] GenerateMaze(Vector2Int gridSize)
+        {
             bool[,] maze = new bool[gridSize.y, gridSize.x];
 
-            IEnumerable<Vector2Int> GetNeighbors(Vector2Int pos, bool type) => new Vector2Int[]
-                {
-                    Vector2Int.up,
-                    Vector2Int.right,
-                    Vector2Int.down,
-                    Vector2Int.left,
-                }
+            IEnumerable<Vector2Int> GetNeighbors(Vector2Int pos, bool type) => DIRECTIONS
                 .Select(dir => pos + dir * 2)
                 .Where(c => c.x >= 0 && c.x < gridSize.x)
                 .Where(c => c.y >= 0 && c.y < gridSize.y)
