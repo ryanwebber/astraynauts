@@ -308,6 +308,8 @@ public static class WorldGenerator
 
     public static class HallwayGenerator
     {
+        private static int MAX_BINARY_PAIRED_HALLWAYS = 1;
+
         private static Vector2Int[] DIRECTIONS = new Vector2Int[]
         {
         Vector2Int.up,
@@ -342,6 +344,7 @@ public static class WorldGenerator
         private static List<Hallway> ReduceHallways(List<Hallway> validHallways)
         {
             List<Hallway> newHallways = new List<Hallway>();
+            Dictionary<Tuple<Room, Room>, int> binaryPairs = new Dictionary<Tuple<Room, Room>, int>();
 
             HashSet<Vector2Int> SearchPath(Vector2Int start, Vector2Int end, ISet<Vector2Int> path)
             {
@@ -372,6 +375,20 @@ public static class WorldGenerator
                 return new HashSet<Vector2Int>();
             }
 
+            bool ShouldIncludeBinaryPair(Room a, Room b)
+            {
+                int count = 0;
+
+                if (binaryPairs.TryGetValue(Tuple.Create(a, b), out var count1))
+                    count += count1;
+
+                if (binaryPairs.TryGetValue(Tuple.Create(b, a), out var count2))
+                    count += count2;
+
+                // Count of 1 means we already did one. So this is strictly less-than
+                return count < MAX_BINARY_PAIRED_HALLWAYS;
+            }
+
             foreach (var hallway in validHallways)
             {
                 var someDoor = hallway.DoorMapping.Values.First(_ => true);
@@ -381,7 +398,17 @@ public static class WorldGenerator
                 // but we want to keep the path
                 if (hallway.Path.Count == 1)
                 {
-                    newHallways.Add(hallway);
+                    var rooms = hallway.DoorMapping.Keys.ToArray();
+                    Assert.AreEqual(rooms.Length, 2);
+                    if (ShouldIncludeBinaryPair(rooms[0], rooms[1]))
+                    {
+                        newHallways.Add(hallway);
+
+                        var tuple = Tuple.Create(rooms[0], rooms[1]);
+                        binaryPairs.TryGetValue(tuple, out int newCount);
+                        binaryPairs[tuple] = newCount + 1;
+                    }
+                    
                     continue;
                 }
 
