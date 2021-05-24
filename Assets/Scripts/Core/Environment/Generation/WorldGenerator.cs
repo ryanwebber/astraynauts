@@ -172,10 +172,10 @@ public static class WorldGenerator
 
     public class Hallway
     {
-        private List<Vector2Int> path;
-        private Dictionary<Room, Vector2Int> doorMapping;
+        private HashSet<Vector2Int> path;
+        private IReadOnlyDictionary<Room, Vector2Int> doorMapping;
 
-        public Hallway(List<Vector2Int> path, Dictionary<Room, Vector2Int> doorMapping)
+        public Hallway(HashSet<Vector2Int> path, IReadOnlyDictionary<Room, Vector2Int> doorMapping)
         {
             this.path = path;
             this.doorMapping = doorMapping;
@@ -183,6 +183,7 @@ public static class WorldGenerator
 
         public IEnumerable<Vector2Int> GetCells() => path;
         public IReadOnlyDictionary<Room, Vector2Int> DoorMapping => doorMapping;
+        public ISet<Vector2Int> Path => path;
     }
 
     private static class RandomUtils
@@ -309,10 +310,10 @@ public static class WorldGenerator
     {
         private static Vector2Int[] DIRECTIONS = new Vector2Int[]
         {
-            Vector2Int.up,
-            Vector2Int.right,
-            Vector2Int.down,
-            Vector2Int.left,
+        Vector2Int.up,
+        Vector2Int.right,
+        Vector2Int.down,
+        Vector2Int.left,
         };
 
         public static List<Hallway> GenerateHallways(RoomLayout rooms, Parameters parameters)
@@ -340,7 +341,59 @@ public static class WorldGenerator
 
         private static List<Hallway> ReduceHallways(List<Hallway> validHallways)
         {
-            return validHallways;
+            List<Hallway> newHallways = new List<Hallway>();
+
+            HashSet<Vector2Int> SearchPath(Vector2Int start, Vector2Int end, ISet<Vector2Int> path)
+            {
+                Queue<List<Vector2Int>> candidates = new Queue<List<Vector2Int>>();
+                candidates.Enqueue(new List<Vector2Int>(new Vector2Int[] { start }));
+
+                while (candidates.Count > 0)
+                {
+                    var walk = candidates.Dequeue();
+                    var lastStep = walk[walk.Count - 1];
+                    if (lastStep == end)
+                        return new HashSet<Vector2Int>(walk);
+
+                    var neighbors = DIRECTIONS
+                        .Select(d => lastStep + d)
+                        .Where(c => path.Contains(c));
+
+                    foreach (var neighbor in neighbors)
+                    {
+                        var newPath = new List<Vector2Int>(walk);
+                        newPath.Add(neighbor);
+                        candidates.Enqueue(newPath);
+                    }
+                }
+
+                Assert.IsTrue(false, "Unable to find a subpath between doors");
+
+                return new HashSet<Vector2Int>();
+            }
+
+            foreach (var hallway in validHallways)
+            {
+                var someDoor = hallway.DoorMapping.Values.First(_ => true);
+                HashSet<Vector2Int> newPath = new HashSet<Vector2Int>();
+
+                // Special case is only one door, there's no path to search for,
+                // but we want to keep the path
+                if (hallway.Path.Count == 1)
+                {
+                    newHallways.Add(hallway);
+                    continue;
+                }
+
+                foreach (var destDoor in hallway.DoorMapping.Values.Where(d => d != someDoor))
+                {
+                    newPath.UnionWith(SearchPath(someDoor, destDoor, hallway.Path));
+                }
+
+                newHallways.Add(new Hallway(newPath, hallway.DoorMapping));
+            }
+
+            return newHallways;
         }
 
         private static List<Hallway> GetConnectingHallways(bool[,] maze, RoomLayout rooms)
@@ -387,8 +440,8 @@ public static class WorldGenerator
                         continue;
 
                     // New path: Track paths to connecting rooms
-                    var path = new List<Vector2Int>(ExpandHallway(position));
-   
+                    var path = new HashSet<Vector2Int>(ExpandHallway(position));
+
                     var doorMapping = path
                         .SelectMany(pathPos => DIRECTIONS.Select(d => (from: pathPos, to: pathPos + d)))
                         .Where(x => IsValid(x.to) && maze[x.to.y, x.to.x] && IsRoom(x.to))
@@ -457,7 +510,7 @@ public static class WorldGenerator
             return maze;
         }
     }
-    
+
     public static RoomLayout Generate(Parameters parameters)
     {
         return RoomGenerator.GenerateRooms(parameters);
