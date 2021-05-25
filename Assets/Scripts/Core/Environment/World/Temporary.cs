@@ -26,8 +26,8 @@ public class Temporary : MonoBehaviour
     private void GenerateWorld()
     {
         rooms = Profile.Debug("Generate World Layout", () => WorldGenerator.Generate(generationParameters));
-        hallways = WorldGenerator.HallwayGenerator.GenerateHallways(rooms, generationParameters);
-    }    
+        hallways = Profile.Debug("Generate Hallways", () => WorldGenerator.HallwayGenerator.GenerateHallways(rooms, generationParameters));
+    }
 
     private void OnDrawGizmos()
     {

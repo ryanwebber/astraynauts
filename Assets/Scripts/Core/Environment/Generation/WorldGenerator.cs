@@ -364,6 +364,10 @@ public static class WorldGenerator
 
                     foreach (var neighbor in neighbors)
                     {
+                        // Don't double back
+                        if (walk.Count > 1 && walk[walk.Count - 2] == neighbor)
+                            continue;
+
                         var newPath = new List<Vector2Int>(walk);
                         newPath.Add(neighbor);
                         candidates.Enqueue(newPath);
