@@ -703,7 +703,7 @@ MonoBehaviour:
   layoutScale: {x: 4, y: 4}
   floorSettings:
     tilemap: {fileID: 1481187380}
-    tiles: {fileID: 11400000, guid: a0e940a5735324183a419452bea1c169, type: 2}
+    tiles: {fileID: 11400000, guid: 33f6a763aaf4543e58132bc8d2721cff, type: 2}
 --- !u!1 &1125299371
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,17 +16,17 @@ MonoBehaviour:
   - tile: {fileID: 11400000, guid: 18cb7d825e1864017be6d548ec8e1e6b, type: 2}
     weight: 10
   - tile: {fileID: 11400000, guid: dceeb9375bc56474480512129ce90d7e, type: 2}
-    weight: 10
+    weight: 4
   - tile: {fileID: 11400000, guid: 20f8eb22ed904491aaa78c71c0b4df45, type: 2}
     weight: 10
   - tile: {fileID: 11400000, guid: f41af95bfd442446487c0df81a015f65, type: 2}
     weight: 10
   - tile: {fileID: 11400000, guid: d0f3025948e144dcc875dddf628c4fbc, type: 2}
-    weight: 4
+    weight: 2
   - tile: {fileID: 11400000, guid: 1c9947b955f8b493a8bdaeb7832512ef, type: 2}
-    weight: 4
+    weight: 2
   - tile: {fileID: 11400000, guid: 633a50e8b624345b0bdd5b14cb636b45, type: 2}
-    weight: 10
+    weight: 4
   - tile: {fileID: 11400000, guid: 4e40af1653c3947a2ad52127297fecc6, type: 2}
     weight: 10
   - tile: {fileID: 11400000, guid: 488d9ba3863ca49a6b6e4dcd1d3e090f, type: 2}

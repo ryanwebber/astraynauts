@@ -2,9 +2,19 @@
 using System.Collections;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
+using System;
 
 public class WorldLoader : MonoBehaviour
 {
+    private struct TileAssignment: IOperation
+    {
+        public TileBase tile;
+        public Vector2Int position;
+        public Tilemap tilemap;
+
+        public void Perform() => tilemap?.SetTile((Vector3Int)position, tile);
+    }
+
     [System.Serializable]
     public class FloorSettings
     {
@@ -23,13 +33,22 @@ public class WorldLoader : MonoBehaviour
 
     public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action completion)
     {
-        PlaceFloors(layout);
+        StartCoroutine(LoadWorldDistributed(layout, completion));
     }
 
-    private void PlaceFloors(WorldGenerator.WorldLayout layout)
+    private IEnumerator LoadWorldDistributed(WorldGenerator.WorldLayout layout, System.Action completion)
     {
-        Debug.Log("Generating floor tiles...");
-        
+        var loadFloorsOperation = PlaceFloors(layout);
+        var loader = new SafeLoader(loadFloorsOperation);
+
+        foreach (var y in loader.SparseLoad<YieldInstruction>(null))
+        {
+            yield return y;
+        }
+    }
+
+    private IEnumerable<IOperation> PlaceFloors(WorldGenerator.WorldLayout layout)
+    {   
         var tileset = floorSettings.tiles.AsCollection();
         foreach (var room in layout.rooms.AllRooms)
         {
@@ -37,7 +56,12 @@ public class WorldLoader : MonoBehaviour
             {
                 foreach (var position in GetScaled(cell))
                 {
-                    floorSettings.tilemap.SetTile((Vector3Int)position, tileset.NextValue());
+                    yield return new TileAssignment
+                    {
+                        tile = tileset.NextValue(),
+                        position = position,
+                        tilemap = floorSettings.tilemap
+                    };
                 }
             }
         }
@@ -48,12 +72,17 @@ public class WorldLoader : MonoBehaviour
             {
                 foreach (var position in GetScaled(cell))
                 {
-                    floorSettings.tilemap.SetTile((Vector3Int)position, tileset.NextValue());
+                    yield return new TileAssignment
+                    {
+                        tile = tileset.NextValue(),
+                        position = position,
+                        tilemap = floorSettings.tilemap
+                    };
                 }
             }
         }
 
-        floorSettings.tilemap.CompressBounds();
+        yield return new LambdaOperation(floorSettings.tilemap.CompressBounds);
     }
 
     private IEnumerable<Vector2Int> GetScaled(Vector2Int cell)
