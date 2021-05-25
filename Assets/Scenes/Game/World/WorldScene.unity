@@ -700,6 +700,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5a1fe33ba7d843a79e951633b8586d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layoutScale: {x: 4, y: 4}
   floorSettings:
     tilemap: {fileID: 1481187380}
     tiles: {fileID: 11400000, guid: a0e940a5735324183a419452bea1c169, type: 2}
