@@ -9,8 +9,7 @@ public class Temporary : MonoBehaviour
     [SerializeField]
     private WorldGenerator.Parameters generationParameters;
 
-    private RoomLayout rooms;
-    private List<Hallway> hallways;
+    private WorldLayout world;
 
     private void Awake()
     {
@@ -25,13 +24,12 @@ public class Temporary : MonoBehaviour
 
     private void GenerateWorld()
     {
-        rooms = Profile.Debug("Generate World Layout", () => WorldGenerator.Generate(generationParameters));
-        hallways = Profile.Debug("Generate Hallways", () => WorldGenerator.HallwayGenerator.GenerateHallways(rooms, generationParameters));
+        world = Profile.Debug("Generate World Layout", () => WorldGenerator.Generate(generationParameters));
     }
 
     private void OnDrawGizmos()
     {
-        if (rooms == null)
+        if (world == null)
             return;
 
         Vector2Int gridSize = generationParameters.CellularDimensions + Vector2Int.one * 4;
@@ -39,7 +37,7 @@ public class Temporary : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(0.5f * new Vector3(gridSize.x, gridSize.y, 0f), new Vector3(gridSize.x, gridSize.y, 1f));
 
-        foreach (var room in rooms.AllRooms)
+        foreach (var room in world.rooms.AllRooms)
         {
             var hue = Mathf.Abs(room.GetHashCode());
             var color = Color.HSVToRGB(Mathf.Clamp01((hue % 255) / 255f), 1, 1);
@@ -51,13 +49,10 @@ public class Temporary : MonoBehaviour
             }
         }
 
-        if (hallways == null)
-            return;
-
         Gizmos.color = new Color(1f, 1f, 1f, 0.5f);
 
         HashSet<Vector2Int> doors = new HashSet<Vector2Int>();
-        foreach (var hallway in hallways)
+        foreach (var hallway in world.hallways)
         {
             doors.Clear();
             foreach (var door in hallway.DoorMapping.Values)

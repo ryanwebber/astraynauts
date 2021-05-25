@@ -76,6 +76,18 @@ public static class WorldGenerator
         }
     }
 
+    public class WorldLayout
+    {
+        public readonly RoomLayout rooms;
+        public readonly List<Hallway> hallways;
+
+        public WorldLayout(RoomLayout rooms, List<Hallway> hallways)
+        {
+            this.rooms = rooms;
+            this.hallways = hallways;
+        }
+    }
+
     public class Room
     {
         private List<RectInt> sections;
@@ -306,7 +318,7 @@ public static class WorldGenerator
         }
     }
 
-    public static class HallwayGenerator
+    private static class HallwayGenerator
     {
         private static int MAX_BINARY_PAIRED_HALLWAYS = 1;
 
@@ -542,8 +554,10 @@ public static class WorldGenerator
         }
     }
 
-    public static RoomLayout Generate(Parameters parameters)
+    public static WorldLayout Generate(Parameters parameters)
     {
-        return RoomGenerator.GenerateRooms(parameters);
+        var rooms = RoomGenerator.GenerateRooms(parameters);
+        var hallways = HallwayGenerator.GenerateHallways(rooms, parameters);
+        return new WorldLayout(rooms, hallways);
     }
 }
