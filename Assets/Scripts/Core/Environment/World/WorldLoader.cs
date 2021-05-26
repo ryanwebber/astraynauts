@@ -23,7 +23,13 @@ public class WorldLoader : MonoBehaviour
         public Tilemap tilemap;
 
         [SerializeField]
-        public TileBase tiles;
+        public TileDistribution ceilingTiles;
+
+        [SerializeField]
+        public TileDistribution northWallTiles;
+
+        [SerializeField]
+        public TileDistribution southWallTiles;
     }
 
     [System.Serializable]
@@ -61,14 +67,24 @@ public class WorldLoader : MonoBehaviour
         {
             yield return y;
         }
+ 
+        // TODO: Delete me
+        foreach (var door in layout.hallways.SelectMany(h => h.Path).SelectMany(GetScaled))
+        {
+            floorSettings.tilemap.SetTileFlags(new Vector3Int(door.x, door.y, 0), TileFlags.None);
+            floorSettings.tilemap.SetColor(new Vector3Int(door.x, door.y, 0), Color.yellow);
+        }
     }
 
     private IEnumerable<IOperation> PlaceWalls(WorldGenerator.WorldLayout layout)
     {
-        var tileset = wallSettings.tiles;
+        var ceilingTileset = wallSettings.ceilingTiles.AsCollection();
+        var northWallTileset = wallSettings.northWallTiles.AsCollection();
+        var southWallTileset = wallSettings.southWallTiles.AsCollection();
         var tilemap = wallSettings.tilemap;
 
         HashSet<Vector2Int> allFloors = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> rejectPositions = new HashSet<Vector2Int>();
 
         IEnumerable<IOperation> GenerateWallsNeighboring(Vector2Int cell)
         {
@@ -81,11 +97,11 @@ public class WorldLoader : MonoBehaviour
 
             if (IsEmpty(Vector2Int.left))
             {
-                foreach (var position in WalkScaled(from: cell * layoutScale + Vector2Int.left, Vector2Int.up))
+                foreach (var position in WalkScaled(from: cell * layoutScale + Vector2Int.left, Vector2Int.up).Where(p => !rejectPositions.Contains(p)))
                 {
                     yield return new TileAssignment
                     {
-                        tile = tileset,
+                        tile = ceilingTileset.NextValue(),
                         tilemap = tilemap,
                         position = position
                     };
@@ -94,11 +110,11 @@ public class WorldLoader : MonoBehaviour
 
             if (IsEmpty(Vector2Int.right))
             {
-                foreach (var position in WalkScaled(from: (cell + Vector2Int.right) * layoutScale, Vector2Int.up))
+                foreach (var position in WalkScaled(from: (cell + Vector2Int.right) * layoutScale, Vector2Int.up).Where(p => !rejectPositions.Contains(p)))
                 {
                     yield return new TileAssignment
                     {
-                        tile = tileset,
+                        tile = ceilingTileset.NextValue(),
                         tilemap = tilemap,
                         position = position
                     };
@@ -111,9 +127,16 @@ public class WorldLoader : MonoBehaviour
                 {
                     yield return new TileAssignment
                     {
-                        tile = tileset,
+                        tile = ceilingTileset.NextValue(),
                         tilemap = tilemap,
                         position = position
+                    };
+
+                    yield return new TileAssignment
+                    {
+                        tile = southWallTileset.NextValue(),
+                        tilemap = tilemap,
+                        position = position + Vector2Int.up
                     };
                 }
             }
@@ -124,11 +147,77 @@ public class WorldLoader : MonoBehaviour
                 {
                     yield return new TileAssignment
                     {
-                        tile = tileset,
+                        tile = ceilingTileset.NextValue(),
+                        tilemap = tilemap,
+                        position = position + Vector2Int.up
+                    };
+
+                    yield return new TileAssignment
+                    {
+                        tile = northWallTileset.NextValue(),
                         tilemap = tilemap,
                         position = position
                     };
+
+                    // North wall doesn't want to be overwritten by left/right checked ceil tiles
+                    rejectPositions.Add(position);
                 }
+            }
+
+            if (IsEmpty(Vector2Int.up) && IsEmpty(Vector2Int.right))
+            {
+                yield return new TileAssignment
+                {
+                    tile = ceilingTileset.NextValue(),
+                    tilemap = tilemap,
+                    position = (cell + Vector2Int.one) * layoutScale
+                };
+
+                // Upper corners are 2 ceil tiles tall
+                yield return new TileAssignment
+                {
+                    tile = ceilingTileset.NextValue(),
+                    tilemap = tilemap,
+                    position = (cell + Vector2Int.one) * layoutScale + Vector2Int.up
+                };
+            }
+
+            if (IsEmpty(Vector2Int.down) && IsEmpty(Vector2Int.right))
+            {
+                yield return new TileAssignment
+                {
+                    tile = ceilingTileset.NextValue(),
+                    tilemap = tilemap,
+                    position = cell * layoutScale + Vector2Int.down + Vector2Int.right * layoutScale
+                };
+            }
+
+            if (IsEmpty(Vector2Int.down) && IsEmpty(Vector2Int.left))
+            {
+                yield return new TileAssignment
+                {
+                    tile = ceilingTileset.NextValue(),
+                    tilemap = tilemap,
+                    position = cell * layoutScale + Vector2Int.down + Vector2Int.left
+                };
+            }
+
+            if (IsEmpty(Vector2Int.up) && IsEmpty(Vector2Int.left))
+            {
+                yield return new TileAssignment
+                {
+                    tile = ceilingTileset.NextValue(),
+                    tilemap = tilemap,
+                    position = cell * layoutScale + Vector2Int.up * layoutScale + Vector2Int.left
+                };
+
+                // Upper corners are 2 ceil tiles tall
+                yield return new TileAssignment
+                {
+                    tile = ceilingTileset.NextValue(),
+                    tilemap = tilemap,
+                    position = cell * layoutScale + Vector2Int.up * layoutScale + Vector2Int.up + Vector2Int.left
+                };
             }
         }
 

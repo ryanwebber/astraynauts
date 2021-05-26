@@ -320,8 +320,6 @@ public static class WorldGenerator
 
     private static class HallwayGenerator
     {
-        private static int MAX_BINARY_PAIRED_HALLWAYS = 1;
-
         private static Vector2Int[] DIRECTIONS = new Vector2Int[]
         {
         Vector2Int.up,
@@ -355,9 +353,6 @@ public static class WorldGenerator
 
         private static List<Hallway> ReduceHallways(List<Hallway> validHallways)
         {
-            List<Hallway> newHallways = new List<Hallway>();
-            Dictionary<Tuple<Room, Room>, int> binaryPairs = new Dictionary<Tuple<Room, Room>, int>();
-
             HashSet<Vector2Int> SearchPath(Vector2Int start, Vector2Int end, ISet<Vector2Int> path)
             {
                 Queue<List<Vector2Int>> candidates = new Queue<List<Vector2Int>>();
@@ -391,49 +386,47 @@ public static class WorldGenerator
                 return new HashSet<Vector2Int>();
             }
 
-            bool ShouldIncludeBinaryPair(Room a, Room b)
+            Hallway GetSimplifiedHallway(Hallway hallway)
             {
-                int count = 0;
+                if (hallway.Path.Count == 1)
+                    return hallway;
 
-                if (binaryPairs.TryGetValue(Tuple.Create(a, b), out var count1))
-                    count += count1;
-
-                if (binaryPairs.TryGetValue(Tuple.Create(b, a), out var count2))
-                    count += count2;
-
-                // Count of 1 means we already did one. So this is strictly less-than
-                return count < MAX_BINARY_PAIRED_HALLWAYS;
-            }
-
-            foreach (var hallway in validHallways)
-            {
-                var someDoor = hallway.DoorMapping.Values.First(_ => true);
+                var someDoor = hallway.DoorMapping.First(_ => true);
                 HashSet<Vector2Int> newPath = new HashSet<Vector2Int>();
 
-                // Special case is only one door, there's no path to search for,
-                // but we want to keep the path
-                if (hallway.Path.Count == 1)
-                {
-                    var rooms = hallway.DoorMapping.Keys.ToArray();
-                    Assert.AreEqual(rooms.Length, 2);
-                    if (ShouldIncludeBinaryPair(rooms[0], rooms[1]))
-                    {
-                        newHallways.Add(hallway);
+                foreach (var destDoor in hallway.DoorMapping.Where(d => d.Value != someDoor.Value))
+                    newPath.UnionWith(SearchPath(someDoor.Value, destDoor.Value, hallway.Path));
 
-                        var tuple = Tuple.Create(rooms[0], rooms[1]);
-                        binaryPairs.TryGetValue(tuple, out int newCount);
-                        binaryPairs[tuple] = newCount + 1;
-                    }
-                    
-                    continue;
-                }
+                return new Hallway(newPath, hallway.DoorMapping);
+            }
 
-                foreach (var destDoor in hallway.DoorMapping.Values.Where(d => d != someDoor))
-                {
-                    newPath.UnionWith(SearchPath(someDoor, destDoor, hallway.Path));
-                }
+            List<Hallway> newHallways = new List<Hallway>();
+            HashSet<Room> remainingRooms = new HashSet<Room>();
+            foreach (var room in validHallways.SelectMany(h => h.DoorMapping.Keys))
+                remainingRooms.Add(room);
 
-                newHallways.Add(new Hallway(newPath, hallway.DoorMapping));
+            // First remove a random room. This will seed the connected room set
+            remainingRooms.Remove(remainingRooms.First(_ => true));
+
+            // Iterate until we've connected every room with a hallway
+            while (remainingRooms.Count > 0)
+            {
+                // Get all the hallways that will connect a connected room to a disconnected room
+                var fringeHallways = validHallways
+                    .Where(h => h.DoorMapping.Keys.Any(r => !remainingRooms.Contains(r)))
+                    .Where(h => h.DoorMapping.Keys.Any(r => remainingRooms.Contains(r)))
+                    .ToArray();
+
+                // Pick a random hallway from that list
+                var selectedHallway = fringeHallways[Random.Range(0, fringeHallways.Length)];
+
+                // Remove every room the hallway connects from the disconnected room set
+                IEnumerable<Room> connectedRooms = selectedHallway.DoorMapping.Keys;
+                foreach (var room in connectedRooms.Where(remainingRooms.Contains))
+                    remainingRooms.Remove(room);
+
+                // Finally, add the simplified (dead-ends removed) hallway
+                newHallways.Add(GetSimplifiedHallway(selectedHallway));
             }
 
             return newHallways;

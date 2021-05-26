@@ -19,9 +19,9 @@ MonoBehaviour:
     MaximumCellularSectorSize: {x: 5, y: 5}
     MaximumRoomSizeScale: 6
     MinimumSectorOverlapWidth: 1
-    MaximumSectionsPerRoom: 8
+    MaximumSectionsPerRoom: 4
     RoomDensity:
-      value: 0.2
+      value: 0.1
     SectorSizeDecay:
       serializedVersion: 2
       m_Curve:
