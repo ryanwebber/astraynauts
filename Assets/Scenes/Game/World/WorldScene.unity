@@ -700,10 +700,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5a1fe33ba7d843a79e951633b8586d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layoutScale: {x: 4, y: 4}
+  layoutScale: 4
   floorSettings:
     tilemap: {fileID: 1481187380}
     tiles: {fileID: 11400000, guid: 33f6a763aaf4543e58132bc8d2721cff, type: 2}
+  wallSettings:
+    tilemap: {fileID: 1232315633}
+    tiles: {fileID: 11400000, guid: ecc8ae264de034f2abdb18ccf25d0ab4, type: 2}
 --- !u!1 &1125299371
 GameObject:
   m_ObjectHideFlags: 0
@@ -856,7 +859,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
