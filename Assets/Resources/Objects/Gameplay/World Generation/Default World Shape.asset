@@ -20,6 +20,8 @@ MonoBehaviour:
     MaximumRoomSizeScale: 6
     MinimumSectorOverlapWidth: 1
     MaximumSectionsPerRoom: 4
+    BonusHallwaySpawnChance: 0.25
+    MaximumBonusHallways: 4
     RoomDensity:
       value: 0.1
     SectorSizeDecay:

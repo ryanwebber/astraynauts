@@ -40,8 +40,18 @@ public static class WorldGenerator
 
         [SerializeField]
         [Min(1)]
-        [Tooltip("Determines how rectangular rooms will be.")]
+        [Tooltip("Determines how rectangular rooms will be")]
         public int MaximumSectionsPerRoom = 4;
+
+        [SerializeField]
+        [Range(0f, 1f)]
+        [Tooltip("Determines the number of extra hallways generated")]
+        public float BonusHallwaySpawnChance = 0.1f;
+
+        [SerializeField]
+        [Min(0)]
+        [Tooltip("Determines the maximum number of bonus hallways generated")]
+        public int MaximumBonusHallways = 4;
 
         [SerializeField]
         [Tooltip("How densely populated the world will be with rooms")]
@@ -346,12 +356,12 @@ public static class WorldGenerator
 
             // Filter the hallways futher, removing redundant hallways and removing
             // dead ends
-            List<Hallway> reducedHallways = ReduceHallways(validHallways);
+            List<Hallway> reducedHallways = ReduceHallways(validHallways, parameters);
 
             return reducedHallways;
         }
 
-        private static List<Hallway> ReduceHallways(List<Hallway> validHallways)
+        private static List<Hallway> ReduceHallways(List<Hallway> validHallways, Parameters parameters)
         {
             HashSet<Vector2Int> SearchPath(Vector2Int start, Vector2Int end, ISet<Vector2Int> path)
             {
@@ -402,6 +412,7 @@ public static class WorldGenerator
 
             List<Hallway> newHallways = new List<Hallway>();
             HashSet<Room> remainingRooms = new HashSet<Room>();
+            HashSet<Hallway> pickedHallwayOriginals = new HashSet<Hallway>();
             foreach (var room in validHallways.SelectMany(h => h.DoorMapping.Keys))
                 remainingRooms.Add(room);
 
@@ -427,6 +438,21 @@ public static class WorldGenerator
 
                 // Finally, add the simplified (dead-ends removed) hallway
                 newHallways.Add(GetSimplifiedHallway(selectedHallway));
+
+                // Also keep track of the original hallway we chose
+                pickedHallwayOriginals.Add(selectedHallway);
+            }
+
+            int numBonusHallways = 0;
+
+            // Add in some bonus hallways
+            foreach (var bonusHallway in validHallways.Where(h => !pickedHallwayOriginals.Contains(h)))
+            {
+                if (Random.value < parameters.BonusHallwaySpawnChance && numBonusHallways < parameters.MaximumBonusHallways)
+                {
+                    newHallways.Add(GetSimplifiedHallway(bonusHallway));
+                    numBonusHallways++;
+                }
             }
 
             return newHallways;
