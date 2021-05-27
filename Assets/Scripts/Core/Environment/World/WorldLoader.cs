@@ -33,6 +33,16 @@ public class WorldLoader : MonoBehaviour
     }
 
     [System.Serializable]
+    public class CollisionSettings
+    {
+        [SerializeField]
+        public Tilemap tilemap;
+
+        [SerializeField]
+        public TileBase tile;
+    }
+
+    [System.Serializable]
     public class FloorSettings
     {
         [SerializeField]
@@ -50,6 +60,9 @@ public class WorldLoader : MonoBehaviour
 
     [SerializeField]
     private WallSettings wallSettings;
+
+    [SerializeField]
+    private CollisionSettings collisionSettings;
 
     public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action completion)
     {
@@ -86,6 +99,8 @@ public class WorldLoader : MonoBehaviour
         HashSet<Vector2Int> allFloors = new HashSet<Vector2Int>();
         HashSet<Vector2Int> rejectPositions = new HashSet<Vector2Int>();
 
+        HashSet<Vector2Int> collisionTiles = new HashSet<Vector2Int>();
+
         IEnumerable<IOperation> GenerateWallsNeighboring(Vector2Int cell)
         {
             bool IsEmpty(Vector2Int direction) => !allFloors.Contains(cell + direction);
@@ -105,6 +120,8 @@ public class WorldLoader : MonoBehaviour
                         tilemap = tilemap,
                         position = position
                     };
+
+                    collisionTiles.Add(position);
                 }
             }
 
@@ -118,6 +135,8 @@ public class WorldLoader : MonoBehaviour
                         tilemap = tilemap,
                         position = position
                     };
+
+                    collisionTiles.Add(position);
                 }
             }
 
@@ -138,6 +157,8 @@ public class WorldLoader : MonoBehaviour
                         tilemap = tilemap,
                         position = position + Vector2Int.up
                     };
+
+                    collisionTiles.Add(position);
                 }
             }
 
@@ -161,6 +182,8 @@ public class WorldLoader : MonoBehaviour
 
                     // North wall doesn't want to be overwritten by left/right checked ceil tiles
                     rejectPositions.Add(position);
+
+                    collisionTiles.Add(position);
                 }
             }
 
@@ -227,7 +250,18 @@ public class WorldLoader : MonoBehaviour
         foreach (var floor in Enumerable.Concat(floorCells, hallwayCells))
             allFloors.Add(floor);
 
-        return Enumerable.Concat(floorCells, hallwayCells).SelectMany(GenerateWallsNeighboring);
+        IEnumerable<IOperation> wallPlacement = Enumerable.Concat(floorCells, hallwayCells).SelectMany(GenerateWallsNeighboring);
+        IEnumerable<IOperation> collisionPlacement = collisionTiles.Select(position =>
+        {
+            return (IOperation) new TileAssignment
+            {
+                position = position,
+                tile = collisionSettings.tile,
+                tilemap = collisionSettings.tilemap
+            };
+        });
+
+        return Enumerable.Concat(wallPlacement, collisionPlacement);
     }
 
     private IEnumerable<IOperation> PlaceFloors(WorldGenerator.WorldLayout layout)
