@@ -64,12 +64,12 @@ public class WorldLoader : MonoBehaviour
     [SerializeField]
     private CollisionSettings collisionSettings;
 
-    public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action completion)
+    public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action<World> completion)
     {
         StartCoroutine(LoadWorldDistributed(layout, completion));
     }
 
-    private IEnumerator LoadWorldDistributed(WorldGenerator.WorldLayout layout, System.Action completion)
+    private IEnumerator LoadWorldDistributed(WorldGenerator.WorldLayout layout, System.Action<World> completion)
     {
         var loadFloorsOperation = PlaceFloors(layout);
         var loadWallsOperation = PlaceWalls(layout);
@@ -82,11 +82,14 @@ public class WorldLoader : MonoBehaviour
         }
  
         // TODO: Delete me
-        foreach (var door in layout.hallways.SelectMany(h => h.Path).SelectMany(GetScaled))
+        foreach (var door in layout.Hallways.SelectMany(h => h.Path).SelectMany(GetScaled))
         {
             floorSettings.tilemap.SetTileFlags(new Vector3Int(door.x, door.y, 0), TileFlags.None);
             floorSettings.tilemap.SetColor(new Vector3Int(door.x, door.y, 0), Color.yellow);
         }
+
+        World world = new World(layout, layoutScale);
+        completion?.Invoke(world);
     }
 
     private IEnumerable<IOperation> PlaceWalls(WorldGenerator.WorldLayout layout)
@@ -244,8 +247,8 @@ public class WorldLoader : MonoBehaviour
             }
         }
 
-        var floorCells = layout.rooms.AllRooms.SelectMany(r => r.GetAllCells());
-        var hallwayCells = layout.hallways.SelectMany(h => h.Path);
+        var floorCells = layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells());
+        var hallwayCells = layout.Hallways.SelectMany(h => h.Path);
 
         foreach (var floor in Enumerable.Concat(floorCells, hallwayCells))
             allFloors.Add(floor);
@@ -268,8 +271,8 @@ public class WorldLoader : MonoBehaviour
     {   
         var tileset = floorSettings.tiles.AsCollection();
 
-        var floorCells = layout.rooms.AllRooms.SelectMany(r => r.GetAllCells());
-        var hallwayCells = layout.hallways.SelectMany(h => h.Path);
+        var floorCells = layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells());
+        var hallwayCells = layout.Hallways.SelectMany(h => h.Path);
         var expandedPositions = Enumerable.Concat(floorCells, hallwayCells).SelectMany(GetScaled);
 
         return expandedPositions.Select(position => (IOperation) new TileAssignment

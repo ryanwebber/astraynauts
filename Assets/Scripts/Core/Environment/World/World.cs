@@ -1,30 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
-[RequireComponent(typeof(WorldLoader))]
-public class World : MonoBehaviour
+public class World
 {
-    [SerializeField]
-    WorldShapeParameters worldShape;
+    public readonly WorldGenerator.WorldLayout Layout;
+    public readonly int LayoutScale;
 
-    private WorldLoader loader;
-
-    private void Awake()
+    public World(WorldGenerator.WorldLayout layout, int layoutScale)
     {
-        loader = GetComponent<WorldLoader>();
+        Layout = layout;
+        LayoutScale = layoutScale;
     }
 
-    private void Start()
+    public Vector2 CellToWorldPosition(Vector2 cell)
     {
-        // Need to make world generator thread safe (random)
-        var layout = WorldGenerator.Generate(worldShape.Parameters);
-        loader.LoadWorld(layout, OnWorldLoadComplete);
-    }
-
-    private void OnWorldLoadComplete()
-    {
-
+        return cell * LayoutScale;
     }
 }

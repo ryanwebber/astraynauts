@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public interface IDebugSceneSeeder
 {
-    public void SetContext<T>(T context);
+    public void AddContext<T>(T context);
     public SceneStoreKey Initialize<T>(T prefab) where T: Component;
 }
 
@@ -30,7 +30,7 @@ public class DebugSceneSeeder : IDebugSceneSeeder
         this.reverseGameObjectStore = new Dictionary<GameObject, SceneStoreKey>();
     }
 
-    public void SetContext<T>(T context)
+    public void AddContext<T>(T context)
     {
         contextStore.Add(typeof(T), context);
     }

@@ -88,13 +88,15 @@ public static class WorldGenerator
 
     public class WorldLayout
     {
-        public readonly RoomLayout rooms;
-        public readonly List<Hallway> hallways;
+        public readonly RoomLayout Rooms;
+        public readonly List<Hallway> Hallways;
+        public readonly Parameters Parameters;
 
-        public WorldLayout(RoomLayout rooms, List<Hallway> hallways)
+        public WorldLayout(RoomLayout rooms, List<Hallway> hallways, Parameters parameters)
         {
-            this.rooms = rooms;
-            this.hallways = hallways;
+            this.Rooms = rooms;
+            this.Hallways = hallways;
+            this.Parameters = parameters;
         }
     }
 
@@ -577,6 +579,6 @@ public static class WorldGenerator
     {
         var rooms = RoomGenerator.GenerateRooms(parameters);
         var hallways = HallwayGenerator.GenerateHallways(rooms, parameters);
-        return new WorldLayout(rooms, hallways);
+        return new WorldLayout(rooms, hallways, parameters);
     }
 }
