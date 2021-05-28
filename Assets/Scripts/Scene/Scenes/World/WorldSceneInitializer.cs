@@ -38,9 +38,9 @@ public class WorldSceneInitializer : MonoBehaviour
         var worldLayout = WorldGenerator.Generate(worldShape.Parameters);
         worldLoader.LoadWorld(worldLayout, (world) => {
 
-            // TODO: instantiate the player controls as a prefab for editor mode
-            // and bind the camera in a camera controller
+            virtualCamera.PreviousStateIsValid = false;
             virtualCamera.Follow = cameraTarget;
+
             inputBinder.Bind(inputSource.MainSource);
 
             var rooms = worldLayout.Rooms.AllRooms.ToList();
