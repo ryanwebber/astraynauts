@@ -1,43 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class StateMachine
+public abstract class State<T>
 {
-    private IStateRunnable state;
+    public abstract string Name { get; }
 
-    private StateMachine()
+    public virtual void OnEnter(StateMachine<T> sm)
     {
-        this.state = null;
     }
 
-    private void SetState(IStateRunnable state)
+    public virtual void OnUpdate(StateMachine<T> sm)
     {
-        this.state?.OnExit();
-        this.state = state;
-        this.state?.OnEnter();
     }
 
-    public static StateMachine In(System.Action<Scope> scope)
+    public virtual void OnExit(StateMachine<T> sm)
     {
-        var stateMachine = new StateMachine();
-        var builder = new Scope(stateMachine);
-        scope?.Invoke(builder);
+    }
+}
 
-        return stateMachine;
+public interface IStateHandle
+{
+    void Update();
+}
+
+public class StateMachine<T>
+{
+    public Event<State<T>, State<T>> OnStateChanged;
+
+    private T context;
+    private State<T> currentState = new EmptyState<T>();
+
+    public IStateHandle CurrentState => new StateHandle
+    {
+        underlyingState = currentState,
+        machine = this
+    };
+
+    public T Context => context;
+
+    public  StateMachine(T context, State<T> initialState = null)
+    {
+        this.context = context;
+        if (initialState != null)
+            SetState(initialState);
     }
 
-    public class Scope
+    public void SetState(State<T> state)
     {
-        private StateMachine stateMachine;
+        var oldState = currentState;
+        currentState.OnExit(this);
+        currentState = state;
+        currentState.OnEnter(this);
+        OnStateChanged?.Invoke(oldState, currentState);
+    }
 
-        public Scope(StateMachine stateMachine)
-        {
-            this.stateMachine = stateMachine;
-        }
+    private struct StateHandle: IStateHandle
+    {
+        public State<T> underlyingState;
+        public StateMachine<T> machine;
 
-        public void Enter(IStateRunnable state)
-        {
-            stateMachine.SetState(state);
-        }
+        public void Update() => underlyingState.OnUpdate(machine);
+    }
+
+    private class EmptyState<TContext>: State<TContext>
+    {
+        public override string Name => "EmptyState";
     }
 }
