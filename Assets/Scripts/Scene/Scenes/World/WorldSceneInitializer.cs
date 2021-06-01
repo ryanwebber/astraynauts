@@ -26,6 +26,11 @@ public class WorldSceneInitializer : MonoBehaviour
     [SerializeField]
     private Transform cameraTarget;
 
+    [Header("Temporary")]
+
+    [SerializeField]
+    private List<Transform> moveToRandomRoom;
+
     private void Awake()
     {
         GetComponent<SceneInitializer>().RegisterCallback(InitializeScene);
@@ -43,12 +48,15 @@ public class WorldSceneInitializer : MonoBehaviour
 
             inputBinder.Bind(inputSource.MainSource);
 
-            var rooms = worldLayout.Rooms.AllRooms.ToList();
-            var spawnRoom = rooms[Random.Range(0, rooms.Count)];
-            var spawnSection = spawnRoom.GetSection(Random.Range(0, spawnRoom.SectionCount));
+            foreach (var t in moveToRandomRoom)
+            {
+                var rooms = worldLayout.Rooms.AllRooms.ToList();
+                var spawnRoom = rooms[Random.Range(0, rooms.Count)];
+                var spawnSection = spawnRoom.GetSection(Random.Range(0, spawnRoom.SectionCount));
+                var spawnPosition = world.CellToWorldPosition(spawnSection.center);
 
-            var spawnPosition = world.CellToWorldPosition(spawnSection.center);
-            cameraTarget.position = spawnPosition;
+                t.position = spawnPosition;
+            }
 
             callback?.Invoke();
         });
