@@ -2,9 +2,10 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct LocomotionProperties
+public struct  LocomotionProperties
 {
     public float movementSpeed;
+    public float movementDampening;
 
     public float EvaluateSpeed(Vector2 direction)
     {

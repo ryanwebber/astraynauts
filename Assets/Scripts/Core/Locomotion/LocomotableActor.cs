@@ -11,6 +11,14 @@ public class LocomotableActor : MonoBehaviour, IActivatable
     private LocomotionProperties properties;
 
     [SerializeField]
+    [ReadOnly]
+    private Vector2 velocity;
+
+    [SerializeField]
+    [ReadOnly]
+    private Vector2 previousHeading;
+
+    [SerializeField]
     private bool isActive;
     public bool IsActive
     {
@@ -33,14 +41,6 @@ public class LocomotableActor : MonoBehaviour, IActivatable
         }
     }
 
-    private Vector2 ClampedMovementDirection
-    {
-        get
-        {
-            var movementDirection = virtualInput.MovementDirection;
-            return Vector2.ClampMagnitude(movementDirection, 1f);
-        }
-    }
 
     private void Awake()
     {
@@ -53,11 +53,17 @@ public class LocomotableActor : MonoBehaviour, IActivatable
         if (!isActive)
             return;
 
-        var movementDirection = ClampedMovementDirection;
-        var facingRotation = Quaternion.FromToRotation(NormalizedFacingDirection, Vector3.up);
-        var relativeMovementDirection = facingRotation * movementDirection;
-        var deltaPosition = movementDirection * properties.EvaluateSpeed(relativeMovementDirection) * Time.deltaTime;
+        var currentHeading = previousHeading;
+        var targetHeading = Vector2.ClampMagnitude(virtualInput.MovementDirection, 1f);
 
-        kinematicBody.MoveAndCollide(deltaPosition);
+        var dampenedHeading = Vector2.SmoothDamp(
+            current: currentHeading,
+            target: targetHeading,
+            currentVelocity: ref velocity,
+            smoothTime: properties.movementDampening);
+            
+        kinematicBody.MoveAndCollide(dampenedHeading * Time.deltaTime * properties.movementSpeed);
+
+        previousHeading = dampenedHeading;
     }
 }
