@@ -2,41 +2,66 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Rendering;
 
 public class BoidServer : MonoBehaviour
 {
-    private static Vector2Int[] CELL_BLOCK_OFFSETS = new Vector2Int[]
+    public struct Perception
     {
-        // Current cell
-        Vector2Int.zero,
+        public Vector2 cumulativeFlockCenter;
+        public Vector2 cumulativeFlockHeading;
+        public Vector2 cumulativeLocalRepultion;
 
-        // Neighboring cells
+        public int flockCount;
+
+        public Vector2 FlockCenter => flockCount == 0 ? cumulativeFlockCenter : cumulativeFlockCenter / flockCount;
+    }
+
+    private static readonly Vector2Int[] CELL_BLOCK = new Vector2Int[]
+    {
+        Vector2Int.zero,
         Vector2Int.up,
-        new Vector2Int(1, 1),
         Vector2Int.right,
-        new Vector2Int(1, -1),
         Vector2Int.down,
-        new Vector2Int(-1, -1),
         Vector2Int.left,
-        new Vector2Int(-1, 1)
+
+        new Vector2Int(1, 1),
+        new Vector2Int(1, -1),
+        new Vector2Int(-1, 1),
+        new Vector2Int(-1, -1),
     };
 
+    private struct BoidData
+    {
+        public Vector2 currentPosition;
+        public Vector2 currentHeading;
+
+        public float perceptionRadius;
+        public float avoidanceRadius;
+
+        public int computedFlockCount;
+        public Vector2 computedFlockCenter;
+        public Vector2 computedFlockHeading;
+        public Vector2 computedLocalRepultion;
+
+        private static int Vect2Size => sizeof(float) * 2;
+        private static int FloatSize => sizeof(float);
+        private static int IntSize => sizeof(int);
+        public static readonly int Size = (Vect2Size * 5) + (FloatSize * 2) + (IntSize * 1);
+    }
     private static BoidServer _instance;
     public static BoidServer Instance => _instance;
 
     [SerializeField]
-    private Vector2 sectorSize;
+    private Vector2Int gridSize;
 
     [SerializeField]
-    private Vector2Int numSectors;
+    private Vector2 cellSize;
 
-    private Vector2 Center => ((Vector2)transform.position) + Size / 2f;
-    private Vector2 Size => sectorSize * numSectors;
+    public Rect Bounds => new Rect(Vector2.zero, cellSize * gridSize);
 
-    public Rect Bounds => new Rect(transform.position, Size);
-
-    private SpaciallyPartitionedCollection<Boid> partition;
-    private List<Boid> boids;
+    private Dictionary<Boid, Perception> boids;
+    private SpaciallyPartitionedCollection<Boid, Vector2> partition;
 
     private void Awake()
     {
@@ -45,8 +70,76 @@ public class BoidServer : MonoBehaviour
 
         _instance = this;
 
-        partition = new SpaciallyPartitionedCollection<Boid>(numSectors, sectorSize);
-        boids = new List<Boid>();
+        boids = new Dictionary<Boid, Perception>();
+
+        var hashFn = SpaciallyPartitionedCollection.CreateGridHash(cellSize, gridSize, out var nBuckets);
+        partition = new SpaciallyPartitionedCollection<Boid, Vector2>(nBuckets, hashFn);
+    }
+
+    private void Update()
+    {
+        for (int i = boids.Count - 1; i >= 0; i--)
+        {
+            var boid = boids.ElementAt(i).Key;
+            if (boid == null)
+            {
+                boids.Remove(boid);
+                partition.Remove(boid);
+                continue;
+            }
+        }
+
+        foreach (var boid in boids.Keys)
+            partition.AddOrUpdate(boid, boid.transform.position);
+
+        foreach (var boid in partition)
+            UpdatePerception(boid);
+    }
+
+    private bool IsInBounds(Vector2 pos)
+    {
+        return pos.x >= 0 && pos.x < (gridSize.x * cellSize.x) &&
+            pos.y >= 0 && pos.y < (gridSize.y * cellSize.y);
+    }
+
+    private void UpdatePerception(Boid boid)
+    {
+        var localBoids = CELL_BLOCK
+            .Select(dir => (Vector2)boid.transform.position + dir * cellSize)
+            .Where(IsInBounds)
+            .SelectMany(pos => partition.GetBucket(pos));
+            //.ToArray();
+
+        var perception = new Perception
+        {
+            cumulativeFlockCenter = Vector2.zero,
+            cumulativeFlockHeading = Vector2.zero,
+            cumulativeLocalRepultion = Vector2.zero,
+            flockCount = 0
+        };
+
+        //Debug.Log($"Num local boids: {localBoids.Length}");
+
+        foreach (var otherBoid in localBoids.Where(b => b != this))
+        {
+            Vector2 relPos = otherBoid.CurrentPosition - boid.CurrentPosition;
+            float sqrDst = relPos.SqrMagnitude();
+
+            if (sqrDst < boid.Params.SqrViewRadius)
+            {
+                perception.flockCount++;
+
+                perception.cumulativeFlockHeading += otherBoid.CurrentHeading;
+                perception.cumulativeFlockCenter += otherBoid.CurrentPosition;
+
+                if (sqrDst < boid.Params.SqrAvoidanceRadius && sqrDst != 0f)
+                {
+                    perception.cumulativeLocalRepultion -= relPos / sqrDst;
+                }
+            }
+        }
+
+        boids[boid] = perception;
     }
 
     private void OnDestroy()
@@ -54,18 +147,16 @@ public class BoidServer : MonoBehaviour
         _instance = null;
     }
 
-    private void Update()
+    private void OnDrawGizmos()
     {
-        foreach (var boid in boids)
-        {
-            partition[boid] = boid.CurrentPosition;
-        }
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireCube(Bounds.center, new Vector3(Bounds.width, Bounds.height, 1f));
     }
 
     public void Register(Boid boid)
     {
-        partition[boid] = boid.CurrentPosition;
-        boids.Add(boid);
+        boids.Add(boid, default);
+        partition.AddOrUpdate(boid, boid.CurrentPosition);
     }
 
     public void Unregister(Boid boid)
@@ -74,20 +165,12 @@ public class BoidServer : MonoBehaviour
         partition.Remove(boid);
     }
 
-    public IEnumerable<Boid> GetFlock(Vector2 position)
+    public Perception GetPerception(Boid boid)
     {
-        return CELL_BLOCK_OFFSETS
-            .SelectMany(d =>
-            {
-                var cell = partition.PositionToCell(position) + d;
-                return partition.GetEntitiesInCell(cell);
-            })
-            .Select(e => e.entity);
-    }
+        if (boids.ContainsKey(boid))
+            return boids[boid];
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireCube(Center, Size);
+        Debug.LogWarning("Boid is not a member of the boid server");
+        return default;
     }
 }

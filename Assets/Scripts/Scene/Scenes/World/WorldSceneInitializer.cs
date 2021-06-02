@@ -31,6 +31,9 @@ public class WorldSceneInitializer : MonoBehaviour
     [SerializeField]
     private List<Transform> moveToRandomRoom;
 
+    [SerializeField]
+    private GameObject mobPrefab;
+
     private void Awake()
     {
         GetComponent<SceneInitializer>().RegisterCallback(InitializeScene);
@@ -41,6 +44,13 @@ public class WorldSceneInitializer : MonoBehaviour
     {
         var worldShape = loader.GetContext<WorldShapeParameters>();
         var worldLayout = WorldGenerator.Generate(worldShape.Parameters);
+
+        for (int i = 0; i < 100; i++)
+        {
+            var instance = Instantiate(mobPrefab);
+            moveToRandomRoom.Add(instance.transform);
+        }
+
         worldLoader.LoadWorld(worldLayout, (world) => {
 
             virtualCamera.PreviousStateIsValid = false;
@@ -53,9 +63,9 @@ public class WorldSceneInitializer : MonoBehaviour
                 var rooms = worldLayout.Rooms.AllRooms.ToList();
                 var spawnRoom = rooms[Random.Range(0, rooms.Count)];
                 var spawnSection = spawnRoom.GetSection(Random.Range(0, spawnRoom.SectionCount));
-                var spawnPosition = world.CellToWorldPosition(spawnSection.center);
+                var spawnPosition = world.CellToWorldPosition(spawnSection.center) + Random.insideUnitCircle * 0.1f;
 
-                t.position = spawnPosition;
+                t.position = spawnPosition; 
             }
 
             callback?.Invoke();

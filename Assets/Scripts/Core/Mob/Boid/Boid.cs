@@ -48,6 +48,8 @@ public class Boid : MonoBehaviour
     public Vector2 CurrentPosition => transform.position;
     public Vector2 CurrentHeading => heading.CurrentHeading;
 
+    public Parameters Params => parameters;
+
     private void Awake()
     {
         heading = GetComponent<Heading2D>();
@@ -63,47 +65,19 @@ public class Boid : MonoBehaviour
         if (attachedServer == null)
             return Force.None;
 
-        var boids = attachedServer.GetFlock(CurrentPosition);
+        var perception = attachedServer.GetPerception(this);
 
-        var cumHeading = Vector2.zero; // Alignment
-        var cumPosition = Vector2.zero; // Coherence
-        var cumAvoidanceHeading = Vector2.zero; // Separation
-
-        int effectiveFlockSize = 0;
-
-        foreach (var otherBoid in boids.Where(b => b != this))
+        if (perception.flockCount > 0)
         {
-            Vector2 relPos = otherBoid.CurrentPosition - CurrentPosition;
-            float sqrDst = relPos.SqrMagnitude();
-
-            if (sqrDst < parameters.SqrViewRadius)
-            {
-                effectiveFlockSize++;
-
-                cumHeading += otherBoid.CurrentHeading;
-                cumPosition += otherBoid.CurrentPosition;
-
-                if (showDebug)
-                    Debug.DrawLine(transform.position, otherBoid.CurrentPosition, Color.gray);
-
-                if (sqrDst < parameters.SqrAvoidanceRadius && sqrDst != 0f)
-                {
-                    cumAvoidanceHeading -= relPos / sqrDst;
-                }
-            }
-        }
-
-        if (effectiveFlockSize > 0)
-        {
-            var centerOfFlock = cumPosition / effectiveFlockSize;
+            var centerOfFlock = perception.FlockCenter;
             var deltaFlockCenter = centerOfFlock - CurrentPosition;
 
             if (showDebug)
                 Debug.DrawLine(transform.position, centerOfFlock, Color.blue);
 
-            var alignmentForce = SteerTowards(cumHeading) * parameters.alignmentWeight;
+            var alignmentForce = SteerTowards(perception.cumulativeFlockHeading) * parameters.alignmentWeight;
             var cohesionForce = SteerTowards(deltaFlockCenter) * parameters.cohesionWeight;
-            var seperationForce = SteerTowards(cumAvoidanceHeading) * parameters.separationWeight;
+            var seperationForce = SteerTowards(perception.cumulativeLocalRepultion) * parameters.separationWeight;
 
             return new Force
             {
@@ -119,12 +93,12 @@ public class Boid : MonoBehaviour
     public void AttachToServer(BoidServer server)
     {
         DetatchFromServer();
-        this.attachedServer = server;
-        this.attachedServer.Register(this);
+        attachedServer = server;
+        attachedServer.Register(this);
     }
 
     public void DetatchFromServer()
     {
-        this.attachedServer?.Unregister(this);
+        attachedServer?.Unregister(this);
     }
 }
