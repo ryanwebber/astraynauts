@@ -167,11 +167,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebug: 0
   parameters:
-    viewRadius: 4
-    avoidanceRadius: 2
     alignmentWeight: 1
-    separationWeight: 1.05
-    cohesionWeight: 0.95
+    separationWeight: 1.2
+    cohesionWeight: 0.8
+  separationLayermask:
+    serializedVersion: 2
+    m_Bits: 256
+  detectionRadius: 1
 --- !u!114 &138564682830807840
 MonoBehaviour:
   m_ObjectHideFlags: 0

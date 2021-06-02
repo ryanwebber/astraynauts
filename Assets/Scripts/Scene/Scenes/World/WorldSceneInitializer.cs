@@ -34,6 +34,9 @@ public class WorldSceneInitializer : MonoBehaviour
     [SerializeField]
     private GameObject mobPrefab;
 
+    [SerializeField]
+    int numBoidsToSpawn = 100;
+
     private void Awake()
     {
         GetComponent<SceneInitializer>().RegisterCallback(InitializeScene);
@@ -45,7 +48,7 @@ public class WorldSceneInitializer : MonoBehaviour
         var worldShape = loader.GetContext<WorldShapeParameters>();
         var worldLayout = WorldGenerator.Generate(worldShape.Parameters);
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < numBoidsToSpawn; i++)
         {
             var instance = Instantiate(mobPrefab);
             moveToRandomRoom.Add(instance.transform);

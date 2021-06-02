@@ -1,17 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Rendering;
 
 public class BoidServer : MonoBehaviour
 {
-    public struct Perception
+    public struct LocalPerception
     {
         public Vector2 cumulativeFlockCenter;
         public Vector2 cumulativeFlockHeading;
-        public Vector2 cumulativeLocalRepultion;
-
         public int flockCount;
 
         public Vector2 FlockCenter => flockCount == 0 ? cumulativeFlockCenter : cumulativeFlockCenter / flockCount;
@@ -20,6 +16,7 @@ public class BoidServer : MonoBehaviour
     private static readonly Vector2Int[] CELL_BLOCK = new Vector2Int[]
     {
         Vector2Int.zero,
+
         Vector2Int.up,
         Vector2Int.right,
         Vector2Int.down,
@@ -31,24 +28,6 @@ public class BoidServer : MonoBehaviour
         new Vector2Int(-1, -1),
     };
 
-    private struct BoidData
-    {
-        public Vector2 currentPosition;
-        public Vector2 currentHeading;
-
-        public float perceptionRadius;
-        public float avoidanceRadius;
-
-        public int computedFlockCount;
-        public Vector2 computedFlockCenter;
-        public Vector2 computedFlockHeading;
-        public Vector2 computedLocalRepultion;
-
-        private static int Vect2Size => sizeof(float) * 2;
-        private static int FloatSize => sizeof(float);
-        private static int IntSize => sizeof(int);
-        public static readonly int Size = (Vect2Size * 5) + (FloatSize * 2) + (IntSize * 1);
-    }
     private static BoidServer _instance;
     public static BoidServer Instance => _instance;
 
@@ -60,8 +39,9 @@ public class BoidServer : MonoBehaviour
 
     public Rect Bounds => new Rect(Vector2.zero, cellSize * gridSize);
 
-    private Dictionary<Boid, Perception> boids;
-    private SpaciallyPartitionedCollection<Boid, Vector2> partition;
+    private HashSet<Boid> allBoids;
+    private Dictionary<Vector2Int, LocalPerception> cellularPerceptions;
+    private SpaciallyPartitionedCollection<Boid, Vector2Int> spatialPartition;
 
     private void Awake()
     {
@@ -70,76 +50,83 @@ public class BoidServer : MonoBehaviour
 
         _instance = this;
 
-        boids = new Dictionary<Boid, Perception>();
 
-        var hashFn = SpaciallyPartitionedCollection.CreateGridHash(cellSize, gridSize, out var nBuckets);
-        partition = new SpaciallyPartitionedCollection<Boid, Vector2>(nBuckets, hashFn);
+        int nBuckets = gridSize.x * gridSize.y;
+        System.Func<Vector2Int, int> hashFn = cell => cell.x + (cell.y * gridSize.x);
+        spatialPartition = new SpaciallyPartitionedCollection<Boid, Vector2Int>(nBuckets, hashFn);
+
+        allBoids = new HashSet<Boid>();
+        cellularPerceptions = new Dictionary<Vector2Int, LocalPerception>();
     }
 
     private void Update()
     {
-        for (int i = boids.Count - 1; i >= 0; i--)
+        cellularPerceptions.Clear();
+        for (int i = allBoids.Count - 1; i >= 0; i--)
         {
-            var boid = boids.ElementAt(i).Key;
+            var boid = allBoids.ElementAt(i);
             if (boid == null)
             {
-                boids.Remove(boid);
-                partition.Remove(boid);
+                allBoids.Remove(boid); // This will be a problem
+                spatialPartition.Remove(boid);
                 continue;
             }
         }
 
-        foreach (var boid in boids.Keys)
-            partition.AddOrUpdate(boid, boid.transform.position);
+        foreach (var boid in allBoids)
+            spatialPartition.AddOrUpdate(boid, GetCell(boid.CurrentPosition));
 
-        foreach (var boid in partition)
-            UpdatePerception(boid);
+        foreach (var boid in allBoids)
+            UpdateCellularPerception(boid);
     }
 
-    private bool IsInBounds(Vector2 pos)
+    private Vector2Int GetCell(Vector2 position)
     {
-        return pos.x >= 0 && pos.x < (gridSize.x * cellSize.x) &&
-            pos.y >= 0 && pos.y < (gridSize.y * cellSize.y);
+        return new Vector2Int(
+            Mathf.FloorToInt(position.x / cellSize.x),
+            Mathf.FloorToInt(position.y / cellSize.y)
+        );
     }
 
-    private void UpdatePerception(Boid boid)
+    private bool IsInBounds(Vector2Int pos)
     {
-        var localBoids = CELL_BLOCK
-            .Select(dir => (Vector2)boid.transform.position + dir * cellSize)
+        return pos.x >= 0 && pos.x < gridSize.x &&
+            pos.y >= 0 && pos.y < gridSize.y;
+    }
+
+    private void UpdateCellularPerception(Boid boid)
+    {
+        var currentCell = GetCell(boid.CurrentPosition);
+        if (cellularPerceptions.TryGetValue(currentCell, out var perception))
+            return;
+
+        var numCells = CELL_BLOCK
+            .Select(dir => currentCell + dir)
             .Where(IsInBounds)
-            .SelectMany(pos => partition.GetBucket(pos));
-            //.ToArray();
+            .Count();
 
-        var perception = new Perception
+        var localBoids = CELL_BLOCK
+            .Select(dir => currentCell + dir)
+            .Where(IsInBounds)
+            .SelectMany(cell => spatialPartition.GetBucket(cell));
+
+        Vector2 cumulativeFlockCenter = Vector2.zero;
+        Vector2 cumulativeFlockHeading = Vector2.zero;
+        int flockCount = 0;
+
+        foreach (var itrBoid in localBoids)
         {
-            cumulativeFlockCenter = Vector2.zero,
-            cumulativeFlockHeading = Vector2.zero,
-            cumulativeLocalRepultion = Vector2.zero,
-            flockCount = 0
-        };
-
-        //Debug.Log($"Num local boids: {localBoids.Length}");
-
-        foreach (var otherBoid in localBoids.Where(b => b != this))
-        {
-            Vector2 relPos = otherBoid.CurrentPosition - boid.CurrentPosition;
-            float sqrDst = relPos.SqrMagnitude();
-
-            if (sqrDst < boid.Params.SqrViewRadius)
-            {
-                perception.flockCount++;
-
-                perception.cumulativeFlockHeading += otherBoid.CurrentHeading;
-                perception.cumulativeFlockCenter += otherBoid.CurrentPosition;
-
-                if (sqrDst < boid.Params.SqrAvoidanceRadius && sqrDst != 0f)
-                {
-                    perception.cumulativeLocalRepultion -= relPos / sqrDst;
-                }
-            }
+            flockCount++;
+            cumulativeFlockHeading += itrBoid.CurrentHeading;
+            cumulativeFlockCenter += itrBoid.CurrentPosition;
         }
 
-        boids[boid] = perception;
+        cellularPerceptions[currentCell] = new LocalPerception
+        {
+            cumulativeFlockCenter = cumulativeFlockCenter,
+            cumulativeFlockHeading = cumulativeFlockHeading,
+            flockCount = flockCount,
+        };
     }
 
     private void OnDestroy()
@@ -155,22 +142,22 @@ public class BoidServer : MonoBehaviour
 
     public void Register(Boid boid)
     {
-        boids.Add(boid, default);
-        partition.AddOrUpdate(boid, boid.CurrentPosition);
+        allBoids.Add(boid);
+        spatialPartition.AddOrUpdate(boid, GetCell(boid.CurrentPosition));
     }
 
     public void Unregister(Boid boid)
     {
-        boids.Remove(boid);
-        partition.Remove(boid);
+        allBoids.Remove(boid);
+        spatialPartition.Remove(boid);
     }
 
-    public Perception GetPerception(Boid boid)
+    public LocalPerception GetPerception(Boid boid)
     {
-        if (boids.ContainsKey(boid))
-            return boids[boid];
+        var cell = GetCell(boid.CurrentPosition);
+        if (cellularPerceptions.TryGetValue(cell, out var localPerception))
+            return localPerception;
 
-        Debug.LogWarning("Boid is not a member of the boid server");
         return default;
     }
 }

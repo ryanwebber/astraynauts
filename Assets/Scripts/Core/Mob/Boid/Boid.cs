@@ -15,11 +15,11 @@ public class Boid : MonoBehaviour
     [System.Serializable]
     public struct Parameters
     {
-        [SerializeField]
-        public float viewRadius;
+        //[SerializeField]
+        //public float viewRadius;
 
-        [SerializeField]
-        public float avoidanceRadius;
+        //[SerializeField]
+        //public float avoidanceRadius;
 
         [Header("Weights")]
 
@@ -32,8 +32,8 @@ public class Boid : MonoBehaviour
         [SerializeField]
         public float cohesionWeight;
 
-        public float SqrViewRadius => viewRadius * viewRadius;
-        public float SqrAvoidanceRadius => avoidanceRadius * avoidanceRadius;
+        //public float SqrViewRadius => viewRadius * viewRadius;
+        //public float SqrAvoidanceRadius => avoidanceRadius * avoidanceRadius;
     }
 
     [SerializeField]
@@ -42,8 +42,17 @@ public class Boid : MonoBehaviour
     [SerializeField]
     private Parameters parameters;
 
+    [Header("Body Detection")]
+
+    [SerializeField]
+    private LayerMask separationLayermask;
+
+    [SerializeField]
+    private float detectionRadius;
+
     private BoidServer attachedServer = null;
     private Heading2D heading;
+    private Collider2D[] reusableCollisionResults;
 
     public Vector2 CurrentPosition => transform.position;
     public Vector2 CurrentHeading => heading.CurrentHeading;
@@ -53,11 +62,39 @@ public class Boid : MonoBehaviour
     private void Awake()
     {
         heading = GetComponent<Heading2D>();
+        reusableCollisionResults = new Collider2D[8];
     }
 
     private Vector2 SteerTowards(Vector2 vector)
     {
         return vector.normalized - CurrentHeading;
+    }
+
+    private Vector2 ComputeRawSeparation()
+    {
+        Vector2 rawSeparationForce = Vector2.zero;
+        int nCollisions = Physics2D.OverlapCircleNonAlloc(CurrentPosition, detectionRadius, reusableCollisionResults, separationLayermask);
+        for (int i = 0; i < nCollisions; i++)
+        {
+            if (reusableCollisionResults[i].gameObject == this)
+                continue;
+
+            if (showDebug)
+                Debug.DrawLine(transform.position, reusableCollisionResults[i].gameObject.transform.position, Color.red);
+
+            Vector2 offset = reusableCollisionResults[i].gameObject.transform.position - transform.position;
+            float sqrMagnitude = offset.sqrMagnitude;
+            if (sqrMagnitude > 0)
+                rawSeparationForce -= offset / sqrMagnitude;
+        }
+        
+        return rawSeparationForce;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.gray;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
 
     public Force ComputeForces()
@@ -77,7 +114,7 @@ public class Boid : MonoBehaviour
 
             var alignmentForce = SteerTowards(perception.cumulativeFlockHeading) * parameters.alignmentWeight;
             var cohesionForce = SteerTowards(deltaFlockCenter) * parameters.cohesionWeight;
-            var seperationForce = SteerTowards(perception.cumulativeLocalRepultion) * parameters.separationWeight;
+            var seperationForce = SteerTowards(ComputeRawSeparation()) * parameters.separationWeight;
 
             return new Force
             {

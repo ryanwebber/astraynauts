@@ -66,16 +66,3 @@ public class SpaciallyPartitionedCollection<TElement, THashable> : IReadOnlyColl
     }
 }
 
-public static class SpaciallyPartitionedCollection
-{
-    public static Func<Vector2, int> CreateGridHash(Vector2 cellSize, Vector2Int gridSize, out int nBuckets)
-    {
-        nBuckets = gridSize.x * gridSize.y;
-        return position =>
-        {
-            int cellX = Mathf.FloorToInt(position.x / cellSize.x);
-            int cellY = Mathf.FloorToInt(position.y / cellSize.y);
-            return cellX + (cellY * gridSize.x);
-        };
-    }
-}
