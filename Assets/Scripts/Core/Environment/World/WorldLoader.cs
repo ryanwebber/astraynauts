@@ -64,6 +64,9 @@ public class WorldLoader : MonoBehaviour
     [SerializeField]
     private PerimiterSettings perimiterSettings;
 
+    [SerializeField]
+    private NavigationTopology navigationTopology;
+
     public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action<World> completion)
     {
         StartCoroutine(LoadWorldDistributed(layout, completion));
@@ -89,6 +92,33 @@ public class WorldLoader : MonoBehaviour
         }
 
         World world = new World(layout, layoutScale);
+
+        navigationTopology.InitalizeTopology(world.UnitSize);
+        foreach (var cell in layout.Hallways.SelectMany(h => h.Path).SelectMany(GetScaled))
+            navigationTopology.SetCellState(cell, NavigationTopology.CellState.TRAVERSABLE);
+
+        foreach (var cell in layout.Rooms.Layout.Keys.SelectMany(GetScaled))
+            navigationTopology.SetCellState(cell, NavigationTopology.CellState.TRAVERSABLE);
+
+        // Temporary - generate a random target for the topology
+        var rooms = layout.Rooms.AllRooms.ToList();
+        var targetRoom = rooms[Random.Range(0, rooms.Count)];
+        var targetSection = targetRoom.GetSection(Random.Range(0, targetRoom.SectionCount));
+        var targetCell = new Vector2Int(Mathf.FloorToInt(targetSection.center.x), Mathf.FloorToInt(targetSection.center.y));
+        var worldPosition = world.CellToWorldPosition((Vector2)targetCell + Vector2.one * 0.5f);
+        var worldPositionUnits = new Vector2Int(Mathf.FloorToInt(worldPosition.x), Mathf.FloorToInt(worldPosition.y));
+        navigationTopology.SetTargets(new Vector2Int[] { worldPositionUnits });
+
+        for (int x = 0; x < navigationTopology.Dimensions.x; x++)
+        {
+            for (int y = 0; y < navigationTopology.Dimensions.y; y++)
+            {
+                var cellCenter = new Vector2(x, y) + new Vector2(0.5f, 0.5f);
+                var topology = navigationTopology.GetTopology(new Vector2Int(x, y)).slope;
+                Debug.DrawRay(cellCenter, topology * 0.4f, Color.red, 100f);
+            }
+        }
+
         completion?.Invoke(world);
     }
 

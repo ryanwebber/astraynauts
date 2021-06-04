@@ -7,12 +7,14 @@ using System.Linq;
 [RequireComponent(typeof(BoidInfluencer))]
 [RequireComponent(typeof(CollisionAvoidanceInfluencer))]
 [RequireComponent(typeof(ForwardMomentumInfluencer))]
+[RequireComponent(typeof(NavigationTopologyInfluencer))]
 public class SwarmMovementController : MonoBehaviour
 {
     private LocomotableInput input;
     private BoidInfluencer boidInfluencer;
     private CollisionAvoidanceInfluencer collisionAvoidanceInfluencer;
     private ForwardMomentumInfluencer forwardMomentumInfluencer;
+    private NavigationTopologyInfluencer navigationTopologyInfluencer;
 
     private void Awake()
     {
@@ -20,6 +22,7 @@ public class SwarmMovementController : MonoBehaviour
         boidInfluencer = GetComponent<BoidInfluencer>();
         collisionAvoidanceInfluencer = GetComponent<CollisionAvoidanceInfluencer>();
         forwardMomentumInfluencer = GetComponent<ForwardMomentumInfluencer>();
+        navigationTopologyInfluencer = GetComponent<NavigationTopologyInfluencer>();
     }
 
     private void Update()
@@ -34,6 +37,7 @@ public class SwarmMovementController : MonoBehaviour
                 boidInfluencer.GetInfluences(),
                 collisionAvoidanceInfluencer.GetInfluences(),
                 forwardMomentumInfluencer.GetInfluences(),
+                navigationTopologyInfluencer.GetInfluences(),
             }
             .SelectMany(i => i)
             .Aggregate(Vector2.zero, (accum, influence) => accum + influence);

@@ -15,12 +15,6 @@ public class Boid : MonoBehaviour
     [System.Serializable]
     public struct Parameters
     {
-        //[SerializeField]
-        //public float viewRadius;
-
-        //[SerializeField]
-        //public float avoidanceRadius;
-
         [Header("Weights")]
 
         [SerializeField]
@@ -31,9 +25,6 @@ public class Boid : MonoBehaviour
 
         [SerializeField]
         public float cohesionWeight;
-
-        //public float SqrViewRadius => viewRadius * viewRadius;
-        //public float SqrAvoidanceRadius => avoidanceRadius * avoidanceRadius;
     }
 
     [SerializeField]

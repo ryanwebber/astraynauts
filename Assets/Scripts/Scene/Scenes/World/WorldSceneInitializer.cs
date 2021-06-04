@@ -37,6 +37,9 @@ public class WorldSceneInitializer : MonoBehaviour
     [SerializeField]
     int numBoidsToSpawn = 100;
 
+    [SerializeField]
+    private NavigationTopology navigationTopology;
+
     private void Awake()
     {
         GetComponent<SceneInitializer>().RegisterCallback(InitializeScene);
@@ -67,6 +70,9 @@ public class WorldSceneInitializer : MonoBehaviour
                 var spawnRoom = rooms[Random.Range(0, rooms.Count)];
                 var spawnSection = spawnRoom.GetSection(Random.Range(0, spawnRoom.SectionCount));
                 var spawnPosition = world.CellToWorldPosition(spawnSection.center) + Random.insideUnitCircle * 0.1f;
+
+                if (t.gameObject.TryGetComponent<NavigationTopologyInfluencer>(out var i))
+                    i.Topology = navigationTopology;
 
                 t.position = spawnPosition; 
             }

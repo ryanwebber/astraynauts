@@ -16,6 +16,9 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
     private float stepAngle = 15f;
 
     [SerializeField]
+    private float collisionRadius = 1f;
+
+    [SerializeField]
     private float collisionAvoidanceWeight = 1f;
 
     private Heading2D currentHeading;
@@ -58,6 +61,7 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
             {
                 float thetaPos = angle * Mathf.Deg2Rad;
                 var testHeading = Rotate(forward, thetaPos);
+                Debug.DrawRay(transform.position, testHeading, Color.red);
                 if (!TestForCollision(testHeading))
                 {
                     newForward = testHeading;
@@ -66,6 +70,7 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
 
                 float thetaNeg = angle * Mathf.Deg2Rad * -1;
                 testHeading = Rotate(forward, thetaNeg);
+                Debug.DrawRay(transform.position, testHeading, Color.magenta);
                 if (!TestForCollision(testHeading))
                 {
                     newForward = testHeading;
@@ -93,7 +98,7 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
 
     private RaycastHit2D TestForCollision(Vector2 heading)
     {
-        return Physics2D.Raycast(transform.position, heading, viewDistance, layerMask);
+        return Physics2D.CircleCast(transform.position, collisionRadius, heading, viewDistance, layerMask);
     }
 
     private Vector2 Rotate(Vector2 heading, float theta)

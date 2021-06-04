@@ -239,18 +239,11 @@ public static class WorldGenerator
             Parameters parameters,
             out Room updatedRoom)
         {
-            Room someRoom = null;
-
             // Get all the rooms this new section would overlap with
             HashSet<Room> overlappingRooms = new HashSet<Room>();
             foreach (var pos in section.allPositionsWithin)
-            {
                 if (lookup.TryGetValue(pos, out var room))
-                {
                     overlappingRooms.Add(room);
-                    someRoom = room;
-                }
-            }
 
             if (overlappingRooms.Count == 0)
             {
@@ -285,8 +278,6 @@ public static class WorldGenerator
 
         public static RoomLayout GenerateRooms(Parameters parameters)
         {
-            Vector2Int worldSize = parameters.CellularDimensions;
-
             Dictionary<Vector2Int, Room> roomLookup = new Dictionary<Vector2Int, Room>();
             HashSet<Room> allRooms = new HashSet<Room>();
 
@@ -307,6 +298,7 @@ public static class WorldGenerator
                 int x = RandomUtils.RandomOddInRange(1, parameters.CellularDimensions.x - width);
                 int y = RandomUtils.RandomOddInRange(1, parameters.CellularDimensions.y - height);
 
+                // Offset allowing a hallways around the perimiter
                 x += 2;
                 y += 2;
 

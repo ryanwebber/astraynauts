@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 138564682830807841}
   - component: {fileID: 138564682830807840}
   - component: {fileID: 138564682830807843}
+  - component: {fileID: 2106960228142386216}
   - component: {fileID: 138564682830808024}
   - component: {fileID: 138564682830807845}
   - component: {fileID: 138564682830808030}
@@ -167,9 +168,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebug: 0
   parameters:
-    alignmentWeight: 1
-    separationWeight: 1.2
-    cohesionWeight: 0.8
+    alignmentWeight: 1.1
+    separationWeight: 1.4
+    cohesionWeight: 0.6
   separationLayermask:
     serializedVersion: 2
     m_Bits: 256
@@ -201,9 +202,24 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 128
-  viewDistance: 6
+  viewDistance: 3
   stepAngle: 15
+  collisionRadius: 0.7
   collisionAvoidanceWeight: 12
+--- !u!114 &2106960228142386216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138564682830807847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d161ed95ce9354dffbc04087670c5dc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topology: {fileID: 0}
+  weight: 5
 --- !u!114 &138564682830808024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,7 +232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d29e730253cda4d0da26ec991a4a317d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weight: 3
+  weight: 3.5
 --- !u!114 &138564682830807845
 MonoBehaviour:
   m_ObjectHideFlags: 0
