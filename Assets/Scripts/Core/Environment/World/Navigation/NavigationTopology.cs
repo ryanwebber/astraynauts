@@ -17,19 +17,6 @@ public class NavigationTopology: MonoBehaviour
         public int height;
     }
 
-    private static readonly Vector2Int[] NeighboringDirections = new Vector2Int[]
-    {
-        Vector2Int.up,
-        Vector2Int.right,
-        Vector2Int.down,
-        Vector2Int.left,
-
-        new Vector2Int(1, 1),
-        new Vector2Int(1, -1),
-        new Vector2Int(-1, 1),
-        new Vector2Int(-1, -1),
-    };
-
     private Vector2Int dimensions;
     private CellState[,] traversable;
     private Topology[,] topology;
@@ -94,16 +81,42 @@ public class NavigationTopology: MonoBehaviour
 
         IEnumerable<(Vector2Int cell, Vector2 direction)> GetSteps(Vector2Int cell)
         {
-            foreach (var d in NeighboringDirections)
-            {
-                var c2 = cell + d;
-                if (c2.x >= 0 && c2.x < Dimensions.x &&
-                    c2.y >= 0 && c2.y < Dimensions.y &&
-                    traversable[c2.x, c2.y] == CellState.TRAVERSABLE)
-                {
-                    yield return (cell: c2, direction: ((Vector2)d * -1f).normalized);
-                }
-            }
+            bool IsTraversable(Vector2Int c) =>
+                    c.x >= 0 && c.x < Dimensions.x &&
+                    c.y >= 0 && c.y < Dimensions.y &&
+                    traversable[c.x, c.y] == CellState.TRAVERSABLE;
+
+            (Vector2Int cell, Vector2 direction) MakeStep(Vector2Int direction) =>
+                (cell: cell + direction, direction: (((Vector2)direction) * -1f).normalized);
+
+            bool IsTraversableUp = IsTraversable(cell + Vector2Int.up);
+            bool IsTraversableDown = IsTraversable(cell + Vector2Int.down);
+            bool IsTraversableLeft = IsTraversable(cell + Vector2Int.left);
+            bool IsTraversableRight = IsTraversable(cell + Vector2Int.right);
+
+            if (IsTraversableUp)
+                yield return MakeStep(Vector2Int.up);
+
+            if (IsTraversableDown)
+                yield return MakeStep(Vector2Int.down);
+
+            if (IsTraversableLeft)
+                yield return MakeStep(Vector2Int.left);
+
+            if (IsTraversableRight)
+                yield return MakeStep(Vector2Int.right);
+
+            if (IsTraversableUp && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, 1)))
+                yield return MakeStep(new Vector2Int(1, 1));
+
+            if (IsTraversableUp && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, 1)))
+                yield return MakeStep(new Vector2Int(-1, 1));
+
+            if (IsTraversableDown && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, -1)))
+                yield return MakeStep(new Vector2Int(1, -1));
+
+            if (IsTraversableDown && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, -1)))
+                yield return MakeStep(new Vector2Int(-1, -1));
         }
 
         // Reset the topology
