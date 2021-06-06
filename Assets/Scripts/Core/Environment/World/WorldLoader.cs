@@ -65,10 +65,6 @@ public class WorldLoader : MonoBehaviour
     [SerializeField]
     private PerimiterSettings perimiterSettings;
 
-    [SerializeField]
-    private NavigationTopology navigationTopology;
-    public NavigationTopology NavigationTopology => navigationTopology;
-
     public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action<World> completion)
     {
         StartCoroutine(LoadWorldDistributed(layout, completion));
@@ -87,7 +83,7 @@ public class WorldLoader : MonoBehaviour
         }
  
         // TODO: Delete me
-        foreach (var door in layout.Hallways.SelectMany(h => h.Path).SelectMany(GetScaled))
+        foreach (var door in layout.Hallways.SelectMany(h => h.Path).SelectMany(c => World.ExpandCellToUnits(c, layoutScale)))
         {
             floorSettings.tilemap.SetTileFlags(new Vector3Int(door.x, door.y, 0), TileFlags.None);
             floorSettings.tilemap.SetColor(new Vector3Int(door.x, door.y, 0), Color.yellow);
@@ -96,13 +92,6 @@ public class WorldLoader : MonoBehaviour
         var originRoomIndex = Random.Range(0, layout.Rooms.AllRooms.Count);
         var originRoom = layout.Rooms.AllRooms[originRoomIndex];
         World world = new World(layout, layoutScale, originRoom);
-
-        navigationTopology.InitalizeTopology(world.UnitSize);
-        foreach (var cell in layout.Hallways.SelectMany(h => h.Path).SelectMany(GetScaled))
-            navigationTopology.SetCellState(cell, NavigationTopology.CellState.TRAVERSABLE);
-
-        foreach (var cell in layout.Rooms.Layout.Keys.SelectMany(GetScaled))
-            navigationTopology.SetCellState(cell, NavigationTopology.CellState.TRAVERSABLE);
 
         completion?.Invoke(world);
     }
@@ -288,7 +277,7 @@ public class WorldLoader : MonoBehaviour
 
         var floorCells = layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells());
         var hallwayCells = layout.Hallways.SelectMany(h => h.Path);
-        var expandedPositions = Enumerable.Concat(floorCells, hallwayCells).SelectMany(GetScaled);
+        var expandedPositions = Enumerable.Concat(floorCells, hallwayCells).SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
 
         return expandedPositions.Select(position => (IOperation) new TileAssignment
             {
@@ -297,16 +286,5 @@ public class WorldLoader : MonoBehaviour
                 tilemap = floorSettings.tilemap
             }
         );
-    }
-
-    private IEnumerable<Vector2Int> GetScaled(Vector2Int cell)
-    {
-        for (int y = 0; y < layoutScale; y++)
-        {
-            for (int x = 0; x < layoutScale; x++)
-            {
-                yield return cell * layoutScale + new Vector2Int(x, y);
-            }
-        }
     }
 }

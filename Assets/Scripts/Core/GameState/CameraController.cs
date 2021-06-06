@@ -8,19 +8,16 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private CinemachineVirtualCamera virtualCamera;
 
+    [SerializeField]
     private GameState gameState;
 
-    public void Initialize(GameState gameState)
+    private void Awake()
     {
-        this.gameState = gameState;
-    }
-
-    public void LateInitialize()
-    {
-        var player = this.gameState.Services.playerManager.GetAlivePlayers().First();
-        virtualCamera.PreviousStateIsValid = false;
-        virtualCamera.Follow = player.transform;
-
-        Debug.Log($"Assigning vCam follow target to be {player.name}");
+        gameState.OnGameStateInitializationEnd += () =>
+        {
+            var player = gameState.Services.PlayerManager.GetAlivePlayers().First();
+            virtualCamera.PreviousStateIsValid = false;
+            virtualCamera.Follow = player.transform;
+        };
     }
 }

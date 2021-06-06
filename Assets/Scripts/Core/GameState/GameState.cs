@@ -1,13 +1,29 @@
 ﻿using System;
+using UnityEngine;
+using static GameManager;
 
-public class GameState
+public class GameState: MonoBehaviour
 {
-    public readonly World World;
-    public readonly GameManager.Services Services;
+    public Event OnGameStateInitializationBegin;
+    public Event OnGameStateInitializationEnd;
 
-    public GameState(World world, GameManager.Services services)
+    [SerializeField]
+    private Services services;
+    public Services Services => services;
+
+    private World world;
+    public World World => world;
+
+    private Parameters parameters;
+    public Parameters SceneParameters => parameters;
+
+    public void InitializeInBlock(World world, Parameters parameters, System.Action block)
     {
-        this.World = world;
-        this.Services = services;
+        this.world = world;
+        this.parameters = parameters;
+
+        OnGameStateInitializationBegin?.Invoke();
+        block?.Invoke();
+        OnGameStateInitializationEnd?.Invoke();
     }
 }

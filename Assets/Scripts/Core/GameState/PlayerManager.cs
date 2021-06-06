@@ -4,16 +4,28 @@ using static WorldGenerator;
 
 public class PlayerManager : MonoBehaviour
 {
+    [SerializeField]
     private GameState gameState;
+
     private List<Player> players;
 
-    public void Initialize(GameState gameState, List<Player> players)
+    private void Awake()
     {
-        this.gameState = gameState;
-        this.players = new List<Player>(players);
+        gameState.OnGameStateInitializationBegin += () =>
+            this.players = new List<Player>(gameState.SceneParameters.players);
+
+        gameState.OnGameStateInitializationEnd += () =>
+            SpawnPlayers();
     }
 
-    public void SpawnPlayer(Player player, Room room, int section)
+    private void SpawnPlayers()
+    {
+        var spawnSection = Random.Range(0, gameState.World.InitialRoom.SectionCount);
+        foreach (var player in GetAlivePlayers())
+            SpawnPlayer(player, gameState.World.InitialRoom, spawnSection);
+    }
+
+    private void SpawnPlayer(Player player, Room room, int section)
     {
         var spawnCell = room.GetSection(section).center + Random.insideUnitCircle.normalized;
         var spawnPoint = gameState.World.CellToWorldPosition(spawnCell);

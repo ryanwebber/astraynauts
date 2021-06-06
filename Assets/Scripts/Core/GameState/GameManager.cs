@@ -10,10 +10,16 @@ public class GameManager : MonoBehaviour
     public class Services
     {
         [SerializeField]
-        public PlayerManager playerManager;
+        private PlayerManager playerManager;
+        public PlayerManager PlayerManager => playerManager;
 
         [SerializeField]
-        public CameraController cameraController;
+        private CameraController cameraController;
+        public CameraController CameraController => cameraController;
+
+        [SerializeField]
+        private MobManager mobManager;
+        public MobManager MobManager => mobManager;
     }
 
     public struct Parameters
@@ -26,36 +32,15 @@ public class GameManager : MonoBehaviour
     private WorldLoader worldLoader;
 
     [SerializeField]
-    private Services services;
-
-    [NonSerialized]
     private GameState gameState;
 
     public void LoadGame(Parameters parameters, Action cb)
     {
         var worldLayout = WorldGenerator.Generate(parameters.generationParameters);
         worldLoader.LoadWorld(worldLayout, (world) => {
-
-            // Initialize the game services
-            gameState = new GameState(world, services);
-            services.playerManager.Initialize(gameState, parameters.players);
-            services.cameraController.Initialize(gameState);
-
-            // Spawn the player
-            var spawnSection = UnityEngine.Random.Range(0, world.InitialRoom.SectionCount);
-            foreach (var player in services.playerManager.GetAlivePlayers())
-                services.playerManager.SpawnPlayer(player, world.InitialRoom, spawnSection);
-
-            // Set the alive players as targets for the navigation service
-            worldLoader.NavigationTopology.SetTargets(services.playerManager.GetAlivePlayers().Select(player => new Vector2Int(
-                Mathf.FloorToInt(player.transform.position.x),
-                Mathf.FloorToInt(player.transform.position.y)
-            )));
-
-            // Late initialize game services
-            services.cameraController.LateInitialize();
-
-            cb?.Invoke();
+            gameState.InitializeInBlock(world, parameters, () => {
+                cb?.Invoke();
+            });
         });
     }
 }
