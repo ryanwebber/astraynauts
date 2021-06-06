@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class NavigationTopology: MonoBehaviour
@@ -15,17 +16,174 @@ public class NavigationTopology: MonoBehaviour
     {
         public Vector2 slope;
         public int height;
+
+        public Vector2 ClampedSlope => Vector2.ClampMagnitude(slope, 1f);
     }
+
+    private class SteppableTopologyGenerator
+    {
+        private List<Vector2Int> fringe;
+        private List<Vector2Int> fringeQueue;
+        private HashSet<Vector2Int> ignoreSet;
+        private HashSet<Vector2Int> seenSet;
+        private int currentHeight;
+
+        private Vector2Int dimensions;
+        private Topology[,] topology;
+        private CellState[,] traversable;
+
+        public int CurrentHeight => currentHeight;
+        public bool IsExausted => fringe.Count == 0;
+
+        public SteppableTopologyGenerator(
+            Topology[,] topology,
+            CellState[,] traversable,
+            Vector2Int dimensions,
+            IEnumerable<Vector2Int> initialFringe)
+        {
+            this.fringe = new List<Vector2Int>(initialFringe);
+            this.fringeQueue = new List<Vector2Int>(40);
+            this.ignoreSet = new HashSet<Vector2Int>();
+            this.seenSet = new HashSet<Vector2Int>();
+            this.currentHeight = 0;
+
+            this.dimensions = dimensions;
+            this.topology = topology;
+            this.traversable = traversable;
+        }
+
+        public bool CalculateNextIteration()
+        {
+            if (fringe.Count == 0)
+                return false;
+
+            IEnumerable<(Vector2Int cell, Vector2 direction)> GetSteps(Vector2Int cell)
+            {
+                bool IsTraversable(Vector2Int c) =>
+                        c.x >= 0 && c.x < dimensions.x &&
+                        c.y >= 0 && c.y < dimensions.y &&
+                        traversable[c.x, c.y] == CellState.TRAVERSABLE;
+
+                (Vector2Int cell, Vector2 direction) MakeStep(Vector2Int direction) =>
+                    (cell: cell + direction, direction: (((Vector2)direction) * -1f).normalized);
+
+                bool IsTraversableUp = IsTraversable(cell + Vector2Int.up);
+                bool IsTraversableDown = IsTraversable(cell + Vector2Int.down);
+                bool IsTraversableLeft = IsTraversable(cell + Vector2Int.left);
+                bool IsTraversableRight = IsTraversable(cell + Vector2Int.right);
+
+                if (IsTraversableUp)
+                    yield return MakeStep(Vector2Int.up);
+
+                if (IsTraversableDown)
+                    yield return MakeStep(Vector2Int.down);
+
+                if (IsTraversableLeft)
+                    yield return MakeStep(Vector2Int.left);
+
+                if (IsTraversableRight)
+                    yield return MakeStep(Vector2Int.right);
+
+                if (IsTraversableUp && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, 1)))
+                    yield return MakeStep(new Vector2Int(1, 1));
+
+                if (IsTraversableUp && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, 1)))
+                    yield return MakeStep(new Vector2Int(-1, 1));
+
+                if (IsTraversableDown && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, -1)))
+                    yield return MakeStep(new Vector2Int(1, -1));
+
+                if (IsTraversableDown && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, -1)))
+                    yield return MakeStep(new Vector2Int(-1, -1));
+            }
+
+            // Update the height of all cells in the current fringe
+            foreach (var cell in fringe)
+            {
+                var currentTopology = topology[cell.x, cell.y];
+                topology[cell.x, cell.y].slope = Vector2.ClampMagnitude(currentTopology.slope, 1f);
+                topology[cell.x, cell.y].height = currentHeight;
+            }
+
+            // Walk through each neighbor, updating the topology
+            foreach (var cell in fringe)
+            {
+                foreach (var step in GetSteps(cell))
+                {
+                    // Add the cell to the next fringe if we've never seen it before
+                    if (!ignoreSet.Contains(step.cell) && !seenSet.Contains(step.cell))
+                    {
+                        fringeQueue.Add(step.cell);
+                        seenSet.Add(step.cell);
+
+                        // Also reset the cell, we're about to update it for the first time
+                        topology[step.cell.x, step.cell.y].slope = Vector2.zero;
+                    }
+
+                    if (topology[step.cell.x, step.cell.y].height > currentHeight)
+                        topology[step.cell.x, step.cell.y].slope += step.direction;
+                }
+            }
+
+            // Swap the fringe buffers
+            var tmp = fringe;
+            fringe = fringeQueue;
+
+            fringeQueue = tmp;
+            fringeQueue.Clear();
+
+            currentHeight += 1;
+
+            return true;
+        }
+
+        public void Handoff(SteppableTopologyGenerator generator)
+        {
+            generator.fringe.Clear();
+            generator.fringe.AddRange(fringe);
+
+            generator.fringeQueue.Clear();
+            generator.seenSet.Clear();
+
+            generator.ignoreSet.Clear();
+            foreach (var cell in ignoreSet)
+                generator.ignoreSet.Add(cell);
+            foreach (var cell in seenSet)
+                generator.ignoreSet.Add(cell);
+
+            generator.currentHeight = currentHeight;
+            generator.dimensions = dimensions;
+            generator.topology = topology;
+            generator.traversable = traversable;
+        }
+
+        public void Reset(IEnumerable<Vector2Int> initialFringe)
+        {
+            fringe.Clear();
+            fringe.AddRange(initialFringe);
+
+            fringeQueue.Clear();
+            seenSet.Clear();
+            currentHeight = 0;
+        }
+    }
+
+    [SerializeField]
+    [Min(1)]
+    private int fastHeightCalculationBound = 20;
+
+    [SerializeField]
+    [Min(1)]
+    private int slowHeightCalculationBound = 20;
+
+    [SerializeField]
+    private bool showDebug;
 
     private Vector2Int dimensions;
     private CellState[,] traversable;
     private Topology[,] topology;
 
-    private List<Vector2Int> targets;
-    private Queue<Vector2Int> bfsQueue;
-    private HashSet<Vector2Int> bfsSeen;
-
-    private bool isDirty = false;
+    private IEnumerable<Vector2Int> targets;
 
     public Vector2Int Dimensions => dimensions;
     public bool IsInitialized => topology != null;
@@ -40,134 +198,75 @@ public class NavigationTopology: MonoBehaviour
         this.traversable = new CellState[width, height];
         this.topology = new Topology[width, height];
         this.targets = new List<Vector2Int>();
-        this.bfsQueue = new Queue<Vector2Int>();
-        this.bfsSeen = new HashSet<Vector2Int>();
+
+        StopAllCoroutines();
+        StartCoroutine(ContinuouslyRecalculateTopology());
+        StartCoroutine(ShowDebug());
     }    
 
     public void SetTargets(IEnumerable<Vector2Int> targets)
     {
-        List<Vector2Int> newTargets = new List<Vector2Int>(targets);
-        if (newTargets == targets)
-            return;
-
-        this.targets.Clear();
-        this.targets.AddRange(newTargets);
-        this.isDirty = true;
+        this.targets = targets;
     }
 
     public void SetCellState(Vector2Int cell, CellState state)
     {
         this.traversable[cell.x, cell.y] = state;
-        this.isDirty = true;
     }
 
     public Topology GetTopology(Vector2Int cell)
     {
-        return GetSlopeAndRecalculateIfNeeded(cell.x, cell.y);
+        return topology[cell.x, cell.y];
     }
 
-    private Topology GetSlopeAndRecalculateIfNeeded(int x, int y)
+    private IEnumerator ContinuouslyRecalculateTopology()
     {
-        if (isDirty)
-            Profile.Debug("Recalculate navigation topology", RecalculateTopology);
+        SteppableTopologyGenerator fastGenerator = new SteppableTopologyGenerator(
+            topology, traversable, Dimensions, Enumerable.Empty<Vector2Int>());
 
-        return topology[x, y];
-    }
+        SteppableTopologyGenerator slowGenerator = new SteppableTopologyGenerator(
+            topology, traversable, Dimensions, Enumerable.Empty<Vector2Int>());
 
-    private void RecalculateTopology()
-    {
-        bfsQueue.Clear();
-        bfsSeen.Clear();
-
-        IEnumerable<(Vector2Int cell, Vector2 direction)> GetSteps(Vector2Int cell)
+        while (true)
         {
-            bool IsTraversable(Vector2Int c) =>
-                    c.x >= 0 && c.x < Dimensions.x &&
-                    c.y >= 0 && c.y < Dimensions.y &&
-                    traversable[c.x, c.y] == CellState.TRAVERSABLE;
+            // Reset the fast generator for this iteration
+            fastGenerator.Reset(targets);
 
-            (Vector2Int cell, Vector2 direction) MakeStep(Vector2Int direction) =>
-                (cell: cell + direction, direction: (((Vector2)direction) * -1f).normalized);
+            // Compute the topology near the targets
+            for (int i = 0; i < fastHeightCalculationBound; i++)
+                fastGenerator.CalculateNextIteration();
 
-            bool IsTraversableUp = IsTraversable(cell + Vector2Int.up);
-            bool IsTraversableDown = IsTraversable(cell + Vector2Int.down);
-            bool IsTraversableLeft = IsTraversable(cell + Vector2Int.left);
-            bool IsTraversableRight = IsTraversable(cell + Vector2Int.right);
+            // If the slow generator is finished it's last job,
+            // handoff the current fast generator state to it
+            if (slowGenerator.IsExausted)
+                fastGenerator.Handoff(slowGenerator);
 
-            if (IsTraversableUp)
-                yield return MakeStep(Vector2Int.up);
+            // Do some work on the slow generator
+            for (int i = 0; i < slowHeightCalculationBound; i++)
+                slowGenerator.CalculateNextIteration();
 
-            if (IsTraversableDown)
-                yield return MakeStep(Vector2Int.down);
-
-            if (IsTraversableLeft)
-                yield return MakeStep(Vector2Int.left);
-
-            if (IsTraversableRight)
-                yield return MakeStep(Vector2Int.right);
-
-            if (IsTraversableUp && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, 1)))
-                yield return MakeStep(new Vector2Int(1, 1));
-
-            if (IsTraversableUp && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, 1)))
-                yield return MakeStep(new Vector2Int(-1, 1));
-
-            if (IsTraversableDown && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, -1)))
-                yield return MakeStep(new Vector2Int(1, -1));
-
-            if (IsTraversableDown && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, -1)))
-                yield return MakeStep(new Vector2Int(-1, -1));
+            yield return null;
         }
+    }
 
-        // Reset the topology
-        for (int x = 0; x < Dimensions.x; x++)
-            for (int y = 0; y < Dimensions.y; y++)
-                topology[x, y] = new Topology { height = int.MaxValue, slope = Vector2.zero };
-
-        List<Vector2Int> currentFringe = new List<Vector2Int>(Dimensions.x + Dimensions.y);
-        List<Vector2Int> nextFringe = new List<Vector2Int>(Dimensions.x + Dimensions.y);
-
-        // Add the targets to the current fringe
-        foreach (var target in targets)
-            currentFringe.Add(target);
-
-        int height = 0;
-        while (currentFringe.Count > 0)
+    private IEnumerator ShowDebug()
+    {
+        while (true)
         {
-            // Update the height of all cells in the current fringe
-            foreach (var cell in currentFringe)
+            if (showDebug)
             {
-                var currentTopology = topology[cell.x, cell.y];
-                topology[cell.x, cell.y].slope = Vector2.ClampMagnitude(currentTopology.slope, 1f);
-                topology[cell.x, cell.y].height = height;
-            }
-
-            // Walk through each neighbor, updating the topology
-            foreach (var cell in currentFringe)
-            {
-                foreach (var step in GetSteps(cell))
+                for (int x = 0; x < Dimensions.x; x++)
                 {
-                    if (topology[step.cell.x, step.cell.y].height > height)
-                        topology[step.cell.x, step.cell.y].slope += step.direction;
-
-                    // Add the cell to the next fringe if we've never seen it before
-                    if (!bfsSeen.Contains(step.cell))
+                    for (int y = 0; y < Dimensions.y; y++)
                     {
-                        nextFringe.Add(step.cell);
-                        bfsSeen.Add(step.cell);
+                        var cellCenter = new Vector2(x, y) + new Vector2(0.5f, 0.5f);
+                        var topology = GetTopology(new Vector2Int(x, y)).ClampedSlope;
+                        Debug.DrawRay(cellCenter, topology * 0.4f, Color.red, 0.01f);
                     }
                 }
             }
 
-            // Swap the fringe buffers
-            var tmp = currentFringe;
-            currentFringe = nextFringe;
-            nextFringe = tmp;
-            nextFringe.Clear();
-
-            height += 1;
+            yield return new WaitForSeconds(0.01f);
         }
-
-        isDirty = false;
     }
 }

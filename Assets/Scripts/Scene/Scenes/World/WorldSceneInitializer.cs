@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class WorldSceneInitializer : MonoBehaviour
 {
     [SerializeField]
-    private WorldLoader worldLoader;
+    private GameManager gameManager;
 
     [Header("Editor Initialization")]
 
@@ -18,7 +18,7 @@ public class WorldSceneInitializer : MonoBehaviour
     private AttachableInputSource inputSource;
 
     [SerializeField]
-    private PlayerInputBinder inputBinder;
+    private Player player;
 
     [SerializeField]
     private CinemachineVirtualCamera virtualCamera;
@@ -48,37 +48,52 @@ public class WorldSceneInitializer : MonoBehaviour
 
     private void InitializeScene(ISceneLoader loader, System.Action callback)
     {
+        // TODO: Do player instantiation
+        player.InputBinder.Bind(inputSource.MainSource);
+
+        var players = new List<Player>();
+        players.Add(player);
+
         var worldShape = loader.GetContext<WorldShapeParameters>();
-        var worldLayout = WorldGenerator.Generate(worldShape.Parameters);
-
-        for (int i = 0; i < numBoidsToSpawn; i++)
+        var parameters = new GameManager.Parameters
         {
-            var instance = Instantiate(mobPrefab);
-            moveToRandomRoom.Add(instance.transform);
-        }
+            generationParameters = worldShape.Parameters,
+            players = players
+        };
 
-        worldLoader.LoadWorld(worldLayout, (world) => {
+        gameManager.LoadGame(parameters, callback);
 
-            virtualCamera.PreviousStateIsValid = false;
-            virtualCamera.Follow = cameraTarget;
+        //var worldShape = loader.GetContext<WorldShapeParameters>();
+        //var worldLayout = WorldGenerator.Generate(worldShape.Parameters);
 
-            inputBinder.Bind(inputSource.MainSource);
+        //for (int i = 0; i < numBoidsToSpawn; i++)
+        //{
+        //    var instance = Instantiate(mobPrefab);
+        //    moveToRandomRoom.Add(instance.transform);
+        //}
 
-            foreach (var t in moveToRandomRoom)
-            {
-                var rooms = worldLayout.Rooms.AllRooms.ToList();
-                var spawnRoom = rooms[Random.Range(0, rooms.Count)];
-                var spawnSection = spawnRoom.GetSection(Random.Range(0, spawnRoom.SectionCount));
-                var spawnPosition = world.CellToWorldPosition(spawnSection.center) + Random.insideUnitCircle * 0.1f;
+        //worldLoader.LoadWorld(worldLayout, (world) => {
 
-                if (t.gameObject.TryGetComponent<NavigationTopologyInfluencer>(out var i))
-                    i.Topology = navigationTopology;
+        //    virtualCamera.PreviousStateIsValid = false;
+        //    virtualCamera.Follow = cameraTarget;
 
-                t.position = spawnPosition; 
-            }
+        //    inputBinder.Bind(inputSource.MainSource);
 
-            callback?.Invoke();
-        });
+        //    foreach (var t in moveToRandomRoom)
+        //    {
+        //        var rooms = worldLayout.Rooms.AllRooms.ToList();
+        //        var spawnRoom = rooms[Random.Range(0, rooms.Count)];
+        //        var spawnSection = spawnRoom.GetSection(Random.Range(0, spawnRoom.SectionCount));
+        //        var spawnPosition = world.CellToWorldPosition(spawnSection.center) + Random.insideUnitCircle * 0.1f;
+
+        //        if (t.gameObject.TryGetComponent<NavigationTopologyInfluencer>(out var i))
+        //            i.Topology = navigationTopology;
+
+        //        t.position = spawnPosition; 
+        //    }
+
+        //    callback?.Invoke();
+        //});
     }
 
     private void SeedSceneWithMockData(IDebugSceneSeeder seeder)

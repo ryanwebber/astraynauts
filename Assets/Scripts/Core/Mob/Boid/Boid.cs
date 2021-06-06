@@ -41,7 +41,7 @@ public class Boid : MonoBehaviour
     [SerializeField]
     private float detectionRadius;
 
-    private BoidServer attachedServer = null;
+    private BoidManager attachedManager = null;
     private Heading2D heading;
     private Collider2D[] reusableCollisionResults;
 
@@ -90,10 +90,10 @@ public class Boid : MonoBehaviour
 
     public Force ComputeForces()
     {
-        if (attachedServer == null)
+        if (attachedManager == null)
             return Force.None;
 
-        var perception = attachedServer.GetPerception(this);
+        var perception = attachedManager.GetPerception(this);
 
         if (perception.flockCount > 0)
         {
@@ -118,15 +118,15 @@ public class Boid : MonoBehaviour
         return Force.None;
     }
 
-    public void AttachToServer(BoidServer server)
+    public void AttachToManager(BoidManager manager)
     {
-        DetatchFromServer();
-        attachedServer = server;
-        attachedServer.Register(this);
+        DetatchFromManager();
+        attachedManager = manager;
+        attachedManager.Register(this);
     }
 
-    public void DetatchFromServer()
+    public void DetatchFromManager()
     {
-        attachedServer?.Unregister(this);
+        attachedManager?.Unregister(this);
     }
 }

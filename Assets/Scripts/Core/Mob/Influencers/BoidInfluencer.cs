@@ -12,7 +12,7 @@ public class BoidInfluencer : MonoBehaviour
         boid = GetComponent<Boid>();
 
         // TODO: Remove this
-        StartCoroutine(Coroutines.After(2f, () => boid.AttachToServer(BoidServer.Instance)));
+        StartCoroutine(Coroutines.After(2f, () => boid.AttachToManager(BoidManager.Instance)));
     }
 
     public IEnumerable<Vector2> GetInfluences()

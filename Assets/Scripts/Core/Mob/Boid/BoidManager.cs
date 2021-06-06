@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class BoidServer : MonoBehaviour
+public class BoidManager : MonoBehaviour
 {
     public struct LocalPerception
     {
@@ -28,8 +28,8 @@ public class BoidServer : MonoBehaviour
         new Vector2Int(-1, -1),
     };
 
-    private static BoidServer _instance;
-    public static BoidServer Instance => _instance;
+    private static BoidManager _instance;
+    public static BoidManager Instance => _instance;
 
     [SerializeField]
     private Vector2Int gridSize;
