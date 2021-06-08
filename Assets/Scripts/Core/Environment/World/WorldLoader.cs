@@ -65,6 +65,8 @@ public class WorldLoader : MonoBehaviour
     [SerializeField]
     private PerimiterSettings perimiterSettings;
 
+    private World temp = null;
+
     public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action<World> completion)
     {
         StartCoroutine(LoadWorldDistributed(layout, completion));
@@ -94,6 +96,8 @@ public class WorldLoader : MonoBehaviour
         World world = new World(layout, layoutScale, originRoom);
 
         completion?.Invoke(world);
+
+        this.temp = world;
     }
 
     private IEnumerable<IOperation> PlaceWalls(WorldGenerator.WorldLayout layout)
@@ -286,5 +290,21 @@ public class WorldLoader : MonoBehaviour
                 tilemap = floorSettings.tilemap
             }
         );
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (temp == null)
+            return;
+
+        Gizmos.color = Color.magenta;
+        foreach (var airlock in temp.Layout.Airlocks)
+        {
+            var cell = airlock.Cell;
+            var centerCell = (Vector2)cell + Vector2.one * 0.5f;
+            var centerWorld = temp.CellToWorldPosition(centerCell);
+            var size = Vector2.one * temp.LayoutScale;
+            Gizmos.DrawCube(centerWorld, new Vector3(size.x, size.y, 1));
+        }
     }
 }

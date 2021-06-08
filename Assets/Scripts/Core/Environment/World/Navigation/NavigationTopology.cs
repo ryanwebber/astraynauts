@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class NavigationTopology: MonoBehaviour
 {
-    public enum CellState
+    public enum PathType
     {
         BLOCKED = 0,
         TRAVERSABLE
@@ -30,14 +30,14 @@ public class NavigationTopology: MonoBehaviour
 
         private Vector2Int dimensions;
         private Topology[,] topology;
-        private CellState[,] traversable;
+        private PathType[,] traversable;
 
         public int CurrentHeight => currentHeight;
         public bool IsExausted => fringe.Count == 0;
 
         public SteppableTopologyGenerator(
             Topology[,] topology,
-            CellState[,] traversable,
+            PathType[,] traversable,
             Vector2Int dimensions,
             IEnumerable<Vector2Int> initialFringe)
         {
@@ -62,7 +62,7 @@ public class NavigationTopology: MonoBehaviour
                 bool IsTraversable(Vector2Int c) =>
                         c.x >= 0 && c.x < dimensions.x &&
                         c.y >= 0 && c.y < dimensions.y &&
-                        traversable[c.x, c.y] == CellState.TRAVERSABLE;
+                        traversable[c.x, c.y] == PathType.TRAVERSABLE;
 
                 (Vector2Int cell, Vector2 direction) MakeStep(Vector2Int direction) =>
                     (cell: cell + direction, direction: (((Vector2)direction) * -1f).normalized);
@@ -180,7 +180,7 @@ public class NavigationTopology: MonoBehaviour
     private bool showDebug;
 
     private Vector2Int dimensions;
-    private CellState[,] traversable;
+    private PathType[,] traversable;
     private Topology[,] topology;
 
     private IEnumerable<Vector2Int> targets;
@@ -195,7 +195,7 @@ public class NavigationTopology: MonoBehaviour
         int nCells = width * height;
 
         this.dimensions = dimensions;
-        this.traversable = new CellState[width, height];
+        this.traversable = new PathType[width, height];
         this.topology = new Topology[width, height];
         this.targets = new List<Vector2Int>();
 
@@ -209,9 +209,9 @@ public class NavigationTopology: MonoBehaviour
         this.targets = targets;
     }
 
-    public void SetCellState(Vector2Int cell, CellState state)
+    public void SetState(Vector2Int position, PathType state)
     {
-        this.traversable[cell.x, cell.y] = state;
+        this.traversable[position.x, position.y] = state;
     }
 
     public Topology GetTopology(Vector2Int cell)

@@ -23,10 +23,10 @@ public class NavigationService : MonoBehaviour
         var layout = world.Layout;
         navigationTopology.InitalizeTopology(world.UnitSize);
         foreach (var cell in layout.Hallways.SelectMany(h => h.Path).SelectMany(world.ExpandCellToUnits))
-            navigationTopology.SetCellState(cell, NavigationTopology.CellState.TRAVERSABLE);
+            navigationTopology.SetState(cell, NavigationTopology.PathType.TRAVERSABLE);
 
         foreach (var cell in layout.Rooms.Layout.Keys.SelectMany(world.ExpandCellToUnits))
-            navigationTopology.SetCellState(cell, NavigationTopology.CellState.TRAVERSABLE);
+            navigationTopology.SetState(cell, NavigationTopology.PathType.TRAVERSABLE);
     }
 
     private void BindNavigationToPlayers()

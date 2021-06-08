@@ -89,15 +89,80 @@ public static class WorldGenerator
     public class WorldLayout
     {
         public readonly RoomLayout Rooms;
-        public readonly List<Hallway> Hallways;
+        public readonly IReadOnlyList<Hallway> Hallways;
+        public readonly IReadOnlyList<Airlock> Airlocks;
         public readonly Parameters Parameters;
+        public readonly IReadOnlyDictionary<Vector2Int, CellReference> Cells;
 
-        public WorldLayout(RoomLayout rooms, List<Hallway> hallways, Parameters parameters)
+        public WorldLayout(RoomLayout rooms, IReadOnlyList<Hallway> hallways, IReadOnlyList<Airlock> airlocks, Parameters parameters)
         {
             this.Rooms = rooms;
             this.Hallways = hallways;
+            this.Airlocks = airlocks;
             this.Parameters = parameters;
+
+            var mutableCells = new Dictionary<Vector2Int, CellReference>();
+            foreach (var kv in rooms.Layout)
+                mutableCells[kv.Key] = CellReference.FromRoom(kv.Value);
+
+            foreach (var hallway in hallways)
+                foreach (var cell in hallway.Path)
+                    mutableCells[cell] = CellReference.FromHallway(hallway);
+
+            Cells = mutableCells;
         }
+    }
+
+    public class CellReference
+    {
+        public enum CellType
+        {
+            ROOM, HALLWAY, AIRLOCK
+        }
+
+        public readonly CellType Type;
+
+        private Hallway hallway;
+        public Hallway AsHallway
+        {
+            get
+            {
+                Assert.AreEqual(Type, CellType.HALLWAY);
+                return hallway;
+            }
+        }
+
+        private Room room;
+        public Room AsRoom
+        {
+            get
+            {
+                Assert.AreEqual(Type, CellType.ROOM);
+                return room;
+            }
+        }
+
+        private Airlock airlock;
+        public Airlock AsAirlock
+        {
+            get
+            {
+                Assert.AreEqual(Type, CellType.AIRLOCK);
+                return airlock;
+            }
+        }
+
+        private CellReference(CellType type, Hallway hallway = null, Room room = null, Airlock airlock = null)
+        {
+            this.Type = type;
+            this.hallway = hallway;
+            this.room = room;
+            this.airlock = airlock;
+        }
+
+        public static CellReference FromHallway(Hallway hallway) => new CellReference(CellType.HALLWAY, hallway: hallway);
+        public static CellReference FromRoom(Room room) => new CellReference(CellType.ROOM, room: room);
+        public static CellReference FromAirlock(Airlock airlock) => new CellReference(CellType.AIRLOCK, airlock: airlock);
     }
 
     public class Room
@@ -208,6 +273,20 @@ public static class WorldGenerator
         public IEnumerable<Vector2Int> GetCells() => path;
         public IReadOnlyDictionary<Room, Vector2Int> DoorMapping => doorMapping;
         public ISet<Vector2Int> Path => path;
+    }
+
+    public class Airlock
+    {
+        public readonly Room AttachedRoom;
+        public Vector2Int Cell;
+        public Vector2Int Direction;
+
+        public Airlock(Room attachedRoom, Vector2Int cell, Vector2Int direction)
+        {
+            AttachedRoom = attachedRoom;
+            Cell = cell;
+            Direction = direction;
+        }
     }
 
     private static class RandomUtils
@@ -567,10 +646,83 @@ public static class WorldGenerator
         }
     }
 
+    private static class AirlockGenerator
+    {
+        public static readonly Vector2Int[] DIAGONALS = new Vector2Int[]
+        {
+            new Vector2Int(1, 1),
+            new Vector2Int(1, -1),
+            new Vector2Int(-1, 1),
+            new Vector2Int(-1, -1),
+        };
+
+        public static readonly Vector2Int[] ORTHOGONALS = new Vector2Int[]
+        {
+            Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+        };
+
+        public static IReadOnlyList<Airlock> GenerateAirlocks(RoomLayout roomLayout, IReadOnlyList<Hallway> hallways, Parameters parameters)
+        {
+            HashSet<Vector2Int> allHallwaySquares = new HashSet<Vector2Int>(hallways.SelectMany(h => h.Path));
+
+            bool IsRoomInDirection(Vector2Int cell, Vector2Int direction) =>
+                roomLayout.Layout.ContainsKey(cell + direction);
+
+            bool IsHallwayInDirection(Vector2Int cell, Vector2Int direction) =>
+                allHallwaySquares.Contains(cell + direction);
+
+            var allAirlocks = new List<Airlock>();
+            for (int x = -2; x < parameters.CellularDimensions.x + 2; x += 2)
+            {
+                for (int y = -2; y < parameters.CellularDimensions.y + 2; y += 2)
+                {
+                    var cell = new Vector2Int(x, y);
+
+                    // If it's a room or hallway, it's no good
+                    if (IsRoomInDirection(cell, Vector2Int.zero) || IsHallwayInDirection(cell, Vector2Int.zero))
+                        continue;
+
+                    // If a diagnonal or an orthogonal is a hallway, it's no good
+                    if (Enumerable.Concat(DIAGONALS, ORTHOGONALS).Any(d => IsHallwayInDirection(cell, d)))
+                        continue;
+
+                    // It must be orthogonal to exactly one room
+                    if (ORTHOGONALS.Count(o => IsRoomInDirection(cell, o)) != 1)
+                        continue;
+
+                    var dir = ORTHOGONALS.First(o => IsRoomInDirection(cell, o));
+                    var room = roomLayout.Layout[cell + dir];
+                    var neighboringCellsInRooms = Enumerable.Concat(ORTHOGONALS, DIAGONALS)
+                        .Select(d => cell + d)
+                        .Where(c => roomLayout.Layout.ContainsKey(c));
+
+                    // All neighboring rooms must be the same room
+                    if (neighboringCellsInRooms.Select(c => roomLayout.Layout[c]).Distinct().Count() > 1)
+                        continue;
+
+                    // Either the room aligned cells must be aligned on the x or y axis
+                    if (neighboringCellsInRooms.Select(c => c.x).Distinct().Count() != 1 &&
+                        neighboringCellsInRooms.Select(c => c.y).Distinct().Count() != 1)
+                    {
+                        continue;
+                    }
+
+                    allAirlocks.Add(new Airlock(room, cell, dir));
+                }
+            }
+
+            return allAirlocks;
+        }
+    }
+
     public static WorldLayout Generate(Parameters parameters)
     {
-        var rooms = RoomGenerator.GenerateRooms(parameters);
-        var hallways = HallwayGenerator.GenerateHallways(rooms, parameters);
-        return new WorldLayout(rooms, hallways, parameters);
+        return Profile.Debug("Generate world layout", () =>
+        {
+            var rooms = Profile.Debug("Generate room layou", () => RoomGenerator.GenerateRooms(parameters));
+            var hallways = Profile.Debug("Generate hallway layou", () => HallwayGenerator.GenerateHallways(rooms, parameters));
+            var airlocks = Profile.Debug("Generate airlock layou", () => AirlockGenerator.GenerateAirlocks(rooms, hallways, parameters));
+            return new WorldLayout(rooms, hallways, airlocks, parameters);
+        });
     }
 }
