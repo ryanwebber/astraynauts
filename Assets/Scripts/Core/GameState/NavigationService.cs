@@ -6,6 +6,7 @@ public class NavigationService : MonoBehaviour
 {
     [SerializeField]
     private NavigationTopology navigationTopology;
+    public NavigationTopology NavigationTopology => navigationTopology;
 
     [SerializeField]
     private GameState gameState;

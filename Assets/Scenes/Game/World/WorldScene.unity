@@ -1326,6 +1326,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1342330581}
   - component: {fileID: 1342330582}
+  - component: {fileID: 1342330583}
   m_Layer: 0
   m_Name: MobManager
   m_TagString: Untagged
@@ -1360,6 +1361,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de7e50e03675e4f82b61f504b39d12bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameState: {fileID: 261099363}
+  navigationService: {fileID: 509416141}
+  boidManager: {fileID: 521608993}
+  mobSpawner: {fileID: 1342330583}
+  mobPrefab: {fileID: 2234429384227885141, guid: beaedb4e24bbd4ca28cbd901dfaf0f2a, type: 3}
+  numMobsToSpawn: 50
+--- !u!114 &1342330583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1342330580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c0a09858a9d4e3f8f12460d8178488, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnParent: {fileID: 824770895}
   gameState: {fileID: 261099363}
 --- !u!1 &1460790365
 GameObject:
