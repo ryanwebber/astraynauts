@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parameters:
     HallwayWidth: 1
-    WorldScale: {x: 12, y: 8}
-    MinimumCellularSectorSize: {x: 2, y: 2}
+    WorldScale: {x: 14, y: 10}
+    MinimumCellularSectorSize: {x: 3, y: 3}
     MaximumCellularSectorSize: {x: 5, y: 5}
-    MaximumRoomSizeScale: 6
-    MinimumSectorOverlapWidth: 1
+    MaximumRoomSizeScale: 2
+    MinimumSectorOverlapWidth: 8
     MaximumSectionsPerRoom: 4
     BonusHallwaySpawnChance: 0.25
     MaximumBonusHallways: 4
     RoomDensity:
-      value: 0.1
+      value: 0.035
     SectorSizeDecay:
       serializedVersion: 2
       m_Curve:

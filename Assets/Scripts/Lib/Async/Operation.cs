@@ -5,7 +5,7 @@ public interface IOperation
     void Perform();
 }
 
-public  struct LambdaOperation : IOperation
+public struct LambdaOperation : IOperation
 {
     private System.Action action;
 
@@ -15,4 +15,11 @@ public  struct LambdaOperation : IOperation
     }
 
     public void Perform() => action?.Invoke();
+}
+
+public struct NoopOperation : IOperation
+{
+    public void Perform()
+    {
+    }
 }

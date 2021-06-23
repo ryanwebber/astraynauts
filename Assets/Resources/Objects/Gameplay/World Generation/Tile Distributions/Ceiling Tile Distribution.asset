@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Ceiling Tile Distribution
   m_EditorClassIdentifier: 
   tiles:
-  - tile: {fileID: 11400000, guid: 840d5c1cdb33a48c2ac3585197d69935, type: 2}
+  - tile: {fileID: 11400000, guid: ba20e59b9bdfb4ac7b0203f9fdbada1a, type: 2}
     weight: 1

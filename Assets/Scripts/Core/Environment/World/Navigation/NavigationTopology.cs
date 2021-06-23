@@ -216,6 +216,9 @@ public class NavigationTopology: MonoBehaviour
 
     public Topology GetTopology(Vector2Int cell)
     {
+        if (cell.x < 0 || cell.y < 0 || cell.x >= dimensions.x || cell.y >= dimensions.y)
+            return new Topology { slope = Vector2Int.zero, height = 99999999 };
+
         return topology[cell.x, cell.y];
     }
 

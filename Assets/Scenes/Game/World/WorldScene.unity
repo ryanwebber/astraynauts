@@ -1155,10 +1155,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5a1fe33ba7d843a79e951633b8586d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layoutScale: 4
+  layoutScale: 2
   floorSettings:
     tilemap: {fileID: 1481187380}
-    tiles: {fileID: 11400000, guid: 33f6a763aaf4543e58132bc8d2721cff, type: 2}
+    roomTiles: {fileID: 11400000, guid: 33f6a763aaf4543e58132bc8d2721cff, type: 2}
+    hallTiles: {fileID: 11400000, guid: 81514db06c936423d8da8b87297f9ef6, type: 2}
   wallSettings:
     tilemap: {fileID: 1232315633}
     ceilingTiles: {fileID: 11400000, guid: 592d9fee61b2542f98cd7a2f61ad19fa, type: 2}
@@ -1829,7 +1830,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7775489, y: 1}
+    m_SensorSize: {x: 1.7780126, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

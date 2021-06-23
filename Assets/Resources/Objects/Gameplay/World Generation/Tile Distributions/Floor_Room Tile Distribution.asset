@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 979582cf7d2c3499d9e0cfe1d32ade74, type: 3}
-  m_Name: Floor Tile Distribution
+  m_Name: Floor_Room Tile Distribution
   m_EditorClassIdentifier: 
   tiles:
   - tile: {fileID: 11400000, guid: 18cb7d825e1864017be6d548ec8e1e6b, type: 2}
-    weight: 16
+    weight: 160000000
   - tile: {fileID: 11400000, guid: dceeb9375bc56474480512129ce90d7e, type: 2}
-    weight: 4
+    weight: 160000000
   - tile: {fileID: 11400000, guid: 20f8eb22ed904491aaa78c71c0b4df45, type: 2}
     weight: 10
   - tile: {fileID: 11400000, guid: f41af95bfd442446487c0df81a015f65, type: 2}

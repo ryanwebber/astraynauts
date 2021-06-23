@@ -719,9 +719,9 @@ public static class WorldGenerator
     {
         return Profile.Debug("Generate world layout", () =>
         {
-            var rooms = Profile.Debug("Generate room layou", () => RoomGenerator.GenerateRooms(parameters));
-            var hallways = Profile.Debug("Generate hallway layou", () => HallwayGenerator.GenerateHallways(rooms, parameters));
-            var airlocks = Profile.Debug("Generate airlock layou", () => AirlockGenerator.GenerateAirlocks(rooms, hallways, parameters));
+            var rooms = Profile.Debug("Generate room layout", () => RoomGenerator.GenerateRooms(parameters));
+            var hallways = Profile.Debug("Generate hallway layout", () => HallwayGenerator.GenerateHallways(rooms, parameters));
+            var airlocks = Profile.Debug("Generate airlock layout", () => AirlockGenerator.GenerateAirlocks(rooms, hallways, parameters));
             return new WorldLayout(rooms, hallways, airlocks, parameters);
         });
     }

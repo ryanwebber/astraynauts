@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Assertions;
+
 using static WorldGenerator;
 
 public class WorldLoader : MonoBehaviour
@@ -50,7 +50,10 @@ public class WorldLoader : MonoBehaviour
         public Tilemap tilemap;
 
         [SerializeField]
-        public TileDistribution tiles;
+        public TileDistribution roomTiles;
+
+        [SerializeField]
+        public TileDistribution hallTiles;
     }
 
     [SerializeField]
@@ -74,222 +77,222 @@ public class WorldLoader : MonoBehaviour
 
     private IEnumerator LoadWorldDistributed(WorldGenerator.WorldLayout layout, System.Action<World> completion)
     {
-        var loadFloorsOperation = PlaceFloors(layout);
-        var loadWallsOperation = PlaceWalls(layout);
+        // Create the world grid, describing every unit of the map
+        var worldGrid = new WorldGrid();
+        foreach (var unitAssignment in GetFloorUnits(layout))
+            worldGrid[unitAssignment.position] = unitAssignment.unit;
 
-        var loader = new SafeLoader(loadFloorsOperation, loadWallsOperation);
+        foreach (var unitAssignment in GetCeilingUnits(layout))
+            worldGrid[unitAssignment.position] = unitAssignment.unit;
 
+        foreach (var unitAssignment in GetWallUnits(layout))
+            worldGrid[unitAssignment.position] = unitAssignment.unit;
+
+        // Load the world and generate the tilemaps
+        int frameCount = 0;
+        var loader = new SafeLoader(GetTileAssignments(worldGrid));
         foreach (var y in loader.SparseLoad<YieldInstruction>(null))
         {
+            frameCount++;
             yield return y;
         }
- 
-        // TODO: Delete me
-        foreach (var door in layout.Hallways.SelectMany(h => h.Path).SelectMany(c => World.ExpandCellToUnits(c, layoutScale)))
-        {
-            floorSettings.tilemap.SetTileFlags(new Vector3Int(door.x, door.y, 0), TileFlags.None);
-            floorSettings.tilemap.SetColor(new Vector3Int(door.x, door.y, 0), Color.yellow);
-        }
 
+        Debug.Log($"Loaded tilemaps in {frameCount} frames");
+
+        // Store the world data
         var originRoomIndex = Random.Range(0, layout.Rooms.AllRooms.Count);
         var originRoom = layout.Rooms.AllRooms[originRoomIndex];
         World world = new World(layout, layoutScale, originRoom);
 
+        // Generation complete!
         completion?.Invoke(world);
-
         this.temp = world;
     }
 
-    private IEnumerable<IOperation> PlaceWalls(WorldGenerator.WorldLayout layout)
+    private IEnumerable<IOperation> GetTileAssignments(WorldGrid grid)
     {
         var ceilingTileset = wallSettings.ceilingTiles.AsCollection();
         var northWallTileset = wallSettings.northWallTiles.AsCollection();
         var southWallTileset = wallSettings.southWallTiles.AsCollection();
-        var tilemap = wallSettings.tilemap;
+        var roomTileset = floorSettings.roomTiles.AsCollection();
+        var hallTileset = floorSettings.hallTiles.AsCollection();
 
-        HashSet<Vector2Int> allFloors = new HashSet<Vector2Int>();
-        HashSet<Vector2Int> rejectPositions = new HashSet<Vector2Int>();
-
-        HashSet<Vector2Int> perimiterPositions = new HashSet<Vector2Int>();
-
-        IEnumerable<IOperation> GenerateWallsNeighboring(Vector2Int cell)
+        foreach (var pair in grid.GetUnits())
         {
-            bool IsEmpty(Vector2Int direction) => !allFloors.Contains(cell + direction);
-            IEnumerable<Vector2Int> WalkScaled(Vector2Int from, Vector2Int direction)
-            {
-                for (int i = 0; i < layoutScale; i++)
-                    yield return from + direction * i;
-            }
+            var position = pair.position;
+            var unit = pair.unit;
 
-            if (IsEmpty(Vector2Int.left))
+            switch (unit)
             {
-                foreach (var position in WalkScaled(from: cell * layoutScale + Vector2Int.left, Vector2Int.up).Where(p => !rejectPositions.Contains(p)))
-                {
+                case WorldGrid.CeilingUnit _:
+
                     yield return new TileAssignment
                     {
+                        tilemap = wallSettings.tilemap,
+                        position = position,
                         tile = ceilingTileset.NextValue(),
-                        tilemap = tilemap,
-                        position = position
                     };
 
-                    perimiterPositions.Add(position);
-                }
-            }
-
-            if (IsEmpty(Vector2Int.right))
-            {
-                foreach (var position in WalkScaled(from: (cell + Vector2Int.right) * layoutScale, Vector2Int.up).Where(p => !rejectPositions.Contains(p)))
-                {
+                    // Also throw in a collision tile
                     yield return new TileAssignment
                     {
-                        tile = ceilingTileset.NextValue(),
-                        tilemap = tilemap,
-                        position = position
+                        tilemap = perimiterSettings.tilemap,
+                        position = position,
+                        tile = perimiterSettings.tile
                     };
 
-                    perimiterPositions.Add(position);
-                }
-            }
+                    break;
 
-            if (IsEmpty(Vector2Int.down))
-            {
-                foreach (var position in WalkScaled(from: cell * layoutScale + Vector2Int.down, Vector2Int.right))
-                {
-                    yield return new TileAssignment
-                    {
-                        tile = ceilingTileset.NextValue(),
-                        tilemap = tilemap,
-                        position = position
-                    };
+                case WorldGrid.WallUnit _:
 
                     yield return new TileAssignment
                     {
-                        tile = southWallTileset.NextValue(),
-                        tilemap = tilemap,
-                        position = position + Vector2Int.up
-                    };
-
-                    perimiterPositions.Add(position);
-                }
-            }
-
-            if (IsEmpty(Vector2Int.up))
-            {
-                foreach (var position in WalkScaled(from: (cell + Vector2Int.up) * layoutScale, Vector2Int.right))
-                {
-                    yield return new TileAssignment
-                    {
-                        tile = ceilingTileset.NextValue(),
-                        tilemap = tilemap,
-                        position = position + Vector2Int.up
-                    };
-
-                    yield return new TileAssignment
-                    {
+                        tilemap = wallSettings.tilemap,
+                        position = position,
                         tile = northWallTileset.NextValue(),
-                        tilemap = tilemap,
-                        position = position
                     };
 
-                    // North wall doesn't want to be overwritten by left/right checked ceil tiles
-                    rejectPositions.Add(position);
+                    // Also throw in a collision tile
+                    yield return new TileAssignment
+                    {
+                        tilemap = perimiterSettings.tilemap,
+                        position = position,
+                        tile = perimiterSettings.tile
+                    };
 
-                    perimiterPositions.Add(position);
-                }
+                    break;
+
+                case WorldGrid.FloorUnit floorUnit:
+
+                    yield return new TileAssignment
+                    {
+                        tilemap = floorSettings.tilemap,
+                        position = position,
+                        tile = floorUnit.FloorLocation == WorldGrid.FloorUnit.Location.ROOM ?
+                            roomTileset.NextValue() : hallTileset.NextValue(),
+                    };
+
+                    // Check if we need to throw in the south wall overlapping this tile
+                    if (grid.IsType(position + Vector2Int.down, WorldGrid.UnitType.CEILING))
+                        yield return new TileAssignment
+                        {
+                            tilemap = wallSettings.tilemap,
+                            position = position,
+                            tile = southWallTileset.NextValue(),
+                        };
+
+                    break;
+            }
+        }
+    }
+
+    private IEnumerable<(Vector2Int position, WorldGrid.CeilingUnit unit)> GetCeilingUnits(WorldLayout layout)
+    {
+        var floorCells = new HashSet<Vector2Int>(Enumerable.Concat(
+            // Room cells
+            layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells()),
+
+            // Hallway cells
+            layout.Hallways.SelectMany(h => h.Path)
+        ));
+
+        bool IsEmptySpace(Vector2Int cell, Vector2Int offset) => !floorCells.Contains(cell + offset);
+        IEnumerable<Vector2Int> WalkScaled(Vector2Int from, Vector2Int direction)
+        {
+            for (int i = 0; i < layoutScale; i++)
+                yield return from + direction * i;
+        }
+
+        IEnumerable<Vector2Int> GetPositions(Vector2Int cell)
+        {
+            // Orthogonal Positions
+
+            if (IsEmptySpace(cell, Vector2Int.up))
+                foreach (var pos in WalkScaled(from: (cell + Vector2Int.up) * layoutScale, Vector2Int.right))
+                    yield return pos + Vector2Int.up; // One-cell gap between the floor and the ceiling upwards
+
+            if (IsEmptySpace(cell, Vector2Int.right))
+                foreach (var pos in WalkScaled(from: (cell + Vector2Int.right) * layoutScale, Vector2Int.up))
+                    yield return pos;
+
+            if (IsEmptySpace(cell, Vector2Int.down))
+                foreach (var pos in WalkScaled(from: cell * layoutScale + Vector2Int.down, Vector2Int.right))
+                    yield return pos;
+
+            if (IsEmptySpace(cell, Vector2Int.left))
+                foreach (var pos in WalkScaled(from: cell * layoutScale + Vector2Int.left, Vector2Int.up))
+                    yield return pos;
+
+            // Diagonal Positions
+
+            if (IsEmptySpace(cell, Vector2Int.down) && IsEmptySpace(cell, Vector2Int.right))
+                yield return cell * layoutScale + Vector2Int.down + Vector2Int.right * layoutScale;
+
+            if (IsEmptySpace(cell, Vector2Int.down) && IsEmptySpace(cell, Vector2Int.left))
+                yield return cell * layoutScale + Vector2Int.down + Vector2Int.left;
+
+            if (IsEmptySpace(cell, Vector2Int.up) && IsEmptySpace(cell, Vector2Int.right))
+            {
+                // Two-cell tall walls at the upper corners
+                yield return (cell + Vector2Int.one) * layoutScale;
+                yield return (cell + Vector2Int.one) * layoutScale + Vector2Int.up;
             }
 
-            if (IsEmpty(Vector2Int.up) && IsEmpty(Vector2Int.right))
+            if (IsEmptySpace(cell, Vector2Int.up) && IsEmptySpace(cell, Vector2Int.left))
             {
-                yield return new TileAssignment
-                {
-                    tile = ceilingTileset.NextValue(),
-                    tilemap = tilemap,
-                    position = (cell + Vector2Int.one) * layoutScale
-                };
-
-                // Upper corners are 2 ceil tiles tall
-                yield return new TileAssignment
-                {
-                    tile = ceilingTileset.NextValue(),
-                    tilemap = tilemap,
-                    position = (cell + Vector2Int.one) * layoutScale + Vector2Int.up
-                };
-            }
-
-            if (IsEmpty(Vector2Int.down) && IsEmpty(Vector2Int.right))
-            {
-                yield return new TileAssignment
-                {
-                    tile = ceilingTileset.NextValue(),
-                    tilemap = tilemap,
-                    position = cell * layoutScale + Vector2Int.down + Vector2Int.right * layoutScale
-                };
-            }
-
-            if (IsEmpty(Vector2Int.down) && IsEmpty(Vector2Int.left))
-            {
-                yield return new TileAssignment
-                {
-                    tile = ceilingTileset.NextValue(),
-                    tilemap = tilemap,
-                    position = cell * layoutScale + Vector2Int.down + Vector2Int.left
-                };
-            }
-
-            if (IsEmpty(Vector2Int.up) && IsEmpty(Vector2Int.left))
-            {
-                yield return new TileAssignment
-                {
-                    tile = ceilingTileset.NextValue(),
-                    tilemap = tilemap,
-                    position = cell * layoutScale + Vector2Int.up * layoutScale + Vector2Int.left
-                };
-
-                // Upper corners are 2 ceil tiles tall
-                yield return new TileAssignment
-                {
-                    tile = ceilingTileset.NextValue(),
-                    tilemap = tilemap,
-                    position = cell * layoutScale + Vector2Int.up * layoutScale + Vector2Int.up + Vector2Int.left
-                };
+                // Two-cell tall walls at the upper corners
+                yield return cell * layoutScale + Vector2Int.up * layoutScale + Vector2Int.left;
+                yield return cell * layoutScale + Vector2Int.up * layoutScale + Vector2Int.up + Vector2Int.left;
             }
         }
 
-        var floorCells = layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells());
-        var hallwayCells = layout.Hallways.SelectMany(h => h.Path);
-
-        foreach (var floor in Enumerable.Concat(floorCells, hallwayCells))
-            allFloors.Add(floor);
-
-        IEnumerable<IOperation> wallPlacement = Enumerable.Concat(floorCells, hallwayCells).SelectMany(GenerateWallsNeighboring);
-        IEnumerable<IOperation> perimiterPlacement = perimiterPositions.Select(position =>
-        {
-            return (IOperation) new TileAssignment
-            {
-                position = position,
-                tile = perimiterSettings.tile,
-                tilemap = perimiterSettings.tilemap
-            };
-        });
-
-        return Enumerable.Concat(wallPlacement, perimiterPlacement);
+        return floorCells
+            .SelectMany(GetPositions)
+            .Select(p => (position: p, unit: new WorldGrid.CeilingUnit()));
     }
 
-    private IEnumerable<IOperation> PlaceFloors(WorldGenerator.WorldLayout layout)
-    {   
-        var tileset = floorSettings.tiles.AsCollection();
+    private IEnumerable<(Vector2Int position, WorldGrid.WallUnit unit)> GetWallUnits(WorldLayout layout)
+    {
+        var floorCells = new HashSet<Vector2Int>(Enumerable.Concat(
+            // Room cells
+            layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells()),
 
-        var floorCells = layout.Rooms.AllRooms.SelectMany(r => r.GetAllCells());
-        var hallwayCells = layout.Hallways.SelectMany(h => h.Path);
-        var expandedPositions = Enumerable.Concat(floorCells, hallwayCells).SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+            // Hallway cells
+            layout.Hallways.SelectMany(h => h.Path)
+        ));
 
-        return expandedPositions.Select(position => (IOperation) new TileAssignment
-            {
-                tile = tileset.NextValue(),
-                position = position,
-                tilemap = floorSettings.tilemap
-            }
-        );
+        bool IsEmptySpace(Vector2Int cell, Vector2Int offset) => !floorCells.Contains(cell + offset);
+        IEnumerable<Vector2Int> WalkScaled(Vector2Int from, Vector2Int direction)
+        {
+            for (int i = 0; i < layoutScale; i++)
+                yield return from + direction * i;
+        }
+
+        IEnumerable<(Vector2Int position, WorldGrid.WallUnit unit)> GetPositions(Vector2Int cell)
+        {
+            if (IsEmptySpace(cell, Vector2Int.up))
+                foreach (var pos in WalkScaled(from: (cell + Vector2Int.up) * layoutScale, Vector2Int.right))
+                    yield return (position: pos, new WorldGrid.WallUnit(WorldGrid.WallUnit.Face.DOWN));
+        }
+
+        return floorCells.SelectMany(GetPositions);
+    }
+
+    private IEnumerable<(Vector2Int position, WorldGrid.FloorUnit unit)> GetFloorUnits(WorldLayout layout)
+    {
+        var roomPositions = layout.Rooms.AllRooms
+            .SelectMany(r => r.GetAllCells())
+            .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+
+        var roomAssignments = roomPositions.Select(position => (position: position, unit: new WorldGrid.FloorUnit(WorldGrid.FloorUnit.Location.ROOM)));
+
+        var hallwayCells = layout.Hallways
+            .SelectMany(h => h.Path)
+            .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+
+        var hallwayAssignments = hallwayCells.Select(position => (position: position, unit: new WorldGrid.FloorUnit(WorldGrid.FloorUnit.Location.HALLWAY)));
+        
+        return Enumerable.Concat(roomAssignments, hallwayAssignments);
     }
 
     private void OnDrawGizmos()
