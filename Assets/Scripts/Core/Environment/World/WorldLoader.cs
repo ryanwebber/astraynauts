@@ -18,13 +18,50 @@ public class WorldLoader : MonoBehaviour
     }
 
     [System.Serializable]
-    public class WallSettings
+    public class JointMapping
+    {
+        [SerializeField]
+        private JointHash.JointDefinition definition;
+        public JointHash.JointDefinition Definition => definition;
+
+        [SerializeField]
+        private TileDistribution tiles;
+        public TileDistribution Tiles => tiles;
+    }
+
+    [System.Serializable]
+    public class CeilingSettings
     {
         [SerializeField]
         public Tilemap tilemap;
 
         [SerializeField]
-        public TileDistribution ceilingTiles;
+        public TileBase defaultTile;
+
+        [SerializeField]
+        public List<JointMapping> jointMappings;
+
+        public Dictionary<int, IRandomAccessCollection<TileBase>> ToLookupTable()
+        {
+            var dict = new Dictionary<int, IRandomAccessCollection<TileBase>>();
+            foreach (var jm in jointMappings)
+            {
+                var hash = jm.Definition.Hash.hash;
+                var tiles = jm.Tiles.AsCollection();
+                dict[hash] = tiles;
+
+                Debug.Log($"Using '{jm.Tiles.name}' for hash {hash}");
+            }
+
+            return dict;
+        }
+    }
+
+    [System.Serializable]
+    public class WallSettings
+    {
+        [SerializeField]
+        public Tilemap tilemap;
 
         [SerializeField]
         public TileDistribution northWallTiles;
@@ -64,6 +101,9 @@ public class WorldLoader : MonoBehaviour
 
     [SerializeField]
     private WallSettings wallSettings;
+
+    [SerializeField]
+    private CeilingSettings ceilingSettings;
 
     [SerializeField]
     private PerimiterSettings perimiterSettings;
@@ -111,11 +151,19 @@ public class WorldLoader : MonoBehaviour
 
     private IEnumerable<IOperation> GetTileAssignments(WorldGrid grid)
     {
-        var ceilingTileset = wallSettings.ceilingTiles.AsCollection();
+        var ceilingTileTable = ceilingSettings.ToLookupTable();
         var northWallTileset = wallSettings.northWallTiles.AsCollection();
         var southWallTileset = wallSettings.southWallTiles.AsCollection();
         var roomTileset = floorSettings.roomTiles.AsCollection();
         var hallTileset = floorSettings.hallTiles.AsCollection();
+
+        TileBase GetCeilingTileForUnit(WorldGrid.CeilingUnit unit)
+        {
+            if (ceilingTileTable.TryGetValue(unit.JointType.hash, out var tileset))
+                return tileset.NextValue();
+            else
+                return ceilingSettings.defaultTile;
+        }
 
         foreach (var pair in grid.GetUnits())
         {
@@ -124,14 +172,15 @@ public class WorldLoader : MonoBehaviour
 
             switch (unit)
             {
-                case WorldGrid.CeilingUnit _:
+                case WorldGrid.CeilingUnit ceilingUnit:
 
                     yield return new TileAssignment
                     {
                         tilemap = wallSettings.tilemap,
                         position = position,
-                        tile = ceilingTileset.NextValue(),
+                        tile = GetCeilingTileForUnit(ceilingUnit),
                     };
+
 
                     // Also throw in a collision tile
                     yield return new TileAssignment

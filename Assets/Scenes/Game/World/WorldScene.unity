@@ -1162,9 +1162,57 @@ MonoBehaviour:
     hallTiles: {fileID: 11400000, guid: 81514db06c936423d8da8b87297f9ef6, type: 2}
   wallSettings:
     tilemap: {fileID: 1232315633}
-    ceilingTiles: {fileID: 11400000, guid: 592d9fee61b2542f98cd7a2f61ad19fa, type: 2}
     northWallTiles: {fileID: 11400000, guid: 98bc4794c12d64ee0aad90fc6970cc0b, type: 2}
     southWallTiles: {fileID: 11400000, guid: 176ae81920fe7402fb3b291838d8ea22, type: 2}
+  ceilingSettings:
+    tilemap: {fileID: 1232315633}
+    defaultTile: {fileID: 11400000, guid: ebe9d3cb43f2c4452a0f24c2f3a92912, type: 2}
+    jointMappings:
+    - definition:
+        openEnds: 0200000004000000
+      tiles: {fileID: 11400000, guid: d7ea490e5dd6d4a3ba9e4d45c6bc0e70, type: 2}
+    - definition:
+        openEnds: 0100000003000000
+      tiles: {fileID: 11400000, guid: 9307cd67433914597abff65835297e5f, type: 2}
+    - definition:
+        openEnds: 01000000
+      tiles: {fileID: 11400000, guid: 16c727436b9ec4282a8c94aafca74f4b, type: 2}
+    - definition:
+        openEnds: 02000000
+      tiles: {fileID: 11400000, guid: a8a67fb7b2aee4c23b35e39a4eff9a93, type: 2}
+    - definition:
+        openEnds: 03000000
+      tiles: {fileID: 11400000, guid: f8600bafcd8024ae090347e24ffb4d7c, type: 2}
+    - definition:
+        openEnds: 04000000
+      tiles: {fileID: 11400000, guid: 5c45a3900215b44bf8b48f1e39649f1b, type: 2}
+    - definition:
+        openEnds: 0200000001000000
+      tiles: {fileID: 11400000, guid: 77b430ef406dc422cba840ea2440bc00, type: 2}
+    - definition:
+        openEnds: 0200000003000000
+      tiles: {fileID: 11400000, guid: e900df7477133467db70b23971536684, type: 2}
+    - definition:
+        openEnds: 0300000004000000
+      tiles: {fileID: 11400000, guid: 9fc49528bcd0044eea827a9e02de41b9, type: 2}
+    - definition:
+        openEnds: 0400000001000000
+      tiles: {fileID: 11400000, guid: 647d1f70cc9cf481686126920bee9911, type: 2}
+    - definition:
+        openEnds: 020000000100000003000000
+      tiles: {fileID: 11400000, guid: cbebab54325f44f699c3e7199b171c8b, type: 2}
+    - definition:
+        openEnds: 020000000100000004000000
+      tiles: {fileID: 11400000, guid: 6257ff96adeee47919ad2e8c691f8972, type: 2}
+    - definition:
+        openEnds: 020000000300000004000000
+      tiles: {fileID: 11400000, guid: ef2434f4a51184081bba9c3292de8358, type: 2}
+    - definition:
+        openEnds: 030000000400000001000000
+      tiles: {fileID: 11400000, guid: 62a813b57b0f6494da95dcb2255f4a13, type: 2}
+    - definition:
+        openEnds: 03000000040000000100000002000000
+      tiles: {fileID: 11400000, guid: 493ee51954399434e9be055e9db81822, type: 2}
   perimiterSettings:
     tilemap: {fileID: 696811784}
     tile: {fileID: 11400000, guid: 135824510b5a546398a836ef341b764d, type: 2}
@@ -1830,7 +1878,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7780126, y: 1}
+    m_SensorSize: {x: 1.7785388, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

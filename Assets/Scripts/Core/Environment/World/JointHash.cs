@@ -20,9 +20,9 @@ public struct JointHash
 
     public JointHash(IEnumerable<Direction> directions)
     {
-        this.hash = 0;
+        hash = 0;
         foreach (var dir in directions)
-            this.hash &= 2 << (int)dir;
+            hash |= 1 << (int)dir;
     }
 
     public JointHash(params Direction[] directions) : this((IEnumerable<Direction>)directions)
@@ -42,7 +42,7 @@ public struct JointHash
 
     public static JointHash operator +(JointHash jointHash, Direction direction)
     {
-        return new JointHash(jointHash.hash & (int)direction);
+        return new JointHash(jointHash.hash | (1 << (int)direction));
     }
 
 
@@ -71,6 +71,6 @@ public struct JointHash
         [SerializeField]
         private List<Direction> openEnds;
 
-        public JointHash Hash => new JointHash(openEnds ?? new List<Direction>());
+        public JointHash Hash => new JointHash(openEnds);
     }
 }

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 979582cf7d2c3499d9e0cfe1d32ade74, type: 3}
-  m_Name: Ceiling Tile Distribution
+  m_Name: Ceiling_3-6-9-12 Tile Distribution
   m_EditorClassIdentifier: 
   tiles:
-  - tile: {fileID: 11400000, guid: ba20e59b9bdfb4ac7b0203f9fdbada1a, type: 2}
+  - tile: {fileID: 11400000, guid: e2809991b6da541c8bc35fc899b89d91, type: 2}
     weight: 1

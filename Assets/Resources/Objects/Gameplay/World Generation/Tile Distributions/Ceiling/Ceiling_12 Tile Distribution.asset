@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979582cf7d2c3499d9e0cfe1d32ade74, type: 3}
+  m_Name: Ceiling_12 Tile Distribution
+  m_EditorClassIdentifier: 
+  tiles:
+  - tile: {fileID: 11400000, guid: 5aed9aa7a133a4e9e86214fbf9a8b50e, type: 2}
+    weight: 1
