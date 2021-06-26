@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 979582cf7d2c3499d9e0cfe1d32ade74, type: 3}
-  m_Name: Hull_TopRightWindown Tile Distribution
+  m_Name: Hull_TopRight Tile Distribution
   m_EditorClassIdentifier: 
   tiles:
-  - tile: {fileID: 11400000, guid: a82bac1cb9d5f4bd089a3efc1c081fc0, type: 2}
+  - tile: {fileID: 11400000, guid: d53818adaba0c46e688fcac065469480, type: 2}
     weight: 1

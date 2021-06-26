@@ -125,18 +125,6 @@ public class WorldLoader : MonoBehaviour
         public Tilemap tilemap;
 
         [SerializeField]
-        public TileBase topLeft;
-
-        [SerializeField]
-        public TileBase topRight;
-
-        [SerializeField]
-        public TileBase bottomLeft;
-
-        [SerializeField]
-        public TileBase bottomRight;
-        
-        [SerializeField]
         public List<HullMapping> jointMappings;
 
         public Dictionary<(int mountHash, int directionHash), IRandomAccessCollection<TileBase>> ToLookupTable()
@@ -309,69 +297,12 @@ public class WorldLoader : MonoBehaviour
         var hullJointMapping = GetShipPerimiterUnits(grid);
         foreach (var kvp in hullJointMapping)
         {
-            var unit = kvp.Key;
-            var joint = kvp.Value;
-
-            if (joint.directionJoint == new JointHash(JointHash.Direction.DOWN, JointHash.Direction.UP) &&
-                    joint.mountJoint == new JointHash(JointHash.Direction.RIGHT) &&
-                    grid.IsEmptySpace(unit + Vector2Int.up) &&
-                    grid.IsEmptySpace(unit + Vector2Int.up + Vector2Int.right))
-            {
-                // The top corner pieces don't actually go on the corners
-                yield return new TileAssignment
-                {
-                    tilemap = hullSettings.tilemap,
-                    position = unit,
-                    tile = hullSettings.topLeft
-                };
-            }
-            else if (joint.directionJoint == new JointHash(JointHash.Direction.DOWN, JointHash.Direction.UP) &&
-                    joint.mountJoint == new JointHash(JointHash.Direction.LEFT) &&
-                    grid.IsEmptySpace(unit + Vector2Int.up) &&
-                    grid.IsEmptySpace(unit + Vector2Int.up + Vector2Int.left))
-            {
-                // The top corner pieces don't actually go on the corners
-                yield return new TileAssignment
-                {
-                    tilemap = hullSettings.tilemap,
-                    position = unit,
-                    tile = hullSettings.topRight
-                };
-
-            }
-            else if (joint.directionJoint == new JointHash(JointHash.Direction.LEFT, JointHash.Direction.RIGHT) &&
-                    joint.mountJoint == new JointHash(JointHash.Direction.UP) &&
-                    hullJointMapping.TryGetValue(unit + Vector2Int.left, out var leftCornerJoint) &&
-                    leftCornerJoint.mountJoint.IsIsolated)
-            {
-                // Corner windows need special treatment
-                yield return new TileAssignment
-                {
-                    tilemap = hullSettings.tilemap,
-                    position = unit,
-                    tile = hullSettings.bottomLeft
-                };
-            }
-            else if (joint.directionJoint == new JointHash(JointHash.Direction.LEFT, JointHash.Direction.RIGHT) &&
-                    joint.mountJoint == new JointHash(JointHash.Direction.UP) &&
-                    hullJointMapping.TryGetValue(unit + Vector2Int.right, out var rightCornerJoint) &&
-                    rightCornerJoint.mountJoint.IsIsolated)
-            {
-                // Corner windows need special treatment
-                yield return new TileAssignment
-                {
-                    tilemap = hullSettings.tilemap,
-                    position = unit,
-                    tile = hullSettings.bottomRight
-                };
-            }
-
-            else if (hullTileTable.TryGetValue(joint.Tuple, out var tileset))
+            if (hullTileTable.TryGetValue(kvp.Value.Tuple, out var tileset))
             {
                 yield return new TileAssignment
                 {
                     tilemap = hullSettings.tilemap,
-                    position = unit,
+                    position = kvp.Key,
                     tile = tileset.NextValue()
                 };
             } 
@@ -394,22 +325,6 @@ public class WorldLoader : MonoBehaviour
                         currentJoint.mountJoint += JointHash.Reversed(dir);
                         joints[potentialPos] = currentJoint;
 
-                    }
-                }
-
-                foreach (int x in new int[] { 1, -1 })
-                {
-                    foreach (int y in new int[] { 1, -1 })
-                    {
-                        var potentialPos = u.position + new Vector2Int(x, y);
-                        if (grid.IsEmptySpace(potentialPos))
-                        {
-                            // This may already be accounted for. Either way, just assign
-                            // the current joint or a default (empty) one that will be
-                            // updated later
-                            joints.TryGetValue(potentialPos, out var cornerJoint);
-                            joints[potentialPos] = cornerJoint;
-                        }
                     }
                 }
             }
