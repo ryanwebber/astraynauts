@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public struct JointHash
+public struct JointHash : IEquatable<JointHash>
 {
     [System.Serializable]
     public enum Direction
@@ -31,8 +31,11 @@ public struct JointHash
 
     public bool Contains(Direction direction)
     {
-        return (hash & (int)direction) != 0;
+        return (hash & (1 << (int)direction)) != 0;
     }
+
+    public bool IsIsolated => hash == 0;
+    public bool IsFullyConnected => hash == 0b11110;
 
     public IEnumerable<Direction> GetDirections()
     {
@@ -45,6 +48,15 @@ public struct JointHash
         return new JointHash(jointHash.hash | (1 << (int)direction));
     }
 
+    public static bool operator ==(JointHash left, JointHash right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(JointHash left, JointHash right)
+    {
+        return !(left == right);
+    }
 
     public static Vector2Int DirectionVector(Direction direction)
     {
@@ -61,6 +73,38 @@ public struct JointHash
         }
 
         return Vector2Int.zero;
+    }
+
+    public static Direction Reversed(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.UP:
+                return Direction.DOWN;
+            case Direction.DOWN:
+                return Direction.UP;
+            case Direction.LEFT:
+                return Direction.RIGHT;
+            case Direction.RIGHT:
+                return Direction.LEFT;
+        }
+
+        throw new System.InvalidOperationException("Unknown direction");
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is JointHash hash && Equals(hash);
+    }
+
+    public bool Equals(JointHash other)
+    {
+        return hash == other.hash;
+    }
+
+    public override int GetHashCode()
+    {
+        return 734893433 + hash.GetHashCode();
     }
 
     public static IEnumerable<Direction> Directions => EnumUtil.GetValues<Direction>();

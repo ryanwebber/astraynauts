@@ -119,6 +119,11 @@ public class WorldGrid
         return false;
     }
 
+    public bool IsEmptySpace(Vector2Int position)
+    {
+        return !unitMap.ContainsKey(position);
+    }
+
     public IEnumerable<(Vector2Int position, Unit unit)> GetUnits()
     {
         return unitMap.Select(kvp => (position: kvp.Key, unit: kvp.Value));

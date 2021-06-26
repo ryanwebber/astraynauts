@@ -29,6 +29,31 @@ public class WorldLoader : MonoBehaviour
         public TileDistribution Tiles => tiles;
     }
 
+    public struct HullJoint
+    {
+        public JointHash mountJoint;
+        public JointHash directionJoint;
+
+        public (int mountHash, int directionHash) Tuple => (mountHash: mountJoint.hash, directionHash: directionJoint.hash);
+    }
+
+    [System.Serializable]
+    public class HullMapping
+    {
+        [SerializeField]
+        private JointHash.JointDefinition mountPoints;
+        public JointHash.JointDefinition MountJoint => mountPoints;
+
+        [SerializeField]
+        private JointHash.JointDefinition continuityPoints;
+        public JointHash.JointDefinition DirectionJoint => continuityPoints;
+
+        [SerializeField]
+        private TileDistribution tiles;
+        public TileDistribution Tiles => tiles;
+    }
+
+
     [System.Serializable]
     public class CeilingSettings
     {
@@ -93,6 +118,46 @@ public class WorldLoader : MonoBehaviour
         public TileDistribution hallTiles;
     }
 
+    [System.Serializable]
+    public class HullSettings
+    {
+        [SerializeField]
+        public Tilemap tilemap;
+
+        [SerializeField]
+        public TileBase topLeft;
+
+        [SerializeField]
+        public TileBase topRight;
+
+        [SerializeField]
+        public TileBase bottomLeft;
+
+        [SerializeField]
+        public TileBase bottomRight;
+        
+        [SerializeField]
+        public List<HullMapping> jointMappings;
+
+        public Dictionary<(int mountHash, int directionHash), IRandomAccessCollection<TileBase>> ToLookupTable()
+        {
+            var dict = new Dictionary<(int mountHash, int directionHash), IRandomAccessCollection<TileBase>>();
+            foreach (var jm in jointMappings)
+            {
+                var tiles = jm.Tiles.AsCollection();
+                var joint = new HullJoint
+                {
+                    mountJoint = jm.MountJoint.Hash,
+                    directionJoint = jm.DirectionJoint.Hash,
+                };
+
+                dict[joint.Tuple] = tiles;
+            }
+
+            return dict;
+        }
+    }
+
     [SerializeField]
     private int layoutScale;
 
@@ -107,6 +172,9 @@ public class WorldLoader : MonoBehaviour
 
     [SerializeField]
     private PerimiterSettings perimiterSettings;
+
+    [SerializeField]
+    private HullSettings hullSettings;
 
     private World temp = null;
 
@@ -152,6 +220,7 @@ public class WorldLoader : MonoBehaviour
     private IEnumerable<IOperation> GetTileAssignments(WorldGrid grid)
     {
         var ceilingTileTable = ceilingSettings.ToLookupTable();
+        var hullTileTable = hullSettings.ToLookupTable();
         var northWallTileset = wallSettings.northWallTiles.AsCollection();
         var southWallTileset = wallSettings.southWallTiles.AsCollection();
         var roomTileset = floorSettings.roomTiles.AsCollection();
@@ -165,6 +234,8 @@ public class WorldLoader : MonoBehaviour
                 return ceilingSettings.defaultTile;
         }
 
+        // Generate the floor, ceiling, walls, and collision tiles
+        
         foreach (var pair in grid.GetUnits())
         {
             var position = pair.position;
@@ -233,6 +304,127 @@ public class WorldLoader : MonoBehaviour
                     break;
             }
         }
+
+        // Generate the spaceship exterior
+        var hullJointMapping = GetShipPerimiterUnits(grid);
+        foreach (var kvp in hullJointMapping)
+        {
+            var unit = kvp.Key;
+            var joint = kvp.Value;
+
+            if (joint.directionJoint == new JointHash(JointHash.Direction.DOWN, JointHash.Direction.UP) &&
+                    joint.mountJoint == new JointHash(JointHash.Direction.RIGHT) &&
+                    grid.IsEmptySpace(unit + Vector2Int.up) &&
+                    grid.IsEmptySpace(unit + Vector2Int.up + Vector2Int.right))
+            {
+                // The top corner pieces don't actually go on the corners
+                yield return new TileAssignment
+                {
+                    tilemap = hullSettings.tilemap,
+                    position = unit,
+                    tile = hullSettings.topLeft
+                };
+            }
+            else if (joint.directionJoint == new JointHash(JointHash.Direction.DOWN, JointHash.Direction.UP) &&
+                    joint.mountJoint == new JointHash(JointHash.Direction.LEFT) &&
+                    grid.IsEmptySpace(unit + Vector2Int.up) &&
+                    grid.IsEmptySpace(unit + Vector2Int.up + Vector2Int.left))
+            {
+                // The top corner pieces don't actually go on the corners
+                yield return new TileAssignment
+                {
+                    tilemap = hullSettings.tilemap,
+                    position = unit,
+                    tile = hullSettings.topRight
+                };
+
+            }
+            else if (joint.directionJoint == new JointHash(JointHash.Direction.LEFT, JointHash.Direction.RIGHT) &&
+                    joint.mountJoint == new JointHash(JointHash.Direction.UP) &&
+                    hullJointMapping.TryGetValue(unit + Vector2Int.left, out var leftCornerJoint) &&
+                    leftCornerJoint.mountJoint.IsIsolated)
+            {
+                // Corner windows need special treatment
+                yield return new TileAssignment
+                {
+                    tilemap = hullSettings.tilemap,
+                    position = unit,
+                    tile = hullSettings.bottomLeft
+                };
+            }
+            else if (joint.directionJoint == new JointHash(JointHash.Direction.LEFT, JointHash.Direction.RIGHT) &&
+                    joint.mountJoint == new JointHash(JointHash.Direction.UP) &&
+                    hullJointMapping.TryGetValue(unit + Vector2Int.right, out var rightCornerJoint) &&
+                    rightCornerJoint.mountJoint.IsIsolated)
+            {
+                // Corner windows need special treatment
+                yield return new TileAssignment
+                {
+                    tilemap = hullSettings.tilemap,
+                    position = unit,
+                    tile = hullSettings.bottomRight
+                };
+            }
+
+            else if (hullTileTable.TryGetValue(joint.Tuple, out var tileset))
+            {
+                yield return new TileAssignment
+                {
+                    tilemap = hullSettings.tilemap,
+                    position = unit,
+                    tile = tileset.NextValue()
+                };
+            } 
+        }
+    }
+
+    private Dictionary<Vector2Int, HullJoint> GetShipPerimiterUnits(WorldGrid grid)
+    { 
+        var joints = new Dictionary<Vector2Int, HullJoint>();
+        foreach (var u in grid.GetUnits())
+        {
+            if (u.unit is WorldGrid.CeilingUnit ceilingUnit)
+            {
+                foreach (var dir in JointHash.Directions)
+                {
+                    var potentialPos = u.position + JointHash.DirectionVector(dir);
+                    if (grid.IsEmptySpace(potentialPos))
+                    {
+                        joints.TryGetValue(potentialPos, out var currentJoint);
+                        currentJoint.mountJoint += JointHash.Reversed(dir);
+                        joints[potentialPos] = currentJoint;
+
+                    }
+                }
+
+                foreach (int x in new int[] { 1, -1 })
+                {
+                    foreach (int y in new int[] { 1, -1 })
+                    {
+                        var potentialPos = u.position + new Vector2Int(x, y);
+                        if (grid.IsEmptySpace(potentialPos))
+                        {
+                            // This may already be accounted for. Either way, just assign
+                            // the current joint or a default (empty) one that will be
+                            // updated later
+                            joints.TryGetValue(potentialPos, out var cornerJoint);
+                            joints[potentialPos] = cornerJoint;
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach (var position in new List<Vector2Int>(joints.Keys))
+            foreach (var dir in JointHash.Directions)
+                if (joints.ContainsKey(position + JointHash.DirectionVector(dir)))
+                {
+                    joints.TryGetValue(position, out var joint);
+                    joint.directionJoint += dir;
+                    joints[position] = joint;
+                }
+
+        return joints;
     }
 
     private IEnumerable<(Vector2Int position, WorldGrid.CeilingUnit unit)> GetCeilingUnits(WorldLayout layout)

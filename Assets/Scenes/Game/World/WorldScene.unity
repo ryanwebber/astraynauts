@@ -6068,6 +6068,58 @@ MonoBehaviour:
   perimiterSettings:
     tilemap: {fileID: 696811784}
     tile: {fileID: 11400000, guid: 135824510b5a546398a836ef341b764d, type: 2}
+  hullSettings:
+    tilemap: {fileID: 1232315633}
+    topLeft: {fileID: 11400000, guid: be4b6d2103adb43b4901c5577293aceb, type: 2}
+    topRight: {fileID: 11400000, guid: d53818adaba0c46e688fcac065469480, type: 2}
+    bottomLeft: {fileID: 11400000, guid: 5d8c2c2981dfe413bae060af788bef03, type: 2}
+    bottomRight: {fileID: 11400000, guid: 267aaa98c387c43b28e6462ef1aa7052, type: 2}
+    jointMappings:
+    - mountPoints:
+        openEnds: 02000000
+      continuityPoints:
+        openEnds: 0100000003000000
+      tiles: {fileID: 11400000, guid: b17741ed537bf4196b4802aacf36c884, type: 2}
+    - mountPoints:
+        openEnds: 04000000
+      continuityPoints:
+        openEnds: 0100000003000000
+      tiles: {fileID: 11400000, guid: df94d1b52f6fb40fc903e1853a06487b, type: 2}
+    - mountPoints:
+        openEnds: 
+      continuityPoints:
+        openEnds: 0100000002000000
+      tiles: {fileID: 11400000, guid: 7a34e12c767ac4927af7c44d4c4d8031, type: 2}
+    - mountPoints:
+        openEnds: 
+      continuityPoints:
+        openEnds: 0100000004000000
+      tiles: {fileID: 11400000, guid: 56c04f775a0d04375ba0e7bc37e48829, type: 2}
+    - mountPoints:
+        openEnds: 01000000
+      continuityPoints:
+        openEnds: 0200000004000000
+      tiles: {fileID: 11400000, guid: 53576eb6229dc4550906d0278baddaa5, type: 2}
+    - mountPoints:
+        openEnds: 0400000003000000
+      continuityPoints:
+        openEnds: 0100000002000000
+      tiles: {fileID: 11400000, guid: df94d1b52f6fb40fc903e1853a06487b, type: 2}
+    - mountPoints:
+        openEnds: 0200000003000000
+      continuityPoints:
+        openEnds: 0100000004000000
+      tiles: {fileID: 11400000, guid: b17741ed537bf4196b4802aacf36c884, type: 2}
+    - mountPoints:
+        openEnds: 0400000001000000
+      continuityPoints:
+        openEnds: 0300000002000000
+      tiles: {fileID: 11400000, guid: 4383c6f414d234ca3be10211d09c0cf3, type: 2}
+    - mountPoints:
+        openEnds: 0200000001000000
+      continuityPoints:
+        openEnds: 0300000004000000
+      tiles: {fileID: 11400000, guid: d6383fe4442994f5e809cc4c6db9c362, type: 2}
 --- !u!1 &1232315630
 GameObject:
   m_ObjectHideFlags: 0
@@ -6730,7 +6782,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7784745, y: 1}
+    m_SensorSize: {x: 1.7772973, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
