@@ -3,15 +3,18 @@ using System.Collections;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(LocomotableInput))]
+[RequireComponent(typeof(SpideringInput))]
 [RequireComponent(typeof(PlayerInputBinder))]
 public class PlayerInputRouter : MonoBehaviour
 {
+    private SpideringInput spideringInput;
     private LocomotableInput locomotionInput;
     private PlayerInputBinder inputBinder;
     private IInputSource currentSource;
 
     private void Awake()
     {
+        spideringInput = GetComponent<SpideringInput>();
         locomotionInput = GetComponent<LocomotableInput>();
         inputBinder = GetComponent<PlayerInputBinder>();
     }
@@ -20,8 +23,11 @@ public class PlayerInputRouter : MonoBehaviour
     {
         inputBinder.OnAttachToInput += (newSource) =>
         {
-            DetachFromInput(currentSource);
-            AttachToInput(newSource);
+            if (currentSource != null)
+                DetachFromInput(currentSource);
+            if (newSource != null)
+                AttachToInput(newSource);
+
             currentSource = newSource;
         };
 
@@ -30,19 +36,26 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void AttachToInput(IInputSource source)
     {
-        // TODO: Bind to events
+        // Bind to events
+        source.OnMovementSpecialAction += () => spideringInput.IsJumping = true;
     }
 
     private void DetachFromInput(IInputSource source)
     {
-        // TODO: Unbind from events
+        // Unbind from events
+        source.OnMovementSpecialAction = default;
     }
 
     private void Update()
     {
         if (currentSource != null)
+        {
             locomotionInput.MovementDirection = currentSource.MovementValue;
+            spideringInput.MovementDirection = currentSource.MovementValue;
+        }
         else
+        {
             locomotionInput.MovementDirection = Vector2.zero;
+        }
     }
 }

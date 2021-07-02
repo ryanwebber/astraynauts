@@ -3,12 +3,23 @@ using System.Collections;
 using System.Threading;
 
 [RequireComponent(typeof(LocomotableActor))]
+[RequireComponent(typeof(SpideringActor))]
 public class PlayerMovementController : MonoBehaviour
 {
+    [System.Serializable]
+    public enum MovementType
+    {
+        RUNNING, SPIDERING
+    }
+
     private struct Context
     {
         public LocomotableActor locomotion;
+        public SpideringActor spidering;
     }
+
+    [SerializeField]
+    private MovementType movementType;
 
     private StateMachine<Context> stateMachine;
 
@@ -17,9 +28,13 @@ public class PlayerMovementController : MonoBehaviour
         var context = new Context
         {
             locomotion = GetComponent<LocomotableActor>(),
+            spidering = GetComponent<SpideringActor>()
         };
 
-        stateMachine = new StateMachine<Context>(context, new MoveState());
+        var initialState = movementType == MovementType.RUNNING ?
+            (State<Context>)new RunState() : new SpiderState();
+
+        stateMachine = new StateMachine<Context>(context, initialState);
         stateMachine.OnStateChanged += (from, to) => Debug.Log($"Player state changed: {from.Name} => {to.Name}", gameObject);
     }
 
@@ -28,10 +43,16 @@ public class PlayerMovementController : MonoBehaviour
         this.stateMachine.CurrentState.Update();
     }
 
-    private class MoveState : State<Context>
+    private class RunState: ComponentActivationState<Context>
     {
-        public override string Name => "MoveState";
-        public override void OnEnter(StateMachine<Context> sm) => sm.Context.locomotion.IsActive = true;
-        public override void OnExit(StateMachine<Context> sm) => sm.Context.locomotion.IsActive = false;
+        public override string Name => "RunState";
+        protected override IActivatable GetComponent(Context ctx) => ctx.locomotion;
+    }
+
+    private class SpiderState: ComponentActivationState<Context>
+    {
+        public override string Name => "SpiderState";
+        protected override IActivatable GetComponent(Context ctx) => ctx.spidering;
     }
 }
+

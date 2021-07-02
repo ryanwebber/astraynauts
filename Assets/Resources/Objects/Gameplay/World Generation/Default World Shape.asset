@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parameters:
     HallwayWidth: 1
-    WorldScale: {x: 14, y: 10}
+    WorldScale: {x: 12, y: 10}
     MinimumCellularSectorSize: {x: 3, y: 3}
     MaximumCellularSectorSize: {x: 5, y: 5}
     MaximumRoomSizeScale: 2

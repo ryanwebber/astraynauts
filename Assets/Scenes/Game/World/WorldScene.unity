@@ -6007,7 +6007,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5a1fe33ba7d843a79e951633b8586d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layoutScale: 2
+  layoutScale: 3
   floorSettings:
     tilemap: {fileID: 1481187380}
     roomTiles: {fileID: 11400000, guid: 33f6a763aaf4543e58132bc8d2721cff, type: 2}
@@ -6070,10 +6070,6 @@ MonoBehaviour:
     tile: {fileID: 11400000, guid: 135824510b5a546398a836ef341b764d, type: 2}
   hullSettings:
     tilemap: {fileID: 1232315633}
-    topLeft: {fileID: 11400000, guid: be4b6d2103adb43b4901c5577293aceb, type: 2}
-    topRight: {fileID: 11400000, guid: d53818adaba0c46e688fcac065469480, type: 2}
-    bottomLeft: {fileID: 11400000, guid: 5d8c2c2981dfe413bae060af788bef03, type: 2}
-    bottomRight: {fileID: 11400000, guid: 267aaa98c387c43b28e6462ef1aa7052, type: 2}
     jointMappings:
     - mountPoints:
         openEnds: 02000000
@@ -6736,6 +6732,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 5af8341e-0e73-493d-b912-1450b1295c9c
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1871974677}
+        m_TargetAssemblyTypeName: AttachableInputSource, Assembly-CSharp
+        m_MethodName: OnPlayerMovementSpecialAction
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: a88f6325-a8f4-4514-8a99-d72b3c72eca7
+    m_ActionName: Player/Dash[/Keyboard/space]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -6802,7 +6814,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7783251, y: 1}
+    m_SensorSize: {x: 1.7773513, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -6899,8 +6911,10 @@ GameObject:
   - component: {fileID: 2037969529}
   - component: {fileID: 2037969536}
   - component: {fileID: 2037969535}
-  - component: {fileID: 2037969528}
+  - component: {fileID: 2037969539}
+  - component: {fileID: 2037969538}
   - component: {fileID: 2037969537}
+  - component: {fileID: 2037969528}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7081,3 +7095,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a62ecc43c3dc448dc87a080f748144cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2037969538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca465345d5ba648fa913b564a62903db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpForce: 5
+  isActive: 0
+--- !u!114 &2037969539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b5f7873f4d24eca88acbde34448a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MovementDirection: {x: 0, y: 0}
+  IsJumping: 0

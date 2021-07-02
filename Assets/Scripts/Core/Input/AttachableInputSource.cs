@@ -33,10 +33,17 @@ public class AttachableInputSource : MonoBehaviour
             relayedSource.OnFireBegin?.Invoke();
     }
 
+    public void OnPlayerMovementSpecialAction(InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (ctx.started)
+            relayedSource.OnMovementSpecialAction?.Invoke();
+    }
+
     private class RelayInputSource : IInputSource
     {
         public Event OnFireBegin { get; set; }
         public Event OnFireEnd { get; set; }
+        public Event OnMovementSpecialAction { get; set; }
 
         public Vector2 MovementValue { get; set; } = Vector2.zero;
         public Vector2 AimValue { get; set; } = Vector2.zero;

@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   properties:
-    movementSpeed: 3
+    movementSpeed: 2
     movementDampening: 0.25
   velocity: {x: 0, y: 0}
   previousHeading: {x: 0, y: 0}
