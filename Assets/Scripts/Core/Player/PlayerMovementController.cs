@@ -6,36 +6,28 @@ using System.Threading;
 [RequireComponent(typeof(SpideringActor))]
 public class PlayerMovementController : MonoBehaviour
 {
-    [System.Serializable]
-    public enum MovementType
+    private struct States
     {
-        RUNNING, SPIDERING
+        public SpiderState spiderState;
+
+        public static States FromComponent(PlayerMovementController controller)
+        {
+            return new States
+            {
+                spiderState = new SpiderState(controller.spideringActor),
+            };
+        }
     }
 
-    private struct Context
-    {
-        public LocomotableActor locomotion;
-        public SpideringActor spidering;
-    }
-
-    [SerializeField]
-    private MovementType movementType;
-
-    private StateMachine<Context> stateMachine;
+    private SpideringActor spideringActor;
+    private StateMachine<States> stateMachine;
 
     private void Awake()
     {
-        var context = new Context
-        {
-            locomotion = GetComponent<LocomotableActor>(),
-            spidering = GetComponent<SpideringActor>()
-        };
-
-        var initialState = movementType == MovementType.RUNNING ?
-            (State<Context>)new RunState() : new SpiderState();
-
-        stateMachine = new StateMachine<Context>(context, initialState);
-        stateMachine.OnStateChanged += (from, to) => Debug.Log($"Player state changed: {from.Name} => {to.Name}", gameObject);
+        this.spideringActor = GetComponent<SpideringActor>();
+        stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
+            return states.spiderState;
+        });
     }
 
     private void Update()
@@ -43,16 +35,17 @@ public class PlayerMovementController : MonoBehaviour
         this.stateMachine.CurrentState.Update();
     }
 
-    private class RunState: ComponentActivationState<Context>
+    private class SpiderState: ComponentActivationState
     {
-        public override string Name => "RunState";
-        protected override IActivatable GetComponent(Context ctx) => ctx.locomotion;
-    }
+        private SpideringActor actor;
 
-    private class SpiderState: ComponentActivationState<Context>
-    {
+        public SpiderState(SpideringActor actor)
+        {
+            this.actor = actor;
+        }
+
         public override string Name => "SpiderState";
-        protected override IActivatable GetComponent(Context ctx) => ctx.spidering;
+        protected override IActivatable Component => actor;
     }
 }
 

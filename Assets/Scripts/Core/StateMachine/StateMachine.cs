@@ -1,21 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public abstract class State<T>
+public interface IStateMachine
 {
-    public abstract string Name { get; }
-
-    public virtual void OnEnter(StateMachine<T> sm)
-    {
-    }
-
-    public virtual void OnUpdate(StateMachine<T> sm)
-    {
-    }
-
-    public virtual void OnExit(StateMachine<T> sm)
-    {
-    }
+    void SetState(State state);
 }
 
 public interface IStateHandle
@@ -23,29 +11,46 @@ public interface IStateHandle
     void Update();
 }
 
-public class StateMachine<T>
+public abstract class State
 {
-    public Event<State<T>, State<T>> OnStateChanged;
+    public abstract string Name { get; }
 
-    private T context;
-    private State<T> currentState = new EmptyState<T>();
+    public virtual void OnEnter(IStateMachine sm)
+    {
+    }
 
+    public virtual void OnUpdate(IStateMachine sm)
+    {
+    }
+
+    public virtual void OnExit(IStateMachine sm)
+    {
+    }
+}
+
+public class StateMachine<TStates>: IStateMachine
+{
+    public Event<State, State> OnStateChanged;
+
+    private State currentState = new EmptyState();
+    private TStates allStates;
+
+    public TStates States => allStates;
     public IStateHandle CurrentState => new StateHandle
     {
         underlyingState = currentState,
         machine = this
     };
 
-    public T Context => context;
-
-    public  StateMachine(T context, State<T> initialState = null)
+    public StateMachine(TStates allStates, System.Func<TStates, State> initializer = null)
     {
-        this.context = context;
+        this.allStates = allStates;
+        var initialState = initializer?.Invoke(allStates);
         if (initialState != null)
             SetState(initialState);
     }
 
-    public void SetState(State<T> state)
+    public void SetState(State state)
     {
         var oldState = currentState;
         currentState.OnExit(this);
@@ -56,14 +61,15 @@ public class StateMachine<T>
 
     private struct StateHandle: IStateHandle
     {
-        public State<T> underlyingState;
-        public StateMachine<T> machine;
+        public State underlyingState;
+        public IStateMachine machine;
 
         public void Update() => underlyingState.OnUpdate(machine);
     }
 
-    private class EmptyState<TContext>: State<TContext>
+    private class EmptyState: State
     {
         public override string Name => "EmptyState";
     }
 }
+

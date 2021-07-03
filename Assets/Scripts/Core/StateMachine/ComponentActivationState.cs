@@ -1,14 +1,15 @@
 using System;
 using UnityEngine;
 
-public abstract class ComponentActivationState<TContext>: State<TContext>
+public abstract class ComponentActivationState: State
 {
     public ComponentActivationState()
     {
     }
 
-    protected abstract IActivatable GetComponent(TContext context);
+    protected abstract IActivatable Component { get; }
 
-    public override void OnEnter(StateMachine<TContext> sm) => GetComponent(sm.Context).IsActive = true;
-    public override void OnExit(StateMachine<TContext> sm) => GetComponent(sm.Context).IsActive = false;
+    public override void OnEnter(IStateMachine sm) => Component.IsActive = true;
+    public override void OnExit(IStateMachine sm) => Component.IsActive = false;
 }
+

@@ -254,8 +254,8 @@ MonoBehaviour:
   moveToRandomRoom:
   - {fileID: 2037969527}
   mobPrefab: {fileID: 138564682830807847, guid: beaedb4e24bbd4ca28cbd901dfaf0f2a, type: 3}
-  numBoidsToSpawn: 100
-  navigationTopology: {fileID: 0}
+  numBoidsToSpawn: 0
+  navigationTopology: {fileID: 509416140}
 --- !u!114 &110944152
 MonoBehaviour:
   m_ObjectHideFlags: 0
