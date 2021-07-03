@@ -44,17 +44,20 @@ public class KinematicBody : MonoBehaviour
 
     [SerializeField]
     private float skinWidth = 0.02f;
+    public float SkinWidth => skinWidth;
 
     [SerializeField]
     private int horizontalRays = 4;
+    public int HorizontalRayCount => horizontalRays;
 
     [SerializeField]
     private int verticalRays = 4;
+    public int VerticalRayCount => verticalRays;
 
     private BoxCollider2D boxCollider;
     private Collision collisionState;
 
-    private Bounds EffectiveBounds
+    public Bounds EffectiveBounds
     {
         get
         {

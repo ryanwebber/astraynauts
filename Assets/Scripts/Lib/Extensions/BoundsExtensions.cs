@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Extensions
@@ -23,6 +24,14 @@ namespace Extensions
         public static Vector2 GetBottomRight(this Bounds bounds)
         {
             return new Vector2(bounds.max.x, bounds.min.y);
+        }
+
+        public static IEnumerable<Vector2> GetCorners(this Bounds bounds)
+        {
+            yield return bounds.GetTopRight();
+            yield return bounds.GetBottomRight();
+            yield return bounds.GetBottomLeft();
+            yield return bounds.GetTopLeft();
         }
     }
 }
