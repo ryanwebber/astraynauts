@@ -12,6 +12,8 @@ public class TraversingState : State, IPropertiesMutable<TraversingState.Propert
     public struct Properties
     {
         public float climbSpeed;
+        public bool automaticDetachEnabled;
+        public float maxCornerCutTriggerDistance;
     }
 
     private enum Direction
@@ -36,18 +38,67 @@ public class TraversingState : State, IPropertiesMutable<TraversingState.Propert
 
     public override void OnUpdate(IStateMachine sm)
     {
-        if (input.IsJumping && CanJumpInDirection(input.MovementDirection))
+        if (IsAttemptingToDetatchFromWall() && CanJumpInDirection(input.MovementDirection))
         {
             OnWallDetach?.Invoke(input.MovementDirection);
             return;
         }
 
-        if (IsBodyLatched(body, Direction.LEFT) || IsBodyLatched(body, Direction.RIGHT))
+        if (input.MovementDirection.sqrMagnitude < 0.1f)
+            return;
+
+        if (ShouldCutCorner(input.MovementDirection))
+        {
+            OnWallDetach?.Invoke(input.MovementDirection);
+            return;
+        }
+
+        if (IsBodyLatched(Direction.LEFT) || IsBodyLatched(Direction.RIGHT))
             MaybeMoveInDirection(mask: new Vector2(0, 1));
 
-        if (IsBodyLatched(body, Direction.UP) || IsBodyLatched(body, Direction.DOWN))
+        if (IsBodyLatched(Direction.UP) || IsBodyLatched(Direction.DOWN))
             MaybeMoveInDirection(mask: new Vector2(1, 0));
     }
+
+    private bool IsAttemptingToDetatchFromWall()
+    {
+        if (input.IsJumping)
+            return true;
+
+        if (!properties.automaticDetachEnabled)
+            return false;
+
+        if (IsBodyLatched(Direction.DOWN) && input.MovementDirection.y > 0.5f)
+            return true;
+        else if (IsBodyLatched(Direction.UP) && input.MovementDirection.y < -0.5f)
+            return true;
+        else if (IsBodyLatched(Direction.LEFT) && input.MovementDirection.x > 0.5f)
+            return true;
+        else if (IsBodyLatched(Direction.RIGHT) && input.MovementDirection.x < -0.5f)
+            return true;
+
+        return false;
+    }
+
+    private bool ShouldCutCorner(Vector2 dir)
+    {
+        if (properties.automaticDetachEnabled)
+            return false;
+
+        var heading = dir.normalized;
+        var skinOffset = heading * body.SkinWidth * 4;
+        
+        bool canSeeWall = body.EffectiveBounds.GetCorners()
+            .Any(corner => TestForCollision(corner + skinOffset, heading, properties.maxCornerCutTriggerDistance));
+
+        bool canDetachFromWall = body.EffectiveBounds.GetCorners()
+            .All(corner => !TestForCollision(corner + skinOffset, heading, EFFECTIVE_COLLISION_DISTANCE));
+
+        return canSeeWall && canDetachFromWall;
+    }
+
+    private bool TestForCollision(Vector2 origin, Vector2 dir, float distance)
+        => Physics2D.Raycast(origin, dir, distance, body.CollisionMask);
 
     private bool CanJumpInDirection(Vector2 dir)
     {
@@ -72,7 +123,7 @@ public class TraversingState : State, IPropertiesMutable<TraversingState.Propert
         return deltaPosition.sqrMagnitude > 0f;
     }
 
-    private bool IsBodyLatched(KinematicBody body, Direction direction)
+    private bool IsBodyLatched(Direction direction)
     {
         return GetRays(direction, body.EffectiveBounds)
             .All(ray => Physics2D.Raycast(ray.origin, ray.direction, EFFECTIVE_COLLISION_DISTANCE, body.CollisionMask));

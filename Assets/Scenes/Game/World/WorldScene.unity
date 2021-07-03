@@ -253,9 +253,6 @@ MonoBehaviour:
   cameraTarget: {fileID: 2037969527}
   moveToRandomRoom:
   - {fileID: 2037969527}
-  mobPrefab: {fileID: 138564682830807847, guid: beaedb4e24bbd4ca28cbd901dfaf0f2a, type: 3}
-  numBoidsToSpawn: 0
-  navigationTopology: {fileID: 509416140}
 --- !u!114 &110944152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6335,7 +6332,7 @@ MonoBehaviour:
   boidManager: {fileID: 521608993}
   mobSpawner: {fileID: 1342330583}
   mobPrefab: {fileID: 2234429384227885141, guid: beaedb4e24bbd4ca28cbd901dfaf0f2a, type: 3}
-  numMobsToSpawn: 50
+  numMobsToSpawn: 0
 --- !u!114 &1342330583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7012,7 +7009,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beab014940c234f5f9e0bee8afa5a136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementType: 1
 --- !u!61 &2037969533
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7109,11 +7105,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floatStateProperties:
-    jumpForce: 5
-    steerForce: 0.025
-    maxVelocity: 6
-  climbStateProperties:
+    jumpForce: 3.5
+    steerForce: 0.1
+    maxVelocity: 4.5
+  traversingStateProperties:
     climbSpeed: 2.5
+    maxCornerCutTriggerDistance: 1
   isActive: 0
 --- !u!114 &2037969539
 MonoBehaviour:
