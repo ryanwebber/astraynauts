@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Extensions
@@ -28,10 +29,15 @@ namespace Extensions
 
         public static IEnumerable<Vector2> GetCorners(this Bounds bounds)
         {
-            yield return bounds.GetTopRight();
-            yield return bounds.GetBottomRight();
-            yield return bounds.GetBottomLeft();
-            yield return bounds.GetTopLeft();
+            return GetMappedCorners(bounds).Select(c => c.position);
+        }
+
+        public static IEnumerable<(Vector2 position, Vector2 corner)> GetMappedCorners(this Bounds bounds)
+        {
+            yield return (position: bounds.GetTopRight(), corner: new Vector2(1, 1));
+            yield return (position: bounds.GetBottomRight(), corner: new Vector2(1, -1));
+            yield return (position: bounds.GetBottomLeft(), corner: new Vector2(-1, -1));
+            yield return (position: bounds.GetTopLeft(), corner: new Vector2(-1, 1));
         }
     }
 }

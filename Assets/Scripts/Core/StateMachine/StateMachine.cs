@@ -9,6 +9,7 @@ public interface IStateMachine
 public interface IStateHandle
 {
     void Update();
+    string Name { get; }
 }
 
 public abstract class State
@@ -64,6 +65,7 @@ public class StateMachine<TStates>: IStateMachine
         public State underlyingState;
         public IStateMachine machine;
 
+        public string Name => underlyingState.Name;
         public void Update() => underlyingState.OnUpdate(machine);
     }
 
@@ -72,4 +74,3 @@ public class StateMachine<TStates>: IStateMachine
         public override string Name => "EmptyState";
     }
 }
-

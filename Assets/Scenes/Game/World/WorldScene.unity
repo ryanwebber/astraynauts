@@ -7110,7 +7110,8 @@ MonoBehaviour:
     maxVelocity: 4.5
   traversingStateProperties:
     climbSpeed: 2.5
-    maxCornerCutTriggerDistance: 1
+    automaticDetachEnabled: 0
+    maxCornerCutTriggerDistance: 1.25
   isActive: 0
 --- !u!114 &2037969539
 MonoBehaviour:
