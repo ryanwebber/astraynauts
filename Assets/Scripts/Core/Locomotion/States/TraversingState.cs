@@ -97,7 +97,7 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
         {
             while (true)
             {
-                var delta = Diagonal.normalized * properties.climbSpeed * 1.41421356237f * Time.deltaTime;
+                var delta = Diagonal * properties.climbSpeed * 1.41421356237f * Time.deltaTime;
                 body.MoveAndCollide(delta);
                 if (!body.CollisionState.HasCollision)
                     break;
@@ -109,7 +109,7 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
             while (CornerCollisionCount(LatchDirection) < 2)
             {
-                var delta = SecondaryDiagonal.normalized * properties.climbSpeed * 1.41421356237f * Time.deltaTime;
+                var delta = SecondaryDiagonal * properties.climbSpeed * 1.41421356237f * Time.deltaTime;
                 body.MoveAndCollide(delta);
 
                 yield return null;
@@ -172,7 +172,7 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
             foreach (var reflexCorner in GetReflexCorners())
             {
                 if (CanBendAroundCorner(reflexCorner, out var primaryDirection, out var secondaryDirection) &&
-                    ((primaryDirection * input.MovementDirection).x > 0 || (primaryDirection * input.MovementDirection).y > 0))
+                    ((secondaryDirection * input.MovementDirection).x > 0 || (secondaryDirection * input.MovementDirection).y > 0))
                 {
                     Debug.DrawRay(reflexCorner.origin, primaryDirection, Color.yellow);
                     Debug.DrawRay(reflexCorner.origin + primaryDirection, secondaryDirection, Color.cyan);
@@ -182,7 +182,7 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
                     if (!collisionBackToWall)
                         continue;
 
-                    OnReflexCornerStart?.Invoke(primaryDirection, secondaryDirection);
+                    OnReflexCornerStart?.Invoke(primaryDirection.normalized, secondaryDirection.normalized);
                     return;
                 }
             }
@@ -214,30 +214,58 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
         private bool CanBendAroundCorner(ReflexCorner corner, out Vector2 primaryDirection, out Vector2 secondaryDirection)
         {
-            var reflexTestRadius = 0.2f;
-            var canMoveVertically = !TestForCollision(corner.origin, corner.Vertical, reflexTestRadius);
-            var canMoveHorizontally = !TestForCollision(corner.origin, corner.Horizontal, reflexTestRadius);
+            var reflexTestExtent = 0.2f;
+            var origin = corner.origin;
+            var dimensions = body.EffectiveBounds.size;
+            foreach (var multiplier in new Vector2[] { new Vector2(1, -1), new Vector2(-1, 1) })
+            {
+                /**
+                 * Mapping from the back corner to the diagonal direction
+                 * we'd be reflexing around.
+                 * 
+                 *  1, 1 => [-1, 1  ,  1,-1]
+                 * -1,-1 => [-1, 1  ,  1,-1]
+                 *  1,-1 => [-1,-1  ,  1, 1]
+                 * -1, 1 => [-1,-1  ,  1, 1]
+                 */
+                var diagonal = corner.corner * multiplier;
 
-            if (!canMoveHorizontally && canMoveVertically && !TestForCollision(corner.origin + corner.Vertical * reflexTestRadius, corner.Horizontal, reflexTestRadius))
-            {
-                // Ex. Can't move left, but can move down and then left
-                primaryDirection = corner.Vertical * reflexTestRadius;
-                secondaryDirection = corner.Horizontal * reflexTestRadius;
-                return true;
+                // Attempt to orthogonally step to the diagonal in both possible
+                // ways. If we can step in one direction but not the other, we
+                // can take this corner
+                var horizontal = diagonal.SignedHorizontal();
+                var vertical = diagonal.SignedVertical();
+
+                var horizontalSecondaryOffset = horizontal * (dimensions.x + reflexTestExtent);
+                var verticalSecondaryOffset = vertical * (dimensions.y + reflexTestExtent);
+
+                var canMoveVertically = !TestForCollision(origin, vertical, verticalSecondaryOffset.magnitude);
+                var canMoveHorizontally = !TestForCollision(origin, horizontal, horizontalSecondaryOffset.magnitude);
+
+                Debug.DrawRay(origin, horizontalSecondaryOffset, Color.cyan);
+                Debug.DrawRay(origin + horizontalSecondaryOffset, vertical * reflexTestExtent, Color.magenta);
+
+                //Debug.DrawRay(origin, verticalSecondaryOffset, Color.magenta);
+
+                if (!canMoveHorizontally && canMoveVertically && !TestForCollision(origin + verticalSecondaryOffset, horizontal, reflexTestExtent))
+                {
+                    // Ex. Can't move left, but can move down and then left
+                    primaryDirection = verticalSecondaryOffset;
+                    secondaryDirection = horizontal * reflexTestExtent;
+                    return true;
+                }
+                else if (!canMoveVertically && canMoveHorizontally && !TestForCollision(origin + horizontalSecondaryOffset, vertical, reflexTestExtent))
+                {
+                    // Ex. Can't move up, but can move right and then up
+                    primaryDirection = horizontalSecondaryOffset;
+                    secondaryDirection = vertical * reflexTestExtent;
+                    return true;
+                }
             }
-            else if (!canMoveVertically && canMoveHorizontally && !TestForCollision(corner.origin + corner.Horizontal * reflexTestRadius, corner.Vertical, reflexTestRadius))
-            {
-                // Ex. Can't move up, but can move right and then up
-                primaryDirection = corner.Horizontal * reflexTestRadius;
-                secondaryDirection = corner.Vertical * reflexTestRadius;
-                return true;
-            }
-            else
-            {
-                primaryDirection = default;
-                secondaryDirection = default;
-                return false;
-            }
+
+            primaryDirection = default;
+            secondaryDirection = default;
+            return false;
         }
 
         private bool IsAttemptingToDetatchFromWall()

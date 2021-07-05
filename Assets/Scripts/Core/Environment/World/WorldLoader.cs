@@ -74,8 +74,6 @@ public class WorldLoader : MonoBehaviour
                 var hash = jm.Definition.Hash.hash;
                 var tiles = jm.Tiles.AsCollection();
                 dict[hash] = tiles;
-
-                Debug.Log($"Using '{jm.Tiles.name}' for hash {hash}");
             }
 
             return dict;
@@ -171,7 +169,7 @@ public class WorldLoader : MonoBehaviour
         StartCoroutine(LoadWorldDistributed(layout, completion));
     }
 
-    private IEnumerator LoadWorldDistributed(WorldGenerator.WorldLayout layout, System.Action<World> completion)
+    private IEnumerator LoadWorldDistributed(WorldLayout layout, System.Action<World> completion)
     {
         // Create the world grid, describing every unit of the map
         var worldGrid = new WorldGrid();
