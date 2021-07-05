@@ -160,15 +160,42 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
         public override void OnUpdate(IStateMachine sm)
         {
+            TryMove(new Func<bool>[]{
+                TryDetatchFromWall,
+                TryMoveAroundCorner,
+                TryCutCorner,
+                TryScaleAlongWall,
+            });
+        }
+
+        private bool TryMove(Func<bool>[] moveFns)
+        {
+            if (input.MovementDirection.sqrMagnitude < 0.1f)
+                return false;
+
+            foreach (var fn in moveFns)
+            {
+                var didMove = fn.Invoke();
+                if (didMove)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TryDetatchFromWall()
+        {
             if (IsAttemptingToDetatchFromWall() && CanJumpInDirection(input.MovementDirection))
             {
                 OnWallDetach?.Invoke(input.MovementDirection);
-                return;
+                return true;
             }
 
-            if (input.MovementDirection.sqrMagnitude < 0.1f)
-                return;
+            return false;
+        }
 
+        private bool TryMoveAroundCorner()
+        {
             foreach (var reflexCorner in GetReflexCorners())
             {
                 if (CanBendAroundCorner(reflexCorner, out var primaryDirection, out var secondaryDirection) &&
@@ -183,21 +210,37 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
                         continue;
 
                     OnReflexCornerStart?.Invoke(primaryDirection.normalized, secondaryDirection.normalized);
-                    return;
+                    return true;
                 }
             }
 
+            return false;
+        }
+
+        private bool TryCutCorner()
+        {
             if (ShouldCutCorner(input.MovementDirection))
             {
                 OnWallDetach?.Invoke(input.MovementDirection);
-                return;
+                return true;
             }
 
-            if (IsBodyLatched(Direction.LEFT) || IsBodyLatched(Direction.RIGHT))
-                MaybeMoveInDirection(mask: new Vector2(0, 1));
+            return false;
+        }
 
-            if (IsBodyLatched(Direction.UP) || IsBodyLatched(Direction.DOWN))
-                MaybeMoveInDirection(mask: new Vector2(1, 0));
+        private bool TryScaleAlongWall()
+        {
+            bool didMove = false;
+            if (input.MovementDirection.y > 0 && CanScaleInDirection(Vector2.up))
+                didMove |= MaybeMoveInDirection(mask: new Vector2(0, 1));
+            if (input.MovementDirection.y < 0 && CanScaleInDirection(Vector2.down))
+                didMove |= MaybeMoveInDirection(mask: new Vector2(0, 1));
+            if (input.MovementDirection.x > 0 && CanScaleInDirection(Vector2.right))
+                didMove |= MaybeMoveInDirection(mask: new Vector2(1, 0));
+            if (input.MovementDirection.x < 0 && CanScaleInDirection(Vector2.left))
+                didMove |= MaybeMoveInDirection(mask: new Vector2(1, 0));
+
+            return didMove;
         }
 
         private IEnumerable<ReflexCorner> GetReflexCorners()
@@ -212,60 +255,15 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
             }
         }
 
-        private bool CanBendAroundCorner(ReflexCorner corner, out Vector2 primaryDirection, out Vector2 secondaryDirection)
+        private bool MaybeMoveInDirection(Vector2 mask)
         {
-            var reflexTestExtent = 0.2f;
-            var origin = corner.origin;
-            var dimensions = body.EffectiveBounds.size;
-            foreach (var multiplier in new Vector2[] { new Vector2(1, -1), new Vector2(-1, 1) })
-            {
-                /**
-                 * Mapping from the back corner to the diagonal direction
-                 * we'd be reflexing around.
-                 * 
-                 *  1, 1 => [-1, 1  ,  1,-1]
-                 * -1,-1 => [-1, 1  ,  1,-1]
-                 *  1,-1 => [-1,-1  ,  1, 1]
-                 * -1, 1 => [-1,-1  ,  1, 1]
-                 */
-                var diagonal = corner.corner * multiplier;
+            var targetDirection = input.MovementDirection * mask;
+            if (targetDirection.sqrMagnitude < 0.001f)
+                return false;
 
-                // Attempt to orthogonally step to the diagonal in both possible
-                // ways. If we can step in one direction but not the other, we
-                // can take this corner
-                var horizontal = diagonal.SignedHorizontal();
-                var vertical = diagonal.SignedVertical();
-
-                var horizontalSecondaryOffset = horizontal * (dimensions.x + reflexTestExtent);
-                var verticalSecondaryOffset = vertical * (dimensions.y + reflexTestExtent);
-
-                var canMoveVertically = !TestForCollision(origin, vertical, verticalSecondaryOffset.magnitude);
-                var canMoveHorizontally = !TestForCollision(origin, horizontal, horizontalSecondaryOffset.magnitude);
-
-                Debug.DrawRay(origin, horizontalSecondaryOffset, Color.cyan);
-                Debug.DrawRay(origin + horizontalSecondaryOffset, vertical * reflexTestExtent, Color.magenta);
-
-                //Debug.DrawRay(origin, verticalSecondaryOffset, Color.magenta);
-
-                if (!canMoveHorizontally && canMoveVertically && !TestForCollision(origin + verticalSecondaryOffset, horizontal, reflexTestExtent))
-                {
-                    // Ex. Can't move left, but can move down and then left
-                    primaryDirection = verticalSecondaryOffset;
-                    secondaryDirection = horizontal * reflexTestExtent;
-                    return true;
-                }
-                else if (!canMoveVertically && canMoveHorizontally && !TestForCollision(origin + horizontalSecondaryOffset, vertical, reflexTestExtent))
-                {
-                    // Ex. Can't move up, but can move right and then up
-                    primaryDirection = horizontalSecondaryOffset;
-                    secondaryDirection = vertical * reflexTestExtent;
-                    return true;
-                }
-            }
-
-            primaryDirection = default;
-            secondaryDirection = default;
-            return false;
+            var deltaPosition = targetDirection.normalized * Time.deltaTime * properties.climbSpeed;
+            body.MoveAndCollide(deltaPosition);
+            return deltaPosition.sqrMagnitude > 0f;
         }
 
         private bool IsAttemptingToDetatchFromWall()
@@ -276,13 +274,13 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
             if (!properties.automaticDetachEnabled)
                 return false;
 
-            if (IsBodyLatched(Direction.DOWN) && input.MovementDirection.y > 0.5f)
+            if (IsBodyLatched(Vector2.down) && input.MovementDirection.y > 0.5f)
                 return true;
-            else if (IsBodyLatched(Direction.UP) && input.MovementDirection.y < -0.5f)
+            else if (IsBodyLatched(Vector2.up) && input.MovementDirection.y < -0.5f)
                 return true;
-            else if (IsBodyLatched(Direction.LEFT) && input.MovementDirection.x > 0.5f)
+            else if (IsBodyLatched(Vector2.left) && input.MovementDirection.x > 0.5f)
                 return true;
-            else if (IsBodyLatched(Direction.RIGHT) && input.MovementDirection.x < -0.5f)
+            else if (IsBodyLatched(Vector2.right) && input.MovementDirection.x < -0.5f)
                 return true;
 
             return false;
@@ -320,87 +318,88 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
             return true;
         }
 
-        private bool MaybeMoveInDirection(Vector2 mask)
+        private bool CanScaleInDirection(Vector2 direction)
         {
-            var targetDirection = input.MovementDirection * mask;
-            if (targetDirection.sqrMagnitude < 0.001f)
-                return false;
+            return body.EffectiveBounds.GetMappedCorners()
+                .Where(c =>
+                {
+                    if (direction.x > 0)
+                        return c.corner.x > 0;
+                    if (direction.x < 0)
+                        return c.corner.x < 0;
+                    if (direction.y > 0)
+                        return c.corner.y > 0;
+                    if (direction.y < 0)
+                        return c.corner.y < 0;
 
-            var deltaPosition = targetDirection.normalized * Time.deltaTime * properties.climbSpeed;
-            body.MoveAndCollide(deltaPosition);
-            return deltaPosition.sqrMagnitude > 0f;
+                    return false;
+                })
+                .Any(c =>
+                {
+                    var mask = new Vector2(Mathf.Abs(direction.y), Mathf.Abs(direction.x));
+                    var latchDirection = c.corner * mask;
+                    return TestForCollision(c.position, latchDirection, EFFECTIVE_COLLISION_DISTANCE);
+                });
         }
 
-        private bool IsBodyLatched(Direction direction)
+        private bool CanBendAroundCorner(ReflexCorner corner, out Vector2 primaryDirection, out Vector2 secondaryDirection)
         {
-            return GetRays(direction, body.EffectiveBounds)
-                .All(ray => Physics2D.Raycast(ray.origin, ray.direction, EFFECTIVE_COLLISION_DISTANCE, body.CollisionMask));
-        }
-
-        private IEnumerable<Ray2D> GetRays(Direction direction, Bounds bounds)
-        {
-            switch (direction)
+            var reflexTestExtent = 0.2f;
+            var origin = corner.origin;
+            var dimensions = body.EffectiveBounds.size;
+            foreach (var multiplier in new Vector2[] { new Vector2(1, -1), new Vector2(-1, 1) })
             {
-                case Direction.UP:
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.up,
-                        origin = bounds.GetTopLeft()
-                    };
+                /**
+                 * Mapping from the back corner to the diagonal direction
+                 * we'd be reflexing around.
+                 * 
+                 *  1, 1 => [-1, 1  ,  1,-1]
+                 * -1,-1 => [-1, 1  ,  1,-1]
+                 *  1,-1 => [-1,-1  ,  1, 1]
+                 * -1, 1 => [-1,-1  ,  1, 1]
+                 */
+                var diagonal = corner.corner * multiplier;
 
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.up,
-                        origin = bounds.GetTopRight()
-                    };
+                // Attempt to orthogonally step to the diagonal in both possible
+                // ways. If we can step in one direction but not the other, we
+                // can take this corner
+                var horizontal = diagonal.SignedHorizontal();
+                var vertical = diagonal.SignedVertical();
 
-                    break;
+                var horizontalSecondaryOffset = horizontal * (dimensions.x + reflexTestExtent);
+                var verticalSecondaryOffset = vertical * (dimensions.y + reflexTestExtent);
 
-                case Direction.DOWN:
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.down,
-                        origin = bounds.GetBottomLeft()
-                    };
+                var canMoveVertically = !TestForCollision(origin, vertical, verticalSecondaryOffset.magnitude);
+                var canMoveHorizontally = !TestForCollision(origin, horizontal, horizontalSecondaryOffset.magnitude);
 
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.down,
-                        origin = bounds.GetBottomRight()
-                    };
-
-                    break;
-
-                case Direction.RIGHT:
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.right,
-                        origin = bounds.GetTopRight()
-                    };
-
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.right,
-                        origin = bounds.GetBottomRight()
-                    };
-
-                    break;
-
-                case Direction.LEFT:
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.left,
-                        origin = bounds.GetBottomLeft()
-                    };
-
-                    yield return new Ray2D
-                    {
-                        direction = Vector2.left,
-                        origin = bounds.GetTopLeft()
-                    };
-
-                    break;
+                if (!canMoveHorizontally && canMoveVertically && !TestForCollision(origin + verticalSecondaryOffset, horizontal, reflexTestExtent))
+                {
+                    // Ex. Can't move left, but can move down and then left
+                    primaryDirection = verticalSecondaryOffset;
+                    secondaryDirection = horizontal * reflexTestExtent;
+                    return true;
+                }
+                else if (!canMoveVertically && canMoveHorizontally && !TestForCollision(origin + horizontalSecondaryOffset, vertical, reflexTestExtent))
+                {
+                    // Ex. Can't move up, but can move right and then up
+                    primaryDirection = horizontalSecondaryOffset;
+                    secondaryDirection = vertical * reflexTestExtent;
+                    return true;
+                }
             }
+
+            primaryDirection = default;
+            secondaryDirection = default;
+            return false;
+        }
+
+        private bool IsBodyLatched(Vector2 direction)
+        {
+            return body.EffectiveBounds.GetCorners()
+                .Any(c =>
+                {
+                    return TestForCollision(c, direction, EFFECTIVE_COLLISION_DISTANCE); ;
+                });
         }
 
         public void UpdateProperties(PropertiesUpdating<Properties> updater)
