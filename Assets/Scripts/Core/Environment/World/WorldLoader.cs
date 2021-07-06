@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using static WorldGenerator;
+using static WorldGrid;
 
 public class WorldLoader : MonoBehaviour
 {
@@ -174,13 +175,13 @@ public class WorldLoader : MonoBehaviour
         // Create the world grid, describing every unit of the map
         var worldGrid = new WorldGrid();
         foreach (var unitAssignment in GetFloorUnits(layout))
-            worldGrid[unitAssignment.position] = unitAssignment.unit;
+            worldGrid.AddDescriptor(unitAssignment.position, unitAssignment.descriptor);
 
         foreach (var unitAssignment in GetCeilingUnits(layout))
-            worldGrid[unitAssignment.position] = unitAssignment.unit;
+            worldGrid.AddDescriptor(unitAssignment.position, unitAssignment.descriptor);
 
         foreach (var unitAssignment in GetWallUnits(layout))
-            worldGrid[unitAssignment.position] = unitAssignment.unit;
+            worldGrid.AddDescriptor(unitAssignment.position, unitAssignment.descriptor);
 
         // Load the world and generate the tilemaps
         int frameCount = 0;
@@ -212,9 +213,9 @@ public class WorldLoader : MonoBehaviour
         var roomTileset = floorSettings.roomTiles.AsCollection();
         var hallTileset = floorSettings.hallTiles.AsCollection();
 
-        TileBase GetCeilingTileForUnit(WorldGrid.CeilingUnit unit)
+        TileBase GetCeilingTileForUnit(CeilingDescriptor desciptor)
         {
-            if (ceilingTileTable.TryGetValue(unit.JointType.hash, out var tileset))
+            if (ceilingTileTable.TryGetValue(desciptor.JointType.hash, out var tileset))
                 return tileset.NextValue();
             else
                 return ceilingSettings.defaultTile;
@@ -227,67 +228,70 @@ public class WorldLoader : MonoBehaviour
             var position = pair.position;
             var unit = pair.unit;
 
-            switch (unit)
+            foreach (var descriptor in unit.GetDescriptors())
             {
-                case WorldGrid.CeilingUnit ceilingUnit:
+                switch (descriptor)
+                {
+                    case CeilingDescriptor ceilingDescriptor:
 
-                    yield return new TileAssignment
-                    {
-                        tilemap = wallSettings.tilemap,
-                        position = position,
-                        tile = GetCeilingTileForUnit(ceilingUnit),
-                    };
-
-
-                    // Also throw in a collision tile
-                    yield return new TileAssignment
-                    {
-                        tilemap = perimiterSettings.tilemap,
-                        position = position,
-                        tile = perimiterSettings.tile
-                    };
-
-                    break;
-
-                case WorldGrid.WallUnit _:
-
-                    yield return new TileAssignment
-                    {
-                        tilemap = wallSettings.tilemap,
-                        position = position,
-                        tile = northWallTileset.NextValue(),
-                    };
-
-                    // Also throw in a collision tile
-                    yield return new TileAssignment
-                    {
-                        tilemap = perimiterSettings.tilemap,
-                        position = position,
-                        tile = perimiterSettings.tile
-                    };
-
-                    break;
-
-                case WorldGrid.FloorUnit floorUnit:
-
-                    yield return new TileAssignment
-                    {
-                        tilemap = floorSettings.tilemap,
-                        position = position,
-                        tile = floorUnit.FloorLocation == WorldGrid.FloorUnit.Location.ROOM ?
-                            roomTileset.NextValue() : hallTileset.NextValue(),
-                    };
-
-                    // Check if we need to throw in the south wall overlapping this tile
-                    if (grid.IsType(position + Vector2Int.down, WorldGrid.UnitType.CEILING))
                         yield return new TileAssignment
                         {
                             tilemap = wallSettings.tilemap,
                             position = position,
-                            tile = southWallTileset.NextValue(),
+                            tile = GetCeilingTileForUnit(ceilingDescriptor),
                         };
 
-                    break;
+
+                        // Also throw in a collision tile
+                        yield return new TileAssignment
+                        {
+                            tilemap = perimiterSettings.tilemap,
+                            position = position,
+                            tile = perimiterSettings.tile
+                        };
+
+                        break;
+
+                    case WallDescriptor _:
+
+                        yield return new TileAssignment
+                        {
+                            tilemap = wallSettings.tilemap,
+                            position = position,
+                            tile = northWallTileset.NextValue(),
+                        };
+
+                        // Also throw in a collision tile
+                        yield return new TileAssignment
+                        {
+                            tilemap = perimiterSettings.tilemap,
+                            position = position,
+                            tile = perimiterSettings.tile
+                        };
+
+                        break;
+
+                    case FloorDescriptor floorDescriptor:
+
+                        yield return new TileAssignment
+                        {
+                            tilemap = floorSettings.tilemap,
+                            position = position,
+                            tile = floorDescriptor.FloorLocation == FloorDescriptor.Location.ROOM ?
+                                roomTileset.NextValue() : hallTileset.NextValue(),
+                        };
+
+                        // Check if we need to throw in the south wall overlapping this tile
+                        if (grid.ContainsDescriptor<CeilingDescriptor>(position + Vector2Int.down))
+                            yield return new TileAssignment
+                            {
+                                tilemap = wallSettings.tilemap,
+                                position = position,
+                                tile = southWallTileset.NextValue(),
+                            };
+
+                        break;
+                }
             }
         }
 
@@ -312,7 +316,7 @@ public class WorldLoader : MonoBehaviour
         var joints = new Dictionary<Vector2Int, HullJoint>();
         foreach (var u in grid.GetUnits())
         {
-            if (u.unit is WorldGrid.CeilingUnit ceilingUnit)
+            if (u.unit.ContainsDescriptor<CeilingDescriptor>())
             {
                 foreach (var dir in JointHash.Directions)
                 {
@@ -340,7 +344,7 @@ public class WorldLoader : MonoBehaviour
         return joints;
     }
 
-    private IEnumerable<(Vector2Int position, WorldGrid.CeilingUnit unit)> GetCeilingUnits(WorldLayout layout)
+    private IEnumerable<(Vector2Int position, CeilingDescriptor descriptor)> GetCeilingUnits(WorldLayout layout)
     {
         var floorCells = new HashSet<Vector2Int>(Enumerable.Concat(
             // Room cells
@@ -402,10 +406,10 @@ public class WorldLoader : MonoBehaviour
 
         return floorCells
             .SelectMany(GetPositions)
-            .Select(p => (position: p, unit: new WorldGrid.CeilingUnit()));
+            .Select(p => (position: p, descriptor: new CeilingDescriptor()));
     }
 
-    private IEnumerable<(Vector2Int position, WorldGrid.WallUnit unit)> GetWallUnits(WorldLayout layout)
+    private IEnumerable<(Vector2Int position, WallDescriptor descriptor)> GetWallUnits(WorldLayout layout)
     {
         var floorCells = new HashSet<Vector2Int>(Enumerable.Concat(
             // Room cells
@@ -422,29 +426,29 @@ public class WorldLoader : MonoBehaviour
                 yield return from + direction * i;
         }
 
-        IEnumerable<(Vector2Int position, WorldGrid.WallUnit unit)> GetPositions(Vector2Int cell)
+        IEnumerable<(Vector2Int position, WallDescriptor descriptor)> GetPositions(Vector2Int cell)
         {
             if (IsEmptySpace(cell, Vector2Int.up))
                 foreach (var pos in WalkScaled(from: (cell + Vector2Int.up) * layoutScale, Vector2Int.right))
-                    yield return (position: pos, new WorldGrid.WallUnit(WorldGrid.WallUnit.Face.DOWN));
+                    yield return (position: pos, new WallDescriptor(WallDescriptor.Face.DOWN));
         }
 
         return floorCells.SelectMany(GetPositions);
     }
 
-    private IEnumerable<(Vector2Int position, WorldGrid.FloorUnit unit)> GetFloorUnits(WorldLayout layout)
+    private IEnumerable<(Vector2Int position, FloorDescriptor descriptor)> GetFloorUnits(WorldLayout layout)
     {
         var roomPositions = layout.Rooms.AllRooms
             .SelectMany(r => r.GetAllCells())
             .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
 
-        var roomAssignments = roomPositions.Select(position => (position: position, unit: new WorldGrid.FloorUnit(WorldGrid.FloorUnit.Location.ROOM)));
+        var roomAssignments = roomPositions.Select(position => (position: position, unit: new FloorDescriptor(FloorDescriptor.Location.ROOM)));
 
         var hallwayCells = layout.Hallways
             .SelectMany(h => h.Path)
             .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
 
-        var hallwayAssignments = hallwayCells.Select(position => (position: position, unit: new WorldGrid.FloorUnit(WorldGrid.FloorUnit.Location.HALLWAY)));
+        var hallwayAssignments = hallwayCells.Select(position => (position: position, unit: new FloorDescriptor(FloorDescriptor.Location.HALLWAY)));
         
         return Enumerable.Concat(roomAssignments, hallwayAssignments);
     }

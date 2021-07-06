@@ -3,16 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
-using static WorldGenerator;
 
 public class WorldGrid
 {
-    public enum UnitType
-    {
-        FLOOR, WALL, CEILING, FIXTURE
-    }
-
-    public abstract class Unit
+    public class Unit
     {
         private Vector2Int position;
         private WorldGrid grid;
@@ -20,10 +14,11 @@ public class WorldGrid
         public Vector2Int Position => position;
         public WorldGrid Grid => grid;
 
-        public abstract UnitType Type { get; }
+        private Dictionary<Type, Descriptor> descriptors;
 
-        public void Bind(WorldGrid grid, Vector2Int position)
+        public Unit(WorldGrid grid, Vector2Int position)
         {
+            descriptors = new Dictionary<Type, Descriptor>();
             if (grid != null)
                 grid.TryRemove(this, position);
 
@@ -31,54 +26,104 @@ public class WorldGrid
             this.grid = grid;
             this.position = position;
         }
+
+        public void AddDescriptor<T>(T descriptor) where T : Descriptor
+        {
+            RemoveDescriptor<T>();
+            descriptor.Bind(this);
+            descriptors[typeof(T)] = descriptor;
+        }
+
+        public void AddDescriptor(Descriptor descriptor)
+        {
+            RemoveDescriptor(descriptor);
+            descriptor.Bind(this);
+            descriptors[descriptor.GetType()] = descriptor;
+        }
+
+        public bool RemoveDescriptor<T>() where T : Descriptor
+        {
+            return descriptors.Remove(typeof(T));
+        }
+
+        public bool RemoveDescriptor(Descriptor descriptor)
+        {
+            return descriptors.Remove(descriptor.GetType());
+        }
+
+        public bool TryGetDescriptor<T>(out T descriptor) where T : Descriptor
+        {
+            if (descriptors.TryGetValue(typeof(T), out Descriptor erasedDescriptor) && erasedDescriptor is T typedDescriptor)
+            {
+                descriptor = typedDescriptor;
+                return true;
+            }
+
+            descriptor = default;
+            return false;
+        }
+
+        public bool ContainsDescriptor<T>() where T : Descriptor
+        {
+            return descriptors.ContainsKey(typeof(T));
+        }
+
+        public IEnumerable<Descriptor> GetDescriptors() => descriptors.Values;
     }
 
-    public class FloorUnit: Unit
+    public abstract class Descriptor
+    {
+        private Unit unit;
+        public Unit Unit => unit;
+
+        public void Bind(Unit unit)
+        {
+            if (this.unit != null)
+                this.unit.RemoveDescriptor(this);
+
+            this.unit = unit;
+        }
+    }
+
+    public class FloorDescriptor: Descriptor
     {
         public enum Location
         {
             ROOM, HALLWAY
         }
 
-        public override UnitType Type => UnitType.FLOOR;
-
         public readonly Location FloorLocation;
 
-        public FloorUnit(Location floorLocation)
+        public FloorDescriptor(Location floorLocation)
         {
             FloorLocation = floorLocation;
         }
     }
 
-    public class WallUnit: Unit
+    public class WallDescriptor : Descriptor
     {
         public enum Face
         {
             DOWN, UP
         }
 
-        public override UnitType Type => UnitType.WALL;
-
         public readonly Face FacingDirection;
 
-        public WallUnit(Face facingDirection)
+        public WallDescriptor(Face facingDirection)
         {
             FacingDirection = facingDirection;
         }
     }
 
-    public class CeilingUnit: Unit
+    public class CeilingDescriptor : Descriptor
     {
-        public override UnitType Type => UnitType.CEILING;
-
         public JointHash JointType => JointHash.Directions
-            .Where(dir => this.Grid.IsType(this.Position + JointHash.DirectionVector(dir), UnitType.CEILING))
+            .Where(dir => Unit.Grid.ContainsDescriptor<CeilingDescriptor>(Unit.Position + JointHash.DirectionVector(dir)))
             .Aggregate(new JointHash(), (accum, dir) => accum += dir);
     }
 
-    public class FixtureUnit: Unit
+    public class FixtureDescriptor : Descriptor
     {
-        public override UnitType Type => UnitType.FIXTURE;
     }
 
     private Dictionary<Vector2Int, Unit> unitMap;
@@ -111,10 +156,10 @@ public class WorldGrid
         return false;
     }
 
-    public bool IsType(Vector2Int position, UnitType type)
+    public bool ContainsDescriptor<T>(Vector2Int position) where T: Descriptor
     {
         if (TryGetUnit(position, out var unit))
-            return unit.Type == type;
+            return unit.ContainsDescriptor<T>();
 
         return false;
     }
@@ -129,9 +174,21 @@ public class WorldGrid
         return unitMap.Select(kvp => (position: kvp.Key, unit: kvp.Value));
     }
 
+    public void AddDescriptor<T>(Vector2Int position, T descriptor) where T: Descriptor
+    {
+        GetOrInsert(position).AddDescriptor(descriptor);
+    }
+
     public Unit this[Vector2Int position]
     {
         get => unitMap[position];
-        set => value.Bind(this, position);
+    }
+
+    public Unit GetOrInsert(Vector2Int position)
+    {
+        if (!unitMap.ContainsKey(position))
+            unitMap[position] = new Unit(this, position);
+
+        return unitMap[position];
     }
 }

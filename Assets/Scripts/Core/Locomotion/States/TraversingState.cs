@@ -162,9 +162,9 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
         {
             TryMove(new Func<bool>[]{
                 TryDetatchFromWall,
-                TryMoveAroundCorner,
                 TryCutCorner,
                 TryScaleAlongWall,
+                TryMoveAroundCorner,
             });
         }
 

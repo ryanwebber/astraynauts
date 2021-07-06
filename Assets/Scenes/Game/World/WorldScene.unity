@@ -6811,7 +6811,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7773513, y: 1}
+    m_SensorSize: {x: 1.7780678, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -7105,11 +7105,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floatStateProperties:
-    jumpForce: 3.5
-    steerForce: 0.1
-    maxVelocity: 4.5
+    jumpForce: 4.5
+    steerForce: 0.04
+    maxVelocity: 5
   traversingStateProperties:
-    climbSpeed: 2.5
+    climbSpeed: 3.5
     automaticDetachEnabled: 0
     maxCornerCutTriggerDistance: 1.25
   isActive: 0
