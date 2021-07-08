@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 19656583}
   - component: {fileID: 19656584}
+  - component: {fileID: 19656585}
   m_Layer: 0
   m_Name: CameraController
   m_TagString: Untagged
@@ -168,6 +169,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   virtualCamera: {fileID: 1901422990}
   gameState: {fileID: 261099363}
+--- !u!114 &19656585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 19656582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f63162a3504a4ee78c9fdbe19de4dd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 519420031}
 --- !u!1 &110007085
 GameObject:
   m_ObjectHideFlags: 0
@@ -7110,9 +7124,9 @@ MonoBehaviour:
     maxVelocity: 5
   traversingStateProperties:
     climbSpeed: 3.5
-    corneringSpeedMultiplier: 1.5
+    corneringSpeedMultiplier: 1
     automaticDetachEnabled: 0
-    maxCornerCutTriggerDistance: 1
+    maxCornerCutTriggerDistance: 1.25
   isActive: 0
 --- !u!114 &2037969539
 MonoBehaviour:

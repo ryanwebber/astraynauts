@@ -39,6 +39,16 @@ public class AttachableInputSource : MonoBehaviour
             relayedSource.OnMovementSpecialAction?.Invoke();
     }
 
+    private void OnDrawGizmos()
+    {
+        if (CameraProjection.TryGetCurrent(out var projection))
+        {
+            var center = projection.WorldBounds.center;
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(center, center + relayedSource.AimValue);
+        }
+    }
+
     private class RelayInputSource : IInputSource
     {
         public Event OnFireBegin { get; set; }
