@@ -57,6 +57,7 @@ public class KinematicBody : MonoBehaviour
     private BoxCollider2D boxCollider;
     private Collision collisionState;
 
+    public Bounds ExactBounds => boxCollider.bounds;
     public Bounds EffectiveBounds
     {
         get

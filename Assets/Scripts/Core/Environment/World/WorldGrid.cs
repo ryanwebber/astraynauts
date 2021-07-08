@@ -18,7 +18,7 @@ public class WorldGrid
 
         public Unit(WorldGrid grid, Vector2Int position)
         {
-            descriptors = new Dictionary<Type, Descriptor>();
+            descriptors = new Dictionary<Type, Descriptor>(2);
             if (grid != null)
                 grid.TryRemove(this, position);
 

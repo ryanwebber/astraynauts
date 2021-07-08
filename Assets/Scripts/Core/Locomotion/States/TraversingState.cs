@@ -11,6 +11,7 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
     public struct Properties
     {
         public float climbSpeed;
+        public float corneringSpeedMultiplier;
         public bool automaticDetachEnabled;
         public float maxCornerCutTriggerDistance;
     }
@@ -83,9 +84,9 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
         public Vector2 PrimaryDirection;
         public Vector2 SecondaryDirection;
 
-        public Vector2 Diagonal => (PrimaryDirection + SecondaryDirection).normalized;
-        public Vector2 SecondaryDiagonal => (SecondaryDirection - PrimaryDirection).normalized;
-        public Vector2 LatchDirection => PrimaryDirection * -1;
+        private Vector2 PrimaryDiagonal => (PrimaryDirection + SecondaryDirection).normalized;
+        private Vector2 SecondaryDiagonal => (SecondaryDirection - PrimaryDirection).normalized;
+        private Vector2 LatchDirection => PrimaryDirection * -1;
 
         public CorneringState(KinematicBody body, Properties properties): base(body)
         {
@@ -95,24 +96,35 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
         protected override IEnumerator GetCoroutine()
         {
+            // Multiply by 1.414 to boost the x or y velocity to equal the normal climbSpeed
+            var resolvedCorneringSpeed = properties.climbSpeed * properties.corneringSpeedMultiplier * 1.41421356237f;
+
+            // Left as a variable for debugging
+            YieldInstruction routineYield = null;
+
+            // 1. Move into the wall and forward until we're clear of the corner
             while (true)
             {
-                var delta = Diagonal * properties.climbSpeed * 1.41421356237f * Time.deltaTime;
+                var delta = PrimaryDiagonal * resolvedCorneringSpeed * Time.deltaTime;
                 body.MoveAndCollide(delta);
-                if (!body.CollisionState.HasCollision)
+                if (!body.CollisionState.HasCollision && CornerCollisionCount(SecondaryDirection) == 0)
                     break;
 
-                yield return null;
+                yield return routineYield;
             }
 
-            body.transform.position += ((Vector3)Diagonal).normalized * 0.05f;
+            yield return routineYield;
 
-            while (CornerCollisionCount(LatchDirection) < 2)
+            // 2. Move back into the wall on the other side of the corner
+            while (true)
             {
-                var delta = SecondaryDiagonal * properties.climbSpeed * 1.41421356237f * Time.deltaTime;
+                Debug.DrawRay(body.transform.position, SecondaryDiagonal, Color.yellow);
+                var delta = SecondaryDiagonal * resolvedCorneringSpeed * Time.deltaTime;
                 body.MoveAndCollide(delta);
+                if (body.CollisionState.HasCollision && CornerCollisionCount(LatchDirection) > 0)
+                    break;
 
-                yield return null;
+                yield return routineYield;
             }
 
             OnCorneringComplete?.Invoke();
@@ -120,10 +132,10 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
         private int CornerCollisionCount(Vector2 direction)
         {
-            return body.EffectiveBounds.GetCorners()
+            return body.ExactBounds.GetCorners()
                 .Count(c =>
                 {
-                    var collision = Physics2D.Raycast(c, direction, 0.1f, layerMask: body.CollisionMask);
+                    var collision = Physics2D.Raycast(c, direction, 0.001f, layerMask: body.CollisionMask);
                     Debug.DrawRay(c, direction * 0.2f, collision ? Color.green : Color.magenta, 1f);
                     return collision;
                 });
@@ -196,6 +208,9 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
         private bool TryMoveAroundCorner()
         {
+            if (properties.corneringSpeedMultiplier <= 0)
+                return false;
+
             foreach (var reflexCorner in GetReflexCorners())
             {
                 if (CanBendAroundCorner(reflexCorner, out var primaryDirection, out var secondaryDirection) &&

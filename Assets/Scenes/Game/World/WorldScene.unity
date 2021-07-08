@@ -6811,7 +6811,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7780678, y: 1}
+    m_SensorSize: {x: 1.7773513, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -7110,8 +7110,9 @@ MonoBehaviour:
     maxVelocity: 5
   traversingStateProperties:
     climbSpeed: 3.5
+    corneringSpeedMultiplier: 1.5
     automaticDetachEnabled: 0
-    maxCornerCutTriggerDistance: 1.25
+    maxCornerCutTriggerDistance: 1
   isActive: 0
 --- !u!114 &2037969539
 MonoBehaviour:
