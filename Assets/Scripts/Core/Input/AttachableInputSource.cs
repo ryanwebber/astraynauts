@@ -6,11 +6,23 @@ using InputSystem = UnityEngine.InputSystem;
 [RequireComponent(typeof(InputSystem.PlayerInput))]
 public class AttachableInputSource : MonoBehaviour
 {
+    [SerializeField]
+    private Transform relativeAimObject;
+    public Transform RelativeAimObject
+    {
+        get => relativeAimObject;
+        set => relativeAimObject = value;
+    }
+
+    private InputSystem.PlayerInput rawInput;
     private RelayInputSource relayedSource;
     public IInputSource MainSource => relayedSource;
 
+    private bool IsJoystick => !rawInput.currentControlScheme.Contains("Mouse");
+
     private void Awake()
     {
+        rawInput = GetComponent<InputSystem.PlayerInput>();
         relayedSource = new RelayInputSource();
     }
 
@@ -21,7 +33,25 @@ public class AttachableInputSource : MonoBehaviour
 
     public void OnPlayerAim(InputSystem.InputAction.CallbackContext ctx)
     {
-        relayedSource.AimValue = Vector2.ClampMagnitude(ctx.ReadValue<Vector2>(), 1f);
+        if (CameraProjection.TryGetCurrent(out var projection) && !IsJoystick)
+        {
+            if (relativeAimObject == null)
+            {
+                relayedSource.AimValue = Vector2.zero;
+                return;
+            }
+
+            var absoluteAimScreenPosition = ctx.ReadValue<Vector2>();
+            var absoluteViewportPosition = projection.ScreenToViewport(absoluteAimScreenPosition);
+            var absoluteRelativeObjectCenter = projection.WorldToViewport(relativeAimObject.position);
+
+            // Half the screen width => magnitude of 1f
+            relayedSource.AimValue = Vector2.ClampMagnitude(absoluteViewportPosition - absoluteRelativeObjectCenter, 0.5f) * 2;
+        }
+        else
+        {
+            relayedSource.AimValue = Vector2.ClampMagnitude(ctx.ReadValue<Vector2>(), 1f);
+        }
     }
 
     public void OnPlayerFire(InputSystem.InputAction.CallbackContext ctx)
@@ -37,16 +67,6 @@ public class AttachableInputSource : MonoBehaviour
     {
         if (ctx.started)
             relayedSource.OnMovementSpecialAction?.Invoke();
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (CameraProjection.TryGetCurrent(out var projection))
-        {
-            var center = projection.WorldBounds.center;
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(center, center + relayedSource.AimValue);
-        }
     }
 
     private class RelayInputSource : IInputSource

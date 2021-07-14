@@ -40,7 +40,7 @@ public class WorldSceneInitializer : MonoBehaviour
     private void InitializeScene(ISceneLoader loader, System.Action callback)
     {
         // TODO: Do player instantiation
-        player.InputBinder.Bind(inputSource.MainSource);
+        player.InputBinder.Bind(inputSource);
 
         var players = new List<Player>();
         players.Add(player);

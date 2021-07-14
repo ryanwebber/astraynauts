@@ -18,6 +18,9 @@ public class CameraProjection : MonoBehaviour
         }
     }
 
+    public Vector2 ScreenToViewport(Vector2 position)
+        => mainCamera.ScreenToViewportPoint(position);
+
     public Vector2 WorldToViewport(Vector2 position)
         => mainCamera.WorldToViewportPoint(position);
 

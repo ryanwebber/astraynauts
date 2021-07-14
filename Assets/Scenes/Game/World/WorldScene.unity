@@ -6630,6 +6630,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fc6ccf439d4b8dbf59b76804a6674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  relativeAimObject: {fileID: 0}
 --- !u!114 &1871974678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6825,7 +6826,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.7773513, y: 1}
+    m_SensorSize: {x: 1.7784257, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -6926,6 +6927,7 @@ GameObject:
   - component: {fileID: 2037969538}
   - component: {fileID: 2037969537}
   - component: {fileID: 2037969528}
+  - component: {fileID: 2037969540}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7082,6 +7084,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2273263d1c4c04df3b57fce3279befe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spideringInput: {fileID: 2037969539}
+  locomotionInput: {fileID: 2037969530}
+  shootingController: {fileID: 2037969540}
 --- !u!114 &2037969536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7119,7 +7124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floatStateProperties:
-    jumpForce: 4.5
+    jumpForce: 3.8
     steerForce: 0.04
     maxVelocity: 5
   traversingStateProperties:
@@ -7142,3 +7147,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MovementDirection: {x: 0, y: 0}
   IsJumping: 0
+--- !u!114 &2037969540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9c35bb0ae2e145d0bc27388d60172fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AimDirection: {x: 0, y: 0}

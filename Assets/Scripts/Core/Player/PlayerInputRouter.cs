@@ -2,20 +2,23 @@
 using System.Collections;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(LocomotableInput))]
-[RequireComponent(typeof(SpideringInput))]
 [RequireComponent(typeof(PlayerInputBinder))]
 public class PlayerInputRouter : MonoBehaviour
 {
+    [SerializeField]
     private SpideringInput spideringInput;
+
+    [SerializeField]
     private LocomotableInput locomotionInput;
+
+    [SerializeField]
+    private PlayerShootingController shootingController;
+
     private PlayerInputBinder inputBinder;
     private IInputSource currentSource;
 
     private void Awake()
     {
-        spideringInput = GetComponent<SpideringInput>();
-        locomotionInput = GetComponent<LocomotableInput>();
         inputBinder = GetComponent<PlayerInputBinder>();
     }
 
@@ -38,12 +41,16 @@ public class PlayerInputRouter : MonoBehaviour
     {
         // Bind to events
         source.OnMovementSpecialAction += () => spideringInput.IsJumping = true;
+        source.OnFireBegin += () => shootingController.TryStartFiring();
+        source.OnFireEnd += () => shootingController.TryCommitFiring();
     }
 
     private void DetachFromInput(IInputSource source)
     {
         // Unbind from events
         source.OnMovementSpecialAction = default;
+        source.OnFireBegin = default;
+        source.OnFireEnd = default;
     }
 
     private void Update()
@@ -52,10 +59,12 @@ public class PlayerInputRouter : MonoBehaviour
         {
             locomotionInput.MovementDirection = currentSource.MovementValue;
             spideringInput.MovementDirection = currentSource.MovementValue;
+            shootingController.AimDirection = currentSource.AimValue;
         }
         else
         {
             locomotionInput.MovementDirection = Vector2.zero;
+            spideringInput.MovementDirection = Vector2.zero;
         }
     }
 }
