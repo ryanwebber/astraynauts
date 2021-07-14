@@ -9,4 +9,6 @@ public interface IInputSource
 
     Vector2 MovementValue { get; }
     Vector2 AimValue { get; }
+
+    PlayerIdentifier InputIdentifier { get; }
 }

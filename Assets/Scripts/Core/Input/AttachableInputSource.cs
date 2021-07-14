@@ -16,14 +16,25 @@ public class AttachableInputSource : MonoBehaviour
 
     private InputSystem.PlayerInput rawInput;
     private RelayInputSource relayedSource;
-    public IInputSource MainSource => relayedSource;
+    private RelayInputFeedback relayedFeedback;
 
-    private bool IsJoystick => !rawInput.currentControlScheme.Contains("Mouse");
+    public IInputSource MainSource => relayedSource;
+    public IInputFeedback MainFeedback => relayedFeedback;
+
+    private bool IsJoystick => rawInput.currentControlScheme != InputScemeUtils.KeyboardAndMouseScheme;
 
     private void Awake()
     {
         rawInput = GetComponent<InputSystem.PlayerInput>();
+
         relayedSource = new RelayInputSource();
+        relayedSource.InputIdentifier = new PlayerIdentifier(rawInput.playerIndex, rawInput.currentControlScheme);
+
+        relayedFeedback = new RelayInputFeedback();
+        relayedFeedback.OnTriggerHapticFeedback += () =>
+        {
+            Debug.Log("Haptics!");
+        };
     }
 
     public void OnPlayerMove(InputSystem.InputAction.CallbackContext ctx)
@@ -78,10 +89,17 @@ public class AttachableInputSource : MonoBehaviour
         public Vector2 MovementValue { get; set; } = Vector2.zero;
         public Vector2 AimValue { get; set; } = Vector2.zero;
 
+        public PlayerIdentifier InputIdentifier { get; set; }
+
         public void Reset()
         {
             MovementValue = Vector2.zero;
             AimValue = Vector2.zero;
         }
+    }
+
+    private class RelayInputFeedback : IInputFeedback
+    {
+        public Event OnTriggerHapticFeedback { get; set; }
     }
 }
