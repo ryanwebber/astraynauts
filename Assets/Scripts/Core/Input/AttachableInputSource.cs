@@ -34,6 +34,13 @@ public class AttachableInputSource : MonoBehaviour
         relayedFeedback.OnTriggerHapticFeedback += () =>
         {
             Debug.Log("Haptics!");
+            foreach (var device in rawInput.devices)
+            {
+                if (device is InputSystem.Gamepad gamepad)
+                {
+                    // TODO: rumble for a sec
+                }
+            }
         };
     }
 

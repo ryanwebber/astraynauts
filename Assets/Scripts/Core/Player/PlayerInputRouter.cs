@@ -41,8 +41,8 @@ public class PlayerInputRouter : MonoBehaviour
     {
         // Bind to events
         source.OnMovementSpecialAction += () => spideringInput.IsJumping = true;
-        source.OnFireBegin += () => shootingController.TryStartFiring();
-        source.OnFireEnd += () => shootingController.TryCommitFiring();
+        source.OnFireBegin += () => shootingController.IsFiring = true;
+        source.OnFireEnd += () => shootingController.IsFiring = false;
     }
 
     private void DetachFromInput(IInputSource source)
@@ -59,7 +59,7 @@ public class PlayerInputRouter : MonoBehaviour
         {
             locomotionInput.MovementDirection = currentSource.MovementValue;
             spideringInput.MovementDirection = currentSource.MovementValue;
-            shootingController.AimDirection = currentSource.AimValue;
+            shootingController.AimValue = currentSource.AimValue;
         }
         else
         {

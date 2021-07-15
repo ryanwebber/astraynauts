@@ -37,6 +37,8 @@ public class RaycastBody : MonoBehaviour
 
     public int CollisionCount => previousNumCollisions;
 
+    public Event<RaycastBody.Collision> OnCollision;
+
     private void Awake()
     {
         bodyCollider = GetComponent<CircleCollider2D>();
@@ -102,12 +104,15 @@ public class RaycastBody : MonoBehaviour
         previousNumCollisions = numCollisions;
         transform.position = position;
 
+        for (int i = 0; i < CollisionCount; i++)
+            OnCollision?.Invoke(GetCollision(i));
+
         return velocity.normalized;
     }
 
     private IEnumerable<Ray2D> GetRays(Vector2 origin, Vector2 delta)
     {
-        if (delta.sqrMagnitude == 0f)
+        if (delta.sqrMagnitude == 0f || numRays == 1)
             yield break;
 
         if (bodyCollider == null)

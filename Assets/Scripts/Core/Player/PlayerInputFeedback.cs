@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(PlayerInputBinder))]
 public class PlayerInputFeedback : MonoBehaviour
 {
     private IInputFeedback feedback;
-    public IInputFeedback CurrentFeedback => feedback;
 
     private void Awake()
     {
@@ -15,5 +15,24 @@ public class PlayerInputFeedback : MonoBehaviour
         };
 
         this.feedback = InputFeedbackUtils.DetachedFeedback;
+    }
+
+    public void TriggerHapticInstant()
+    {
+        feedback.OnTriggerHapticFeedback?.Invoke();
+    }
+
+    public void TriggerHapticSession(IEnumerable<float> stream)
+    {
+        StartCoroutine(StreamHaptics(stream));
+    }
+
+    private IEnumerator StreamHaptics(IEnumerable<float> stream)
+    {
+        foreach (var value in stream)
+        {
+            // TODO: set haptic value
+            yield return null;
+        }
     }
 }
