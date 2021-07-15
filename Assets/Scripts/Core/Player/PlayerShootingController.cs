@@ -7,6 +7,19 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInputFeedback))]
 public class PlayerShootingController : MonoBehaviour
 {
+    [System.Serializable]
+    public struct Properties
+    {
+        [SerializeField]
+        public float burstFireDelay;
+
+        [SerializeField]
+        public float burstNotchChargeTime;
+
+        [SerializeField]
+        public int maxBurstCount;
+    }
+
     private struct States
     {
         public IdleState idle;
@@ -38,20 +51,26 @@ public class PlayerShootingController : MonoBehaviour
         set => input.isFiring = value;
     }
 
+    [SerializeField]
+    private Properties properties;
+
     private Input input;
+    private ProjectileSpawner projectileSpawner;
+    private PlayerInputFeedback inputFeedback;
+
     private StateMachine<States> stateMachine;
 
     private void Awake()
     {
-        var inputFeedback = GetComponent<PlayerInputFeedback>();
-        var projectileSpawner = GetComponent<ProjectileSpawner>();
+        inputFeedback = GetComponent<PlayerInputFeedback>();
+        projectileSpawner = GetComponent<ProjectileSpawner>();
+        input = new Input();
 
-        this.input = new Input();
         stateMachine = new StateMachine<States>(new States
             {
-                idle = new IdleState(input),
-                charging = new ChargingState(inputFeedback, input),
-                firing = new FiringState(projectileSpawner, input)
+                idle = new IdleState(this),
+                charging = new ChargingState(this),
+                firing = new FiringState(this)
             },
             states =>
             {
@@ -59,10 +78,14 @@ public class PlayerShootingController : MonoBehaviour
                 states.charging.OnChargeReleased += burstCount =>
                 {
                     if (burstCount <= 0)
+                    {
                         stateMachine.SetState(states.idle);
+                    }
                     else
+                    {
                         states.firing.BurstCount = burstCount;
                         stateMachine.SetState(states.firing);
+                    }
                 };
 
                 states.firing.OnFiringComplete += () => stateMachine.SetState(states.idle);
@@ -70,6 +93,11 @@ public class PlayerShootingController : MonoBehaviour
                 return states.idle;
             }
         );
+
+        stateMachine.OnStateChanged += (fromState, toState) =>
+        {
+            Debug.Log($"Shooting state changed: {fromState?.Name} -> {toState?.Name}");
+        };
 
         projectileSpawner.Decorators += projectile =>
         {
@@ -96,16 +124,16 @@ public class PlayerShootingController : MonoBehaviour
         public Event OnChargeStart;
         public override string Name => "Idle";
 
-        private Input input;
+        private PlayerShootingController controller;
 
-        public IdleState(Input input)
+        public IdleState(PlayerShootingController controller)
         {
-            this.input = input;
+            this.controller = controller;
         }
 
         public override void OnUpdate(IStateMachine sm)
         {
-            if (input.isFiring)
+            if (controller.input.isFiring)
                 OnChargeStart?.Invoke();
         }
     }
@@ -116,13 +144,11 @@ public class PlayerShootingController : MonoBehaviour
         public override string Name => "Charging";
 
         private float startTime;
-        private Input input;
-        private PlayerInputFeedback feedback;
+        private PlayerShootingController controller;
 
-        public ChargingState(PlayerInputFeedback feedback, Input input)
+        public ChargingState(PlayerShootingController controller)
         {
-            this.input = input;
-            this.feedback = feedback;
+            this.controller = controller;
         }
 
         public override void OnEnter(IStateMachine sm)
@@ -132,14 +158,13 @@ public class PlayerShootingController : MonoBehaviour
 
         public override void OnUpdate(IStateMachine sm)
         {
-            // TODO: Make these properties
-            var chargeNotchTime = 0.5f;
-            var maxBurstCount = 3;
+            var chargeNotchTime = controller.properties.burstNotchChargeTime;
+            var maxBurstCount = controller.properties.maxBurstCount;
 
             var currentHeldDuration = Time.time - startTime;
             int currentFrameBurstAmount = Mathf.Min(Mathf.FloorToInt(currentHeldDuration / chargeNotchTime), maxBurstCount);
 
-            if (!input.isFiring)
+            if (!controller.input.isFiring)
             {
                 OnChargeReleased?.Invoke(currentFrameBurstAmount);
             }
@@ -152,18 +177,11 @@ public class PlayerShootingController : MonoBehaviour
 
                 if (previousFrameBurstAmount < currentFrameBurstAmount && currentFrameBurstAmount < maxBurstCount)
                 {
-                    feedback.TriggerHapticInstant();
+                    controller.inputFeedback.TriggerHapticInstant();
                 }
                 else if (currentFrameBurstAmount >= maxBurstCount)
                 {
-
-                    IEnumerable<float> GenerateHaptics()
-                    {
-                        while (input.isFiring)
-                            yield return 0.5f;
-                    }
-
-                    feedback.TriggerHapticSession(GenerateHaptics());
+                    // TODO: Generate sin-wave haptics
                 }
             }
         }
@@ -176,21 +194,19 @@ public class PlayerShootingController : MonoBehaviour
 
         public int BurstCount = 0;
 
-        private Input input;
-        private ProjectileSpawner spawner;
+        private PlayerShootingController controller;
 
-        public FiringState(ProjectileSpawner spawner, Input input): base(spawner)
+        public FiringState(PlayerShootingController controller): base(controller)
         {
-            this.input = input;
-            this.spawner = spawner;
+            this.controller = controller;
         }
 
         protected override IEnumerator GetCoroutine()
         {
             for (int i = 0; i < BurstCount; i++)
             {
-                Fire(input.aimValue);
-                yield return new WaitForSeconds(0.25f);
+                Fire(controller.input.aimValue);
+                yield return new WaitForSeconds(controller.properties.burstFireDelay);
             }
 
             OnFiringComplete?.Invoke();
@@ -198,6 +214,6 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         private void Fire(Vector2 direction)
-            => spawner.SpawnProjectile(direction);
+            => controller.projectileSpawner.SpawnProjectile(direction);
     }
 }

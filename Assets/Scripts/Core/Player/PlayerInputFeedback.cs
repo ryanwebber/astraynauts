@@ -21,18 +21,4 @@ public class PlayerInputFeedback : MonoBehaviour
     {
         feedback.OnTriggerHapticFeedback?.Invoke();
     }
-
-    public void TriggerHapticSession(IEnumerable<float> stream)
-    {
-        StartCoroutine(StreamHaptics(stream));
-    }
-
-    private IEnumerator StreamHaptics(IEnumerable<float> stream)
-    {
-        foreach (var value in stream)
-        {
-            // TODO: set haptic value
-            yield return null;
-        }
-    }
 }

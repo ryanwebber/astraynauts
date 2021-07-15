@@ -7161,6 +7161,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c35bb0ae2e145d0bc27388d60172fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  properties:
+    burstFireDelay: 0.15
+    burstNotchChargeTime: 0.25
+    maxBurstCount: 3
 --- !u!114 &2037969541
 MonoBehaviour:
   m_ObjectHideFlags: 0
