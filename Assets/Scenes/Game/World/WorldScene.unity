@@ -7027,6 +7027,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beab014940c234f5f9e0bee8afa5a136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isWeightless: 1
 --- !u!61 &2037969533
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7126,12 +7127,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floatStateProperties:
-    jumpForce: 3.8
-    steerForce: 0.04
-    maxVelocity: 5
+    jumpForce: 3
+    steerForce: 0.03
+    maxVelocity: 3.5
   traversingStateProperties:
-    climbSpeed: 3.5
-    corneringSpeedMultiplier: 1
+    climbSpeed: 2.5
+    corneringSpeedMultiplier: 0.85
     automaticDetachEnabled: 0
     maxCornerCutTriggerDistance: 1.25
   isActive: 0

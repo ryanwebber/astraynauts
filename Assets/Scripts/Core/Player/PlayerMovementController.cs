@@ -8,25 +8,33 @@ public class PlayerMovementController : MonoBehaviour
 {
     private struct States
     {
-        public SpiderState spiderState;
+        public State spiderState;
+        public State runState;
 
         public static States FromComponent(PlayerMovementController controller)
         {
             return new States
             {
-                spiderState = new SpiderState(controller.spideringActor),
+                spiderState = new ComponentActivationState(controller.spideringActor, "SpideringState"),
+                runState = new ComponentActivationState(controller.locomotableActor, "RunningState"),
             };
         }
     }
 
+    [SerializeField]
+    private bool isWeightless = false;
+
     private SpideringActor spideringActor;
+    private LocomotableActor locomotableActor;
     private StateMachine<States> stateMachine;
 
     private void Awake()
     {
         this.spideringActor = GetComponent<SpideringActor>();
+        this.locomotableActor = GetComponent<LocomotableActor>();
+
         stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
-            return states.spiderState;
+            return this.isWeightless ? (State)states.spiderState : states.runState;
         });
     }
 
@@ -34,18 +42,4 @@ public class PlayerMovementController : MonoBehaviour
     {
         this.stateMachine.CurrentState.Update();
     }
-
-    private class SpiderState: ComponentActivationState
-    {
-        private SpideringActor actor;
-
-        public SpiderState(SpideringActor actor)
-        {
-            this.actor = actor;
-        }
-
-        public override string Name => "SpiderState";
-        protected override IActivatable Component => actor;
-    }
 }
-

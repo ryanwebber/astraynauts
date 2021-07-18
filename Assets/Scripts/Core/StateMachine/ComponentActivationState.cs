@@ -1,15 +1,17 @@
 using System;
 using UnityEngine;
 
-public abstract class ComponentActivationState: State
+public class ComponentActivationState: State
 {
-    public ComponentActivationState()
+    private IActivatable activatable;
+    public override string Name { get; }
+
+    public ComponentActivationState(IActivatable activatable, string name)
     {
+        this.activatable = activatable;
+        this.Name = name;
     }
 
-    protected abstract IActivatable Component { get; }
-
-    public override void OnEnter(IStateMachine sm) => Component.IsActive = true;
-    public override void OnExit(IStateMachine sm) => Component.IsActive = false;
+    public sealed override void OnEnter(IStateMachine sm) => activatable.IsActive = true;
+    public sealed override void OnExit(IStateMachine sm) => activatable.IsActive = false;
 }
-

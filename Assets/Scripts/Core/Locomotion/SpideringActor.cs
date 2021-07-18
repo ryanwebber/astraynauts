@@ -61,7 +61,8 @@ public class SpideringActor : MonoBehaviour, IActivatable
 
     private void Update()
     {
-        stateMachine.CurrentState?.Update();
+        if (IsActive)
+            stateMachine.CurrentState?.Update();
     }
 }
 
