@@ -6027,7 +6027,23 @@ MonoBehaviour:
     collisionTile: {fileID: 11400000, guid: 135824510b5a546398a836ef341b764d, type: 2}
   wallSettings:
     tilemap: {fileID: 1232315633}
-    southWall: {fileID: 11400000, guid: 76c9a682957054f9fb92ed2ee9603f1d, type: 2}
+    northCenter: {fileID: 11400000, guid: 793a5e3fce77c4f73ad89510be22c97f, type: 2}
+    southCenterUpper: {fileID: 11400000, guid: 76c9a682957054f9fb92ed2ee9603f1d, type: 2}
+    southCenterLower: {fileID: 11400000, guid: 9a47714238877469c865c180a57ac98c, type: 2}
+    southEastReflexUpper: {fileID: 11400000, guid: 9ada4bb545e194ca6b8784537c224e14, type: 2}
+    southEastReflexLower: {fileID: 11400000, guid: d8318e732311743608012e02e8c5b559, type: 2}
+    southWestReflexUpper: {fileID: 11400000, guid: 5e64e4bfca92749f3948d57173d610f4, type: 2}
+    southWestReflexLower: {fileID: 11400000, guid: 72b26cb3688be4043a9243a4f616b3d9, type: 2}
+    northEastReflex: {fileID: 11400000, guid: 85c6399d955bf4f729a7ef538a2c7d3b, type: 2}
+    northWestReflex: {fileID: 11400000, guid: 155a1f8a2e55145808b272af562dda56, type: 2}
+    eastCenter: {fileID: 11400000, guid: a749eb5e83ae14b59b2a975f0686e0b5, type: 2}
+    westCenter: {fileID: 11400000, guid: 8c996d608889b4d569b8380097b1a368, type: 2}
+    northEast: {fileID: 11400000, guid: 31d547a6dfeb1420694c9521b684bbb4, type: 2}
+    northWest: {fileID: 11400000, guid: 80e8daf28a225425f805a4cf90b242c3, type: 2}
+    southEastUpper: {fileID: 11400000, guid: 4ad754c1d99614b43866f3784f92fe5c, type: 2}
+    southEastLower: {fileID: 11400000, guid: eb8d3fa745dc7448b864a1333f899c76, type: 2}
+    southWestUpper: {fileID: 11400000, guid: 34a40596e5e054cf6885647a73c980a4, type: 2}
+    southWestLower: {fileID: 11400000, guid: 364d9ca97c8ce45ce999d09483cbd587, type: 2}
 --- !u!1 &1232315630
 GameObject:
   m_ObjectHideFlags: 0

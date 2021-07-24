@@ -38,7 +38,55 @@ public class WorldLoader : MonoBehaviour
         public Tilemap tilemap;
 
         [SerializeField]
-        public TileBase southWall;
+        public TileBase northCenter;
+
+        [SerializeField]
+        public TileBase southCenterUpper;
+
+        [SerializeField]
+        public TileBase southCenterLower;
+
+        [SerializeField]
+        public TileBase southEastReflexUpper;
+
+        [SerializeField]
+        public TileBase southEastReflexLower;
+
+        [SerializeField]
+        public TileBase southWestReflexUpper;
+
+        [SerializeField]
+        public TileBase southWestReflexLower;
+
+        [SerializeField]
+        public TileBase northEastReflex;
+
+        [SerializeField]
+        public TileBase northWestReflex;
+
+        [SerializeField]
+        public TileBase eastCenter;
+
+        [SerializeField]
+        public TileBase westCenter;
+
+        [SerializeField]
+        public TileBase northEast;
+
+        [SerializeField]
+        public TileBase northWest;
+
+        [SerializeField]
+        public TileBase southEastUpper;
+
+        [SerializeField]
+        public TileBase southEastLower;
+
+        [SerializeField]
+        public TileBase southWestUpper;
+
+        [SerializeField]
+        public TileBase southWestLower;
     }
 
     [SerializeField]
@@ -94,17 +142,10 @@ public class WorldLoader : MonoBehaviour
         var rules = WorldTileRules.GetRules(floorSettings, perimeterSettings, wallSettings);
 
         for (int x = grid.Bounds.xMin - perimiterBuffer; x <= grid.Bounds.xMax + perimiterBuffer; x++)
-        {
             for (int y = grid.Bounds.yMin - perimiterBuffer; y <= grid.Bounds.yMax + perimiterBuffer; y++)
-            {
-                var position = new Vector2Int(x, y);
                 foreach (var pair in rules)
-                {
-                    if (pair.TryGetAssignment(grid, position, out var assignment))
+                    foreach (var assignment in pair.GetAssignments(grid, new Vector2Int(x, y)))
                         yield return assignment;
-                }
-            }
-        }
     }
 
     private IEnumerable<(Vector2Int position, FloorDescriptor descriptor)> GetFloorUnits(WorldLayout layout)

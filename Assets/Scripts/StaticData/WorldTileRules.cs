@@ -13,34 +13,42 @@ public static class WorldTileRules
         return new TileRulePair[]
         {
             // Room tiles
+
             new TileRulePair
             {
                 condition = new RelativeTileTypeCondition<FloorDescriptor>
                 {
                     predicate = descriptor => descriptor.FloorLocation == FloorDescriptor.Location.ROOM
                 },
-                generator = new TileGenerator
+                generators = new TileGenerator[]
                 {
-                    source = new RandomTile(floorSettings.roomTiles.AsCollection()),
-                    layer = floorSettings.tilemap
+                    new TileGenerator {
+                        source = new RandomTile(floorSettings.roomTiles.AsCollection()),
+                        layer = floorSettings.tilemap
+                    }
                 }
             },
 
             // Hallway tiles
+
             new TileRulePair
             {
                 condition = new RelativeTileTypeCondition<FloorDescriptor>
                 {
                     predicate = descriptor => descriptor.FloorLocation == FloorDescriptor.Location.HALLWAY
                 },
-                generator = new TileGenerator
+                generators = new TileGenerator[]
                 {
-                    source = new RandomTile(floorSettings.hallTiles.AsCollection()),
-                    layer = floorSettings.tilemap
+                    new TileGenerator
+                    {
+                        source = new RandomTile(floorSettings.hallTiles.AsCollection()),
+                        layer = floorSettings.tilemap
+                    }
                 }
             },
 
             // Perimiter tiles
+
             new TileRulePair
             {
                 condition = new CompositeTileCondition(
@@ -58,30 +66,349 @@ public static class WorldTileRules
                         new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) }
                     )
                 ),
-                generator = new TileGenerator
+                generators = new TileGenerator[]
                 {
-                    source = new SingleTile(perimeterSettings.collisionTile),
-                    layer = perimeterSettings.tilemap
+                    new TileGenerator
+                    {
+                        source = new SingleTile(perimeterSettings.collisionTile),
+                        layer = perimeterSettings.tilemap
+                    }
                 }
             },
 
             // Wall tiles
+
             new TileRulePair
             {
+                // South center wall pieces have a top and bottom part, and aren't adjacent
+                // to any floors diagonally southwards
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor>(),
+                    new CompositeTileCondition(Operator.OR,
+                        new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                        new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right }
+                    ),
+                    new NegatedTileCondition(
+                        new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down }
+                    ),
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(1, -1) },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.southCenterUpper),
+                        layer = wallSettings.tilemap
+                    },
+                    new TileGenerator
+                    {
+                        offset = Vector2Int.down,
+                        source = new SingleTile(wallSettings.southCenterLower),
+                        layer = wallSettings.tilemap
+                    }
+                }
+            },
+
+                        new TileRulePair
+            {
+                // North center wall is not on a floor, has floor south,
+                // and no floor east or west
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.northCenter),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // South-east reflexive corner has a top and bottom part, and has
+                // floor east and west, but not south or south-east
                 condition = new CompositeTileCondition(
                     new RelativeTileTypeCondition<FloorDescriptor>(),
                     new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
                     new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) },
                     new NegatedTileCondition(
-                        new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down }
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(1, -1) }
+                        )
                     )
                 ),
-                generator = new TileGenerator
+                generators = new TileGenerator[]
                 {
-                    source = new SingleTile(wallSettings.southWall),
-                    layer = wallSettings.tilemap
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.southEastReflexUpper),
+                        layer = wallSettings.tilemap
+                    },
+                    new TileGenerator
+                    {
+                        offset = Vector2Int.down,
+                        source = new SingleTile(wallSettings.southEastReflexLower),
+                        layer = wallSettings.tilemap
+                    }
                 }
-            }
+            },
+
+            new TileRulePair
+            {
+                // South-west reflexive corner has a top and bottom part, and has
+                // floor east and west, but not south or south-west
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor>(),
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(1, -1) },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.southWestReflexUpper),
+                        layer = wallSettings.tilemap
+                    },
+                    new TileGenerator
+                    {
+                        offset = Vector2Int.down,
+                        source = new SingleTile(wallSettings.southWestReflexLower),
+                        layer = wallSettings.tilemap
+                    }
+                }
+            },
+
+            new TileRulePair
+            {
+                // East center wall piece is not on a floor, has no floor north or
+                // south, but has a floor west and south-west
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.up }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.eastCenter),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // West center wall piece is not on a floor, has no floor north or
+                // south, but has a floor east and south-east
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(1, -1) },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.up }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.westCenter),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // North-east corner is not on a floor, has no floor west or
+                // south, but has floor south-west 
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.northEast),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // North-west corner is not on a floor, has no floor east or
+                // south, but has floor south-east 
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(1, -1) },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.northWest),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // North-east reflex corner is not on a floor, has floor west
+                // and south, and no floor east or north
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.up },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.northEastReflex),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // North-west reflex corner is not on a floor, has floor east
+                // and south, and no floor west or north
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.up },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.northWestReflex),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // South-east corner has an upper and lower part, is not on a floor, has
+                // floor west, and no floor south-west or south
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(-1, -1) }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.southEastUpper),
+                        layer = wallSettings.tilemap
+                    },
+                    new TileGenerator
+                    {
+                        offset = Vector2Int.down,
+                        source = new SingleTile(wallSettings.southEastLower),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
+
+            new TileRulePair
+            {
+                // South-west corner has an upper and lower part, is not on a floor, has
+                // floor east, and no floor south-east or south
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right },
+                    new NegatedTileCondition(
+                        new CompositeTileCondition(Operator.OR,
+                            new RelativeTileTypeCondition<FloorDescriptor>(),
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down },
+                            new RelativeTileTypeCondition<FloorDescriptor> { offset = new Vector2Int(1, -1) }
+                        )
+                    )
+                ),
+                generators = new TileGenerator[]
+                {
+                    new TileGenerator
+                    {
+                        source = new SingleTile(wallSettings.southWestUpper),
+                        layer = wallSettings.tilemap
+                    },
+                    new TileGenerator
+                    {
+                        offset = Vector2Int.down,
+                        source = new SingleTile(wallSettings.southWestLower),
+                        layer = wallSettings.tilemap
+                    },
+                }
+            },
         };
     }
 }

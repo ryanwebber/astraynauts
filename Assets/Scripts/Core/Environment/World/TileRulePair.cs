@@ -1,27 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public struct TileRulePair
 {
     public ITileCondition condition;
-    public TileGenerator generator;
+    public TileGenerator[] generators;
 
-    public bool TryGetAssignment(WorldGrid grid, Vector2Int position, out TileAssignment assignment)
+    public IEnumerable<TileAssignment> GetAssignments(WorldGrid grid, Vector2Int anchor)
     {
-        if (generator.layer == null || generator.source == null)
-        {
-            assignment = default;
-            return false;
-        }
+        if (generators == null || generators.Length == 0)
+            yield break;
 
-        if (condition.Evaluate(grid, position))
+        foreach (var generator in generators)
         {
-            assignment = generator.GetAssignment(position);
-            return true;
-        }
+            if (generator.layer == null || generator.source == null)
+                continue;
 
-        assignment = default;
-        return false;
+            if (condition.Evaluate(grid, anchor))
+                yield return generator.GetAssignment(anchor);
+        }
     }
 }
