@@ -103,13 +103,13 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.southCenterUpper),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                     new TileGenerator
                     {
                         offset = Vector2Int.down,
                         source = new SingleTile(wallSettings.southCenterLower),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     }
                 }
             },
@@ -133,7 +133,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.northCenter),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.backgroundTilemap
                     },
                 }
             },
@@ -159,13 +159,13 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.southEastReflexUpper),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                     new TileGenerator
                     {
                         offset = Vector2Int.down,
                         source = new SingleTile(wallSettings.southEastReflexLower),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     }
                 }
             },
@@ -191,13 +191,13 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.southWestReflexUpper),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                     new TileGenerator
                     {
                         offset = Vector2Int.down,
                         source = new SingleTile(wallSettings.southWestReflexLower),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     }
                 }
             },
@@ -222,7 +222,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.eastCenter),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                 }
             },
@@ -247,7 +247,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.westCenter),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                 }
             },
@@ -271,7 +271,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.northEast),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.backgroundTilemap
                     },
                 }
             },
@@ -295,7 +295,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.northWest),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.backgroundTilemap
                     },
                 }
             },
@@ -320,7 +320,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.northEastReflex),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.backgroundTilemap
                     },
                 }
             },
@@ -345,7 +345,7 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.northWestReflex),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.backgroundTilemap
                     },
                 }
             },
@@ -369,13 +369,13 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.southEastUpper),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                     new TileGenerator
                     {
                         offset = Vector2Int.down,
                         source = new SingleTile(wallSettings.southEastLower),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                 }
             },
@@ -399,13 +399,13 @@ public static class WorldTileRules
                     new TileGenerator
                     {
                         source = new SingleTile(wallSettings.southWestUpper),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                     new TileGenerator
                     {
                         offset = Vector2Int.down,
                         source = new SingleTile(wallSettings.southWestLower),
-                        layer = wallSettings.tilemap
+                        layer = wallSettings.foregroundTilemap
                     },
                 }
             },

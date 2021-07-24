@@ -42,10 +42,16 @@ TagManager:
     uniqueID: 3095913363
     locked: 0
   - name: Floor
-    uniqueID: 4015003167
+    uniqueID: 3027595041
+    locked: 0
+  - name: Background Wall
+    uniqueID: 859553993
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Foreground Wall
+    uniqueID: 998088443
     locked: 0
   - name: Overlay
     uniqueID: 685031541

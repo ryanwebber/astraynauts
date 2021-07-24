@@ -35,7 +35,10 @@ public class WorldLoader : MonoBehaviour
     public class WallSettings
     {
         [SerializeField]
-        public Tilemap tilemap;
+        public Tilemap foregroundTilemap;
+
+        [SerializeField]
+        public Tilemap backgroundTilemap;
 
         [SerializeField]
         public TileBase northCenter;
