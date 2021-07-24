@@ -5,7 +5,10 @@ using static WorldLoader;
 
 public static class WorldTileRules
 {
-    public static ICollection<TileRulePair> GetRules(FloorSettings floorSettings, PerimeterSettings perimeterSettings)
+    public static ICollection<TileRulePair> GetRules(
+        FloorSettings floorSettings,
+        PerimeterSettings perimeterSettings,
+        WallSettings wallSettings)
     {
         return new TileRulePair[]
         {
@@ -41,7 +44,7 @@ public static class WorldTileRules
             new TileRulePair
             {
                 condition = new CompositeTileCondition(
-                    new NegatedCompositeCondition(
+                    new NegatedTileCondition(
                         new RelativeTileTypeCondition<FloorDescriptor>()
                     ),
                     new CompositeTileCondition(Operator.OR,
@@ -59,6 +62,24 @@ public static class WorldTileRules
                 {
                     source = new SingleTile(perimeterSettings.collisionTile),
                     layer = perimeterSettings.tilemap
+                }
+            },
+
+            // Wall tiles
+            new TileRulePair
+            {
+                condition = new CompositeTileCondition(
+                    new RelativeTileTypeCondition<FloorDescriptor>(),
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.left },
+                    new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.right },
+                    new NegatedTileCondition(
+                        new RelativeTileTypeCondition<FloorDescriptor> { offset = Vector2Int.down }
+                    )
+                ),
+                generator = new TileGenerator
+                {
+                    source = new SingleTile(wallSettings.southWall),
+                    layer = wallSettings.tilemap
                 }
             }
         };

@@ -13,9 +13,7 @@ MonoBehaviour:
   m_Name: Floor_Hallway Tile Distribution
   m_EditorClassIdentifier: 
   tiles:
-  - tile: {fileID: 11400000, guid: 75019d9ec6f8d448e83f57a31e840aba, type: 2}
-    weight: 2
-  - tile: {fileID: 11400000, guid: d61ff72afc0c64caeba3f689b73a35aa, type: 2}
-    weight: 2
-  - tile: {fileID: 11400000, guid: d637d45d69bbe4077b7dfa702eb3b9bb, type: 2}
-    weight: 5000
+  - tile: {fileID: 11400000, guid: 18cb7d825e1864017be6d548ec8e1e6b, type: 2}
+    weight: 32
+  - tile: {fileID: 11400000, guid: dceeb9375bc56474480512129ce90d7e, type: 2}
+    weight: 1

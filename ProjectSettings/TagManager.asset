@@ -41,10 +41,7 @@ TagManager:
   - name: Skybox
     uniqueID: 3095913363
     locked: 0
-  - name: Ground
-    uniqueID: 2069795923
-    locked: 0
-  - name: Foundation
+  - name: Floor
     uniqueID: 4015003167
     locked: 0
   - name: Default

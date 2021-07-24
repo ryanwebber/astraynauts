@@ -54,11 +54,11 @@ public struct CompositeTileCondition : ITileCondition
     }
 }
 
-public struct NegatedCompositeCondition: ITileCondition
+public struct NegatedTileCondition: ITileCondition
 {
     private ITileCondition condition;
 
-    public NegatedCompositeCondition(ITileCondition condition)
+    public NegatedTileCondition(ITileCondition condition)
     {
         this.condition = condition;
     }

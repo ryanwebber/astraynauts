@@ -31,6 +31,16 @@ public class WorldLoader : MonoBehaviour
         public TileBase collisionTile;
     }
 
+    [System.Serializable]
+    public class WallSettings
+    {
+        [SerializeField]
+        public Tilemap tilemap;
+
+        [SerializeField]
+        public TileBase southWall;
+    }
+
     [SerializeField]
     private int layoutScale;
 
@@ -39,6 +49,9 @@ public class WorldLoader : MonoBehaviour
 
     [SerializeField]
     private PerimeterSettings perimeterSettings;
+
+    [SerializeField]
+    private WallSettings wallSettings;
 
     private World temp = null;
 
@@ -78,7 +91,7 @@ public class WorldLoader : MonoBehaviour
     private IEnumerable<IOperation> GetTileAssignments(WorldGrid grid)
     {
         var perimiterBuffer = 1;
-        var rules = WorldTileRules.GetRules(floorSettings, perimeterSettings);
+        var rules = WorldTileRules.GetRules(floorSettings, perimeterSettings, wallSettings);
 
         for (int x = grid.Bounds.xMin - perimiterBuffer; x <= grid.Bounds.xMax + perimiterBuffer; x++)
         {
