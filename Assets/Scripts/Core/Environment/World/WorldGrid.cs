@@ -2,10 +2,94 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 public class WorldGrid
 {
+    private RectInt bounds;
+    private Dictionary<Vector2Int, Unit> unitMap;
+
+    public RectInt Bounds => bounds;
+
+    public WorldGrid()
+    {
+        this.unitMap = new Dictionary<Vector2Int, Unit>();
+        this.bounds = new RectInt();
+    }
+
+    public void TryRemove(Unit unit, Vector2Int position)
+    {
+        if (unitMap.TryGetValue(position, out var discoveredUnit) && discoveredUnit == unit)
+            unitMap.Remove(position);
+    }
+
+    public bool TryGetUnit(Vector2Int position, out Unit unit)
+    {
+        return unitMap.TryGetValue(position, out unit);
+    }
+
+    public bool TryGetDescriptor<T>(Vector2Int position, out T descriptor) where T: Descriptor
+    {
+        if (TryGetUnit(position, out var tmp) && tmp.TryGetDescriptor<T>(out var desc))
+        {
+            descriptor = desc;
+            return true;
+        }
+
+        descriptor = default;
+        return false;
+    }
+
+    public bool ContainsDescriptor<T>(Vector2Int position) where T: Descriptor
+    {
+        if (TryGetUnit(position, out var unit))
+            return unit.ContainsDescriptor<T>();
+
+        return false;
+    }
+
+    public bool IsEmptySpace(Vector2Int position)
+    {
+        return !unitMap.ContainsKey(position);
+    }
+
+    public IEnumerable<(Vector2Int position, Unit unit)> GetUnits()
+    {
+        return unitMap.Select(kvp => (position: kvp.Key, unit: kvp.Value));
+    }
+
+    public void AddDescriptor<T>(Vector2Int position, T descriptor) where T: Descriptor
+    {
+        GetOrInsert(position).AddDescriptor(descriptor);
+    }
+
+    public Unit this[Vector2Int position]
+    {
+        get => unitMap[position];
+    }
+
+    public Unit GetOrInsert(Vector2Int position)
+    {
+        if (!unitMap.ContainsKey(position))
+        {
+            if (unitMap.Count == 0)
+                bounds = new RectInt(position, Vector2Int.zero);
+            else if (position.x < bounds.xMin)
+                bounds.xMin = position.x;
+            else if (position.x > bounds.xMax)
+                bounds.xMax = position.x;
+            else if (position.y < bounds.yMin)
+                bounds.yMin = position.y;
+            else if (position.y > bounds.yMax)
+                bounds.yMax = position.y;
+
+            unitMap[position] = new Unit(this, position);
+        }
+
+        return unitMap[position];
+    }
+
+    // -------- Inner Classes --------
+
     public class Unit
     {
         private Vector2Int position;
@@ -83,112 +167,5 @@ public class WorldGrid
 
             this.unit = unit;
         }
-    }
-
-    public class FloorDescriptor: Descriptor
-    {
-        public enum Location
-        {
-            ROOM, HALLWAY
-        }
-
-        public readonly Location FloorLocation;
-
-        public FloorDescriptor(Location floorLocation)
-        {
-            FloorLocation = floorLocation;
-        }
-    }
-
-    public class WallDescriptor : Descriptor
-    {
-        public enum Face
-        {
-            DOWN, UP
-        }
-
-        public readonly Face FacingDirection;
-
-        public WallDescriptor(Face facingDirection)
-        {
-            FacingDirection = facingDirection;
-        }
-    }
-
-    public class CeilingDescriptor : Descriptor
-    {
-        public JointHash JointType => JointHash.Directions
-            .Where(dir => Unit.Grid.ContainsDescriptor<CeilingDescriptor>(Unit.Position + JointHash.DirectionVector(dir)))
-            .Aggregate(new JointHash(), (accum, dir) => accum += dir);
-    }
-
-    public class FixtureDescriptor : Descriptor
-    {
-    }
-
-    private Dictionary<Vector2Int, Unit> unitMap;
-
-    public WorldGrid()
-    {
-        this.unitMap = new Dictionary<Vector2Int, Unit>();
-    }
-
-    public void TryRemove(Unit unit, Vector2Int position)
-    {
-        if (unitMap.TryGetValue(position, out var discoveredUnit) && discoveredUnit == unit)
-            unitMap.Remove(position);
-    }
-
-    public bool TryGetUnit(Vector2Int position, out Unit unit)
-    {
-        return unitMap.TryGetValue(position, out unit);
-    }
-
-    public bool TryGetUnit<T>(Vector2Int position, out T unit) where T: Unit
-    {
-        if (TryGetUnit(position, out var tmp) && tmp is T castedUnit)
-        {
-            unit = castedUnit;
-            return true;
-        }
-
-        unit = default;
-        return false;
-    }
-
-    public bool ContainsDescriptor<T>(Vector2Int position) where T: Descriptor
-    {
-        if (TryGetUnit(position, out var unit))
-            return unit.ContainsDescriptor<T>();
-
-        return false;
-    }
-
-    public bool IsEmptySpace(Vector2Int position)
-    {
-        return !unitMap.ContainsKey(position);
-    }
-
-    public IEnumerable<(Vector2Int position, Unit unit)> GetUnits()
-    {
-        return unitMap.Select(kvp => (position: kvp.Key, unit: kvp.Value));
-    }
-
-    public void AddDescriptor<T>(Vector2Int position, T descriptor) where T: Descriptor
-    {
-        GetOrInsert(position).AddDescriptor(descriptor);
-    }
-
-    public Unit this[Vector2Int position]
-    {
-        get => unitMap[position];
-    }
-
-    public Unit GetOrInsert(Vector2Int position)
-    {
-        if (!unitMap.ContainsKey(position))
-            unitMap[position] = new Unit(this, position);
-
-        return unitMap[position];
     }
 }
