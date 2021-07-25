@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Floor_Room Tile Distribution
   m_EditorClassIdentifier: 
   tiles:
-  - tile: {fileID: 11400000, guid: 18cb7d825e1864017be6d548ec8e1e6b, type: 2}
-    weight: 32
   - tile: {fileID: 11400000, guid: dceeb9375bc56474480512129ce90d7e, type: 2}
-    weight: 1
+    weight: 2
+  - tile: {fileID: 11400000, guid: 20f8eb22ed904491aaa78c71c0b4df45, type: 2}
+    weight: 32
+  - tile: {fileID: 11400000, guid: f41af95bfd442446487c0df81a015f65, type: 2}
+    weight: 32
+  - tile: {fileID: 11400000, guid: d0f3025948e144dcc875dddf628c4fbc, type: 2}
+    weight: 32

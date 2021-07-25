@@ -23,7 +23,7 @@ MonoBehaviour:
     BonusHallwaySpawnChance: 0.25
     MaximumBonusHallways: 4
     RoomDensity:
-      value: 0.035
+      value: 0.05
     SectorSizeDecay:
       serializedVersion: 2
       m_Curve:

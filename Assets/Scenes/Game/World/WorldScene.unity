@@ -7088,11 +7088,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floatStateProperties:
-    jumpForce: 3
+    jumpForce: 2.25
     steerForce: 0.02
-    maxVelocity: 3.5
+    maxVelocity: 2.5
   traversingStateProperties:
-    climbSpeed: 2.5
+    climbSpeed: 1.5
     corneringSpeedMultiplier: 0.85
     automaticDetachEnabled: 0
     maxCornerCutTriggerDistance: 1.25
