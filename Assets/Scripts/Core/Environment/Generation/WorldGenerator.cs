@@ -217,7 +217,7 @@ public static class WorldGenerator
         public int OpeningWidthMerging(RectInt newSection)
         {
             // For overlapping sctions, the merging width
-            // is the wisth of the gap created by the merge,
+            // is the width of the gap created by the merge,
             // computed by looking at the width and height of
             // the overlapping rectangle
 
@@ -305,11 +305,11 @@ public static class WorldGenerator
         {
             var numSections = rooms.Aggregate(0, (a, r) => a + r.SectionCount) + 1;
             var numCells = rooms.Aggregate(0, (a, r) => a + r.SizeMerging(section));
-            var minMergeWidth = rooms.Min(r => r.SizeMerging(section));
+            var minMergeWidth = rooms.Min(r => r.OpeningWidthMerging(section));
 
             return numSections <= parameters.MaximumSectionsPerRoom &&
                 numCells < Mathf.FloorToInt(parameters.MaximumCellularSectorSize.x * parameters.MaximumCellularSectorSize.y * parameters.MaximumRoomSizeScale) &&
-                minMergeWidth > parameters.MinimumSectorOverlapWidth;
+                minMergeWidth >= parameters.MinimumSectorOverlapWidth;
         }
 
         private static bool TryInsertSection(

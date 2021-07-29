@@ -19,6 +19,18 @@ public class WorldLoader : MonoBehaviour
 
         [SerializeField]
         public TileDistribution hallTiles;
+
+        [SerializeField]
+        public TileBase portalNorthEast;
+
+        [SerializeField]
+        public TileBase portalSouthEast;
+
+        [SerializeField]
+        public TileBase portalSouthWest;
+
+        [SerializeField]
+        public TileBase portalNorthWest;
     }
 
     [System.Serializable]
@@ -115,8 +127,7 @@ public class WorldLoader : MonoBehaviour
     {
         // Create the world grid, describing every unit of the map
         var worldGrid = new WorldGrid();
-        foreach (var unitAssignment in GetFloorUnits(layout))
-            worldGrid.AddDescriptor(unitAssignment.position, unitAssignment.descriptor);
+        LoadDescriptors(layout, worldGrid);
 
         // Load the world and generate the tilemaps
         int frameCount = 0;
@@ -151,21 +162,27 @@ public class WorldLoader : MonoBehaviour
                         yield return assignment;
     }
 
-    private IEnumerable<(Vector2Int position, FloorDescriptor descriptor)> GetFloorUnits(WorldLayout layout)
+    private void LoadDescriptors(WorldLayout layout, WorldGrid grid)
     {
         var roomPositions = layout.Rooms.AllRooms
             .SelectMany(r => r.GetAllCells())
             .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
 
-        var roomAssignments = roomPositions.Select(position => (position: position, unit: new FloorDescriptor(FloorDescriptor.Location.ROOM)));
+        foreach (var position in roomPositions)
+            grid.AddDescriptor(position, new FloorDescriptor(FloorDescriptor.Location.ROOM));
 
         var hallwayCells = layout.Hallways
             .SelectMany(h => h.Path)
             .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
 
-        var hallwayAssignments = hallwayCells.Select(position => (position: position, unit: new FloorDescriptor(FloorDescriptor.Location.HALLWAY)));
-        
-        return Enumerable.Concat(roomAssignments, hallwayAssignments);
+        foreach (var position in hallwayCells)
+            grid.AddDescriptor(position, new FloorDescriptor(FloorDescriptor.Location.HALLWAY));
+
+        var airlockCells = layout.Airlocks
+            .SelectMany(a => World.ExpandCellToUnits(a.Cell, layoutScale));
+
+        foreach (var position in airlockCells)
+            grid.AddDescriptor(position, new FloorDescriptor(FloorDescriptor.Location.TELEPORTER));
     }
 
     private void OnDrawGizmos()
@@ -173,19 +190,8 @@ public class WorldLoader : MonoBehaviour
         if (temp == null)
             return;
 
-        Gizmos.color = Color.magenta;
-        foreach (var airlock in temp.Layout.Airlocks)
-        {
-            var cell = airlock.Cell;
-            var centerCell = (Vector2)cell + Vector2.one * 0.5f;
-            var centerWorld = temp.CellToWorldPosition(centerCell);
-            var size = Vector2.one * temp.LayoutScale;
-            Gizmos.DrawCube(centerWorld, new Vector3(size.x, size.y, 1));
-        }
-
-        var dimensions = (Vector2)(temp.Layout.Parameters.CellularDimensions * temp.LayoutScale);
-
+        var bounds = temp.Bounds;
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(dimensions * 0.5f, dimensions);
+        Gizmos.DrawWireCube(bounds.center, (Vector2)bounds.size);
     }
 }

@@ -9,7 +9,7 @@ public struct TileRulePair
 
     public IEnumerable<TileAssignment> GetAssignments(WorldGrid grid, Vector2Int anchor)
     {
-        if (generators == null || generators.Length == 0)
+        if (generators == null || generators.Length == 0 || !condition.Evaluate(grid, anchor))
             yield break;
 
         foreach (var generator in generators)
@@ -17,8 +17,7 @@ public struct TileRulePair
             if (generator.layer == null || generator.source == null)
                 continue;
 
-            if (condition.Evaluate(grid, anchor))
-                yield return generator.GetAssignment(anchor);
+            yield return generator.GetAssignment(anchor);
         }
     }
 }

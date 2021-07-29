@@ -21,7 +21,7 @@ public class NavigationService : MonoBehaviour
     {
         var world = gameState.World;
         var layout = world.Layout;
-        navigationTopology.InitalizeTopology(world.UnitSize);
+        navigationTopology.InitalizeTopology(world.Bounds.size);
         foreach (var cell in layout.Hallways.SelectMany(h => h.Path).SelectMany(world.ExpandCellToUnits))
             navigationTopology.SetState(cell, NavigationTopology.PathType.TRAVERSABLE);
 

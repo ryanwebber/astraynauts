@@ -62,9 +62,13 @@ public class AttachableInputSource : MonoBehaviour
             var absoluteAimScreenPosition = ctx.ReadValue<Vector2>();
             var absoluteViewportPosition = projection.ScreenToViewport(absoluteAimScreenPosition);
             var absoluteRelativeObjectCenter = projection.WorldToViewport(relativeAimObject.position);
+            var worldMousePos = projection.ViewportToWorld(absoluteViewportPosition);
+            var worldObjPos = projection.ViewportToWorld(absoluteRelativeObjectCenter);
+            var rawAimValue = worldMousePos - worldObjPos;
 
-            // Half the screen width => magnitude of 1f
-            relayedSource.AimValue = Vector2.ClampMagnitude(absoluteViewportPosition - absoluteRelativeObjectCenter, 0.5f) * 2;
+            relayedSource.AimValue = Vector2.ClampMagnitude(rawAimValue, 1f);
+
+            Debug.DrawRay(relativeAimObject.position, relayedSource.AimValue * 4f, Color.yellow);
         }
         else
         {

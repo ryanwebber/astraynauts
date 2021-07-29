@@ -5,7 +5,7 @@ public class FloorDescriptor : Descriptor
 {
     public enum Location
     {
-        ROOM, HALLWAY
+        ROOM, HALLWAY, TELEPORTER
     }
 
     public readonly Location FloorLocation;
@@ -13,5 +13,10 @@ public class FloorDescriptor : Descriptor
     public FloorDescriptor(Location floorLocation)
     {
         FloorLocation = floorLocation;
+    }
+
+    public static Func<FloorDescriptor, bool> IsA(Location location)
+    {
+        return d => d.FloorLocation == location;
     }
 }

@@ -5,10 +5,10 @@ using static WorldGenerator;
 public class World
 {
     public readonly Room InitialRoom;
-    public readonly WorldGenerator.WorldLayout Layout;
+    public readonly WorldLayout Layout;
     public readonly int LayoutScale;
 
-    public Vector2Int UnitSize => (Layout.Parameters.CellularDimensions + Vector2Int.one * 4) * LayoutScale;
+    public RectInt Bounds => new RectInt(Vector2Int.zero, (Layout.Parameters.CellularDimensions + Vector2Int.one * 3) * LayoutScale);
 
     public World(WorldLayout layout, int layoutScale, Room initialRoom)
     {

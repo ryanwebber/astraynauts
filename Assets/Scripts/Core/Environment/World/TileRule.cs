@@ -28,40 +28,41 @@ public struct RelativeTileTypeCondition<T>: ITileCondition where T: WorldGrid.De
     }
 }
 
-public struct CompositeTileCondition : ITileCondition
+public struct AllOfCondition : ITileCondition
 {
     private ICollection<ITileCondition> conditions;
-    private Operator op;
 
-    public CompositeTileCondition(params ITileCondition[] conditions)
+    public AllOfCondition(params ITileCondition[] conditions)
     {
-        this.op = Operator.AND;
-        this.conditions = conditions;
-    }
-
-    public CompositeTileCondition(Operator op, params ITileCondition[] conditions)
-    {
-        this.op = op;
         this.conditions = conditions;
     }
 
     public bool Evaluate(WorldGrid grid, Vector2Int position)
-    {
-        if (op == Operator.AND)
-            return conditions.All(condition => condition.Evaluate(grid, position));
-        else
-            return conditions.Any(condition => condition.Evaluate(grid, position));
-    }
+        => conditions.All(condition => condition.Evaluate(grid, position));
 }
 
-public struct NegatedTileCondition: ITileCondition
+public struct AnyOfCondition : ITileCondition
 {
-    private ITileCondition condition;
+    private ICollection<ITileCondition> conditions;
 
-    public NegatedTileCondition(ITileCondition condition)
+    public AnyOfCondition(params ITileCondition[] conditions)
     {
-        this.condition = condition;
+        this.conditions = conditions;
     }
 
-    public bool Evaluate(WorldGrid grid, Vector2Int position) => !condition.Evaluate(grid, position);
+    public bool Evaluate(WorldGrid grid, Vector2Int position)
+        => conditions.Any(condition => condition.Evaluate(grid, position));
+}
+
+public struct NoneOfCondition : ITileCondition
+{
+    private ICollection<ITileCondition> conditions;
+
+    public NoneOfCondition(params ITileCondition[] conditions)
+    {
+        this.conditions = conditions;
+    }
+
+    public bool Evaluate(WorldGrid grid, Vector2Int position)
+        => !conditions.Any(condition => condition.Evaluate(grid, position));
 }
