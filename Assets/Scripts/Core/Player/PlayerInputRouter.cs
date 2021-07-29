@@ -41,8 +41,8 @@ public class PlayerInputRouter : MonoBehaviour
     {
         // Bind to events
         source.OnMovementSpecialAction += () => spideringInput.IsJumping = true;
-        source.OnFireBegin += () => shootingController.IsFiring = true;
-        source.OnFireEnd += () => shootingController.IsFiring = false;
+        source.OnFireBegin += () => shootingController.OnFireBegin?.Invoke();
+        source.OnFireEnd += () => shootingController.OnFireEnd?.Invoke();
     }
 
     private void DetachFromInput(IInputSource source)
