@@ -13,6 +13,10 @@ public static class InputSourceUtils
 
         public Event OnFireBegin { get; set; }
         public Event OnFireEnd { get; set; }
+
+        public Event OnInteractionBegin { get; set; }
+        public Event OnInteractionEnd { get; set; }
+
         public Event OnMovementSpecialAction { get; set; }
 
         public PlayerIdentifier InputIdentifier => PlayerIdentifier.Default;

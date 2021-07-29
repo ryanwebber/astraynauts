@@ -20,9 +20,9 @@ public class PlayerShootingController : MonoBehaviour
     [SerializeField]
     private Properties properties;
 
-    public Vector2 AimValue;
-    public Event OnFireBegin;
-    public Event OnFireEnd;
+    public Vector2 AimInputValue;
+    public Event OnFireInputBegin;
+    public Event OnFireInputEnd;
 
     private ProjectileSpawner projectileSpawner;
     private PlayerInputFeedback inputFeedback;
@@ -32,8 +32,8 @@ public class PlayerShootingController : MonoBehaviour
         inputFeedback = GetComponent<PlayerInputFeedback>();
         projectileSpawner = GetComponent<ProjectileSpawner>();
 
-        OnFireBegin += () => Debug.Log("Charging...");
-        OnFireEnd += () =>
+        OnFireInputBegin += () => Debug.Log("Charging...");
+        OnFireInputEnd += () =>
         {
             Debug.Log("Fire!");
             FireProjectile();
@@ -48,15 +48,15 @@ public class PlayerShootingController : MonoBehaviour
     private void FireProjectile()
     {
         inputFeedback.TriggerHapticInstant();
-        projectileSpawner.SpawnProjectile(AimValue);
+        projectileSpawner.SpawnProjectile(AimInputValue);
     }
 
     private void OnDrawGizmos()
     {
-        if (AimValue.sqrMagnitude > 0.001f)
+        if (AimInputValue.sqrMagnitude > 0.001f)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawRay(transform.position, AimValue);
+            Gizmos.DrawRay(transform.position, AimInputValue);
         }
     }
 }

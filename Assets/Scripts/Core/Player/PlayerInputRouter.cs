@@ -14,6 +14,9 @@ public class PlayerInputRouter : MonoBehaviour
     [SerializeField]
     private PlayerShootingController shootingController;
 
+    [SerializeField]
+    private PlayerInteractionController interactionController;
+
     private PlayerInputBinder inputBinder;
     private IInputSource currentSource;
 
@@ -41,8 +44,10 @@ public class PlayerInputRouter : MonoBehaviour
     {
         // Bind to events
         source.OnMovementSpecialAction += () => spideringInput.IsJumping = true;
-        source.OnFireBegin += () => shootingController.OnFireBegin?.Invoke();
-        source.OnFireEnd += () => shootingController.OnFireEnd?.Invoke();
+        source.OnFireBegin += () => shootingController.OnFireInputBegin?.Invoke();
+        source.OnFireEnd += () => shootingController.OnFireInputEnd?.Invoke();
+        source.OnInteractionBegin += () => interactionController.OnInteractionInputBegin?.Invoke();
+        source.OnInteractionEnd += () => interactionController.OnInteractionInputEnd?.Invoke();
     }
 
     private void DetachFromInput(IInputSource source)
@@ -51,6 +56,8 @@ public class PlayerInputRouter : MonoBehaviour
         source.OnMovementSpecialAction = default;
         source.OnFireBegin = default;
         source.OnFireEnd = default;
+        source.OnInteractionBegin = default;
+        source.OnInteractionEnd = default;
     }
 
     private void Update()
@@ -59,7 +66,7 @@ public class PlayerInputRouter : MonoBehaviour
         {
             locomotionInput.MovementDirection = currentSource.MovementValue;
             spideringInput.MovementDirection = currentSource.MovementValue;
-            shootingController.AimValue = currentSource.AimValue;
+            shootingController.AimInputValue = currentSource.AimValue;
         }
         else
         {

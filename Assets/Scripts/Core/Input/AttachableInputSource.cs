@@ -85,6 +85,15 @@ public class AttachableInputSource : MonoBehaviour
             relayedSource.OnFireBegin?.Invoke();
     }
 
+    public void OnPlayerInteract(InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (ctx.canceled)
+            relayedSource.OnInteractionEnd?.Invoke();
+
+        if (ctx.started)
+            relayedSource.OnInteractionBegin?.Invoke();
+    }
+
     public void OnPlayerMovementSpecialAction(InputSystem.InputAction.CallbackContext ctx)
     {
         if (ctx.started)
@@ -95,6 +104,10 @@ public class AttachableInputSource : MonoBehaviour
     {
         public Event OnFireBegin { get; set; }
         public Event OnFireEnd { get; set; }
+
+        public Event OnInteractionBegin { get; set; }
+        public Event OnInteractionEnd { get; set; }
+
         public Event OnMovementSpecialAction { get; set; }
 
         public Vector2 MovementValue { get; set; } = Vector2.zero;

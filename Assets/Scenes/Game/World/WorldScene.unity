@@ -5525,7 +5525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AssetsPPU: 192
+  m_AssetsPPU: 128
   m_RefResolutionX: 720
   m_RefResolutionY: 405
   m_UpscaleRT: 0
@@ -6994,6 +6994,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: a88f6325-a8f4-4514-8a99-d72b3c72eca7
     m_ActionName: Player/Dash[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1871974677}
+        m_TargetAssemblyTypeName: AttachableInputSource, Assembly-CSharp
+        m_MethodName: OnPlayerInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: b30d378c-bba5-48e3-81f5-443d32f55cbe
+    m_ActionName: Player/Interact[/Keyboard/e]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -7161,8 +7177,10 @@ GameObject:
   - component: {fileID: 2037969539}
   - component: {fileID: 2037969538}
   - component: {fileID: 2037969537}
+  - component: {fileID: 2037969544}
   - component: {fileID: 2037969540}
   - component: {fileID: 2037969542}
+  - component: {fileID: 2037969528}
   - component: {fileID: 2037969543}
   m_Layer: 6
   m_Name: Player (Debug)
@@ -7185,6 +7203,21 @@ Transform:
   m_Father: {fileID: 824770895}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2037969528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9808630a4a7854c639037ace362532e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &2037969529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7310,6 +7343,7 @@ MonoBehaviour:
   spideringInput: {fileID: 2037969539}
   locomotionInput: {fileID: 2037969530}
   shootingController: {fileID: 2037969540}
+  interactionController: {fileID: 2037969544}
 --- !u!114 &2037969536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7386,6 +7420,7 @@ MonoBehaviour:
     burstFireDelay: 0.15
     burstNotchChargeTime: 0.25
     maxBurstCount: 3
+  AimValue: {x: 0, y: 0}
 --- !u!114 &2037969541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7464,3 +7499,16 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2037969544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f210b6d693bd4d569f795b1f18a45e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionReceiver: {fileID: 2037969528}

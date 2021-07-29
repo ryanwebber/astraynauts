@@ -4,8 +4,6 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody2D))]
 public class ActionTrigger : MonoBehaviour
 {
-    public Event<ActionTrigger> OnTriggerDestroyed;
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.gameObject.TryGetComponent(out ActionReceiver receiver))
