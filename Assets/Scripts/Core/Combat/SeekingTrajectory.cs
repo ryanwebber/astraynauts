@@ -16,6 +16,10 @@ public class SeekingTrajectory : MonoBehaviour
 
     [SerializeField]
     [Min(0)]
+    private float steerForceMultiplier = 1;
+
+    [SerializeField]
+    [Min(0)]
     private float maxSeekVision = 2f;
 
     [SerializeField]
@@ -56,8 +60,6 @@ public class SeekingTrajectory : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate(heading * Time.deltaTime);
-
         if (currentTarget == null)
         {
             var collisionCount = Physics2D.OverlapCircleNonAlloc(transform.position, maxSeekVision, reusableCastResults, targetMask);
@@ -70,6 +72,9 @@ public class SeekingTrajectory : MonoBehaviour
             {
                 currentTarget = bestTarget.gameObject;
                 StartCoroutine(TrackTarget());
+            } else
+            {
+                transform.Translate(heading * Time.deltaTime);
             }
         }
     }
@@ -91,8 +96,10 @@ public class SeekingTrajectory : MonoBehaviour
             if (Vector2.Dot(heading, targetHeading) < 0f)
                 break;
 
-            Vector2 newHeading = Vector3.RotateTowards(heading, targetHeading, maxSteerForce, 0f);
+            Vector2 newHeading = Vector3.RotateTowards(heading, targetHeading, maxSteerForce * Time.deltaTime * steerForceMultiplier, 0f);
             heading = newHeading.normalized * absoluteVelocity;
+
+            transform.Translate(heading * Time.deltaTime);
 
             Debug.DrawLine(currentPosition, targetPosition, Color.green);
 
@@ -110,8 +117,8 @@ public class SeekingTrajectory : MonoBehaviour
         bool IsForwards() => Vector2.Dot(heading, (target - position)) > 0f;
         bool IsVisible()
         {
-            var ray = Physics2D.Raycast(position, target, maxSeekVision * 1.5f, obstructionMask & targetMask);
-            return !ray || (ray.collider.gameObject.layer & obstructionMask.value) != obstructionMask.value;
+            // Cast a ray directly to target position. We should hit no obstructions
+            return !Physics2D.Raycast(position, (target - position), Vector2.Distance(target, position), layerMask: obstructionMask);
         };
 
         return IsNearby() && IsForwards() && IsSteerable() && IsVisible();
@@ -121,31 +128,39 @@ public class SeekingTrajectory : MonoBehaviour
     {
         foreach (var sign in new int[] { 1, -1 })
         {
-            Vector2 v1 = usingHeading;
-            Vector2 p1 = transform.position;
-
-            Vector2 v2 = v1.Rotate(maxSteerForce * sign);
-            Vector2 p2 = p1 + v2;
-
-            Vector2 v3 = v2.Rotate(maxSteerForce * sign);
-            Vector2 p3 = p2 + v3;
-
+            GetSteerPath(usingHeading, sign, out var p1, out var p2, out var p3);
             if (Circle.FromPointsOnCircumference(p1, p2, p3, out var circle))
                 yield return circle;
         }
     }
 
+    private void GetSteerPath(Vector2 inHeading, float turnDirection, out Vector2 p1, out Vector2 p2, out Vector3 p3)
+    {
+        var sign = Mathf.Sign(turnDirection);
+        Vector2 v1 = inHeading;
+        p1 = transform.position;
+
+        Vector2 v2 = v1.Rotate(maxSteerForce * sign);
+        p2 = p1 + v2;
+
+        Vector2 v3 = v2.Rotate(maxSteerForce * sign);
+        p3 = p2 + v3;
+    }
+
     private void OnDrawGizmos()
     {
-        Gizmos.color = new Color(1f, 1f, 0f, 0.1f);
+        Gizmos.color = new Color(1f, 1f, 0f, 0.05f);
         Gizmos.DrawSphere(transform.position, maxSeekVision);
 
-        Gizmos.color = new Color(1f, 0f, 0f, 0.25f);
-        foreach (var circle in GetSteerExclusionZones(isSpawned ? heading : Vector2.up * velocity))
+        Gizmos.color = Color.yellow;
+        foreach (var sign in new float[] { 1, -1 })
         {
-            Gizmos.DrawSphere(circle.center, circle.radius);
+            GetSteerPath(isSpawned ? heading : Vector2.up * velocity, sign, out var p1, out var p2, out var p3);
+            Gizmos.DrawLine(p1, p2);
+            Gizmos.DrawLine(p2, p3);
         }
 
+        // TODO: Remove this
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(transform.position, 0.1f);
     }
