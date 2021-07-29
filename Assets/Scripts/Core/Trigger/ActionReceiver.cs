@@ -48,8 +48,10 @@ public class ActionReceiver : MonoBehaviour
     {
         var filter = new ContactFilter2D();
         filter.SetLayerMask(triggerMask);
+        filter.useTriggers = true;
 
         int numCollisions = triggerCollider.OverlapCollider(filter, request.collisions);
+
         int numTriggers = 0;
         for (int i = 0; i < numCollisions; i++)
         {

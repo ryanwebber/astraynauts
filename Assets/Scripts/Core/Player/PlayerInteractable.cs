@@ -20,8 +20,6 @@ public class PlayerInteractable : MonoBehaviour
             Debug.Log($"Player ('{player.gameObject.name}' + '{gameObject.name}') interaction started", this);
             OnPlayerInteractionStarted?.Invoke(player);
         }
-
-        IsInteractable = false;
     }
 
     public void EndInteraction(Player player)
@@ -31,7 +29,5 @@ public class PlayerInteractable : MonoBehaviour
             Debug.Log($"Player ('{player.gameObject.name}' + '{gameObject.name}') interaction ended", this);
             OnPlayerInteractionEnded?.Invoke(player);
         }
-
-        IsInteractable = true;
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent(typeof(Player))]
-public class PlayerInteractionController : MonoBehaviour
+public class PlayerInteractionController : MonoBehaviour, IActivatable
 {
     public Event<PlayerInteractable> OnCurrentInteractableChanged;
 
@@ -12,12 +12,25 @@ public class PlayerInteractionController : MonoBehaviour
     [SerializeField]
     private ActionReceiver actionReceiver;
 
+    [SerializeField]
+    private bool _isActive = true;
+
     private Player player;
     private PlayerInteractable currentInteractable;
 
-    public bool IsBusy { get; private set; } = false;
-
     private ActionReceiver.NonAllocRequest reusableRequest;
+
+    public bool IsBusy { get; private set; } = false;
+    public bool IsActive {
+        get => _isActive;
+        set
+        {
+            if (value == false && IsBusy)
+                EndCurrentInteraction();
+
+            _isActive = value;
+        }
+    }
 
     private void Awake()
     {
@@ -26,6 +39,7 @@ public class PlayerInteractionController : MonoBehaviour
 
         actionReceiver.OnAnyTriggersChanged += _ => RefreshInteractions();
 
+        OnInteractionInputEnd += EndCurrentInteraction;
         OnInteractionInputBegin += () =>
         {
             if (!IsBusy && currentInteractable != null)
@@ -38,17 +52,6 @@ public class PlayerInteractionController : MonoBehaviour
                 Debug.Log($"Nothing for player '{player.gameObject.name}' to interact with", this);
             }
         };
-
-        OnInteractionInputEnd += () =>
-        {
-            if (IsBusy && currentInteractable != null)
-            {
-                currentInteractable.EndInteraction(player);
-            }
-
-            IsBusy = false;
-            RefreshInteractions();
-        };
     }
 
     private void RefreshInteractions()
@@ -56,7 +59,6 @@ public class PlayerInteractionController : MonoBehaviour
         if (IsBusy)
             return;
 
-        currentInteractable = null;
         int numTriggers = actionReceiver.GetTriggers(reusableRequest);
 
         float minDistance = float.PositiveInfinity;
@@ -81,6 +83,21 @@ public class PlayerInteractionController : MonoBehaviour
         {
             currentInteractable = bestInteractable;
             OnCurrentInteractableChanged?.Invoke(bestInteractable);
+            if (bestInteractable == null)
+                Debug.Log($"Player '{player.gameObject.name}' left interactable", this);
+            else
+                Debug.Log($"Player '{player.gameObject.name}' is now selecting '{currentInteractable.gameObject.name}'", this);
         }
+    }
+
+    private void EndCurrentInteraction()
+    {
+        if (IsBusy && currentInteractable != null)
+        {
+            currentInteractable.EndInteraction(player);
+        }
+
+        IsBusy = false;
+        RefreshInteractions();
     }
 }
