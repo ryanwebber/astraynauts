@@ -1,33 +1,34 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class ActionTrigger : MonoBehaviour
 {
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collision.collider.gameObject.TryGetComponent(out ActionReceiver receiver))
+        if (TestCollision(collider, out var receiver))
         {
-            if (IsTriggerInMask(receiver, collision.collider))
-            {
-                receiver.OnActionTriggerBegin(this);
-            }
+            receiver.OnActionTriggerBegin(this);
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnTriggerExit2D(Collider2D collider)
     {
-        if (collision.collider.gameObject.TryGetComponent(out ActionReceiver receiver))
+        if (TestCollision(collider, out var receiver))
         {
-            if (IsTriggerInMask(receiver, collision.collider))
-            {
-                receiver.OnActionTriggerEnd(this);
-            }
+            receiver.OnActionTriggerEnd(this);
         }
     }
 
-    private bool IsTriggerInMask(ActionReceiver receiver, Collider2D collider)
+    private bool TestCollision(Collider2D collider, out ActionReceiver receiver)
     {
-        return ((1 << collider.gameObject.layer) & receiver.TriggerMask) != 0;
+        if (collider.gameObject.TryGetComponent(out receiver))
+        {
+            if (((1 << this.gameObject.layer) & receiver.TriggerMask) != 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

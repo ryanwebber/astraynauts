@@ -37,7 +37,8 @@ public class PlayerInteractionController : MonoBehaviour, IActivatable
         player = GetComponent<Player>();
         reusableRequest = new ActionReceiver.NonAllocRequest(10);
 
-        actionReceiver.OnAnyTriggersChanged += _ => RefreshInteractions();
+        actionReceiver.OnActionTriggerBegin += _ => RefreshInteractions();
+        actionReceiver.OnActionTriggerEnd += _ => RefreshInteractions();
 
         OnInteractionInputEnd += EndCurrentInteraction;
         OnInteractionInputBegin += () =>
