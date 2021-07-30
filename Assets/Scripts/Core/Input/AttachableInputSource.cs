@@ -28,7 +28,7 @@ public class AttachableInputSource : MonoBehaviour
         rawInput = GetComponent<InputSystem.PlayerInput>();
 
         relayedSource = new RelayInputSource();
-        relayedSource.InputIdentifier = new PlayerIdentifier(rawInput.playerIndex, rawInput.currentControlScheme);
+        relayedSource.InputIdentifier = new PlayerIdentifier(rawInput.playerIndex);
 
         relayedFeedback = new RelayInputFeedback();
         relayedFeedback.OnTriggerHapticFeedback += () =>

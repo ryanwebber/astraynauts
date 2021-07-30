@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent(typeof(Player))]
-public class PlayerInteractionController : MonoBehaviour, IActivatable
+public class PlayerInteractionController : MonoBehaviour
 {
     public Event<PlayerInteractable> OnCurrentInteractableChanged;
 
@@ -12,25 +12,27 @@ public class PlayerInteractionController : MonoBehaviour, IActivatable
     [SerializeField]
     private ActionReceiver actionReceiver;
 
-    [SerializeField]
-    private bool _isActive = true;
-
     private Player player;
     private PlayerInteractable currentInteractable;
 
     private ActionReceiver.NonAllocRequest reusableRequest;
 
-    public bool IsBusy { get; private set; } = false;
-    public bool IsActive {
-        get => _isActive;
+    private bool isLocked = true;
+    public bool IsInteractionLocked {
+        get => isLocked;
         set
         {
-            if (value == false && IsBusy)
+            if (value && IsBusy)
+            {
+                Debug.Log("Interaction controller is cancelling current interaction to become locked", this);
                 EndCurrentInteraction();
+            }
 
-            _isActive = value;
+            isLocked = value;
         }
     }
+
+    public bool IsBusy { get; private set; } = false;
 
     private void Awake()
     {

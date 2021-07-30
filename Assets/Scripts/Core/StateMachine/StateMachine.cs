@@ -60,6 +60,16 @@ public class StateMachine<TStates>: IStateMachine
         OnStateChanged?.Invoke(oldState, currentState);
     }
 
+    public bool IsStateCurrent(State state)
+    {
+        return state == currentState;
+    }
+
+    public bool IsStateCurrent<T>() where T: State
+    {
+        return currentState is T;
+    }
+
     private struct StateHandle: IStateHandle
     {
         public State underlyingState;

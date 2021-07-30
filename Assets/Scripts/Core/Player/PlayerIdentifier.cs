@@ -4,23 +4,21 @@ using UnityEngine;
 
 public class PlayerIdentifier
 {
-    public int PlayerIndex { get; }
-    public string Scheme { get; }
+    public int PlayerIndex { get; private set; }
 
-    public string Key => $"{PlayerIndex};${Scheme}";
+    public string Key => $"{PlayerIndex}";
 
-    public PlayerIdentifier(int playerIndex, string scheme)
+    public PlayerIdentifier(int playerIndex)
     {
         PlayerIndex = playerIndex;
-        Scheme = scheme;
     }
 
     public static bool TryParse(string key, out PlayerIdentifier identifier)
     {
         var segments = key.Split(';');
-        if (segments.Length >= 2 && int.TryParse(segments[0], out var playerIndex))
+        if (segments.Length >= 1 && int.TryParse(segments[0], out var playerIndex))
         {
-            identifier = new PlayerIdentifier(playerIndex, segments[1]);
+            identifier = new PlayerIdentifier(playerIndex);
             return true;
         }
 
@@ -28,14 +26,5 @@ public class PlayerIdentifier
         return false;
     }
 
-    public static PlayerIdentifier Default
-    {
-        get
-        {
-            if (Application.isConsolePlatform)
-                return new PlayerIdentifier(0, InputScemeUtils.GamepadScheme);
-            else
-                return new PlayerIdentifier(0, InputScemeUtils.KeyboardAndMouseScheme);
-        }
-    }
+    public static PlayerIdentifier Default => new PlayerIdentifier(0);
 }

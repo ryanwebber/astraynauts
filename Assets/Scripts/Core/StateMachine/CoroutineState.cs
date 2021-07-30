@@ -13,6 +13,7 @@ public abstract class CoroutineState : State
     }
 
     protected abstract IEnumerator GetCoroutine();
+    protected virtual void OnExit () { }
 
     public sealed override void OnEnter(IStateMachine sm)
     {
@@ -22,7 +23,11 @@ public abstract class CoroutineState : State
     public sealed override void OnExit(IStateMachine sm)
     {
         if (current != null)
+        {
             monoBehaviour.StopCoroutine(current);
+            OnExit();
+            current = null;
+        }
     }
 
     public sealed override void OnUpdate(IStateMachine sm)

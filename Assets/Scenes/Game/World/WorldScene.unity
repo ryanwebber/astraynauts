@@ -7296,6 +7296,7 @@ GameObject:
   - component: {fileID: 1898873652}
   - component: {fileID: 1898873655}
   - component: {fileID: 1898873654}
+  - component: {fileID: 1898873653}
   m_Layer: 9
   m_Name: Battery Trigger
   m_TagString: Untagged
@@ -7343,6 +7344,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.4, y: 1.4}
   m_EdgeRadius: 0
+--- !u!114 &1898873653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898873650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b693078fc9f4b0ea99df2e0b1bd09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1898873654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7538,6 +7551,7 @@ GameObject:
   - component: {fileID: 2037969527}
   - component: {fileID: 2037969534}
   - component: {fileID: 2037969533}
+  - component: {fileID: 2037969543}
   - component: {fileID: 2037969532}
   - component: {fileID: 2037969531}
   - component: {fileID: 2037969530}
@@ -7548,11 +7562,11 @@ GameObject:
   - component: {fileID: 2037969539}
   - component: {fileID: 2037969538}
   - component: {fileID: 2037969537}
+  - component: {fileID: 2037969545}
   - component: {fileID: 2037969544}
   - component: {fileID: 2037969540}
   - component: {fileID: 2037969542}
   - component: {fileID: 2037969528}
-  - component: {fileID: 2037969543}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7883,4 +7897,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionReceiver: {fileID: 2037969528}
-  _isActive: 1
+--- !u!114 &2037969545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 937d562ddb8db434c8c1b53c718e1e2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chargingProperties:
+    chargingStepTime: 0.5

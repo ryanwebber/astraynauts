@@ -27,17 +27,15 @@ public class PlayerShootingController : MonoBehaviour
     private ProjectileSpawner projectileSpawner;
     private PlayerInputFeedback inputFeedback;
 
+    public bool IsShootingLocked { get; set; } = false;
+
     private void Awake()
     {
         inputFeedback = GetComponent<PlayerInputFeedback>();
         projectileSpawner = GetComponent<ProjectileSpawner>();
 
-        OnFireInputBegin += () => Debug.Log("Charging...");
-        OnFireInputEnd += () =>
-        {
-            Debug.Log("Fire!");
-            FireProjectile();
-        };
+        OnFireInputBegin += () => LoadProjectile();
+        OnFireInputEnd += ()  => FireProjectile();
 
         projectileSpawner.Decorators += projectile =>
         {
@@ -45,8 +43,17 @@ public class PlayerShootingController : MonoBehaviour
         };
     }
 
+    private void LoadProjectile()
+    {
+        if (IsShootingLocked)
+            return;
+    }
+
     private void FireProjectile()
     {
+        if (IsShootingLocked)
+            return;
+
         inputFeedback.TriggerHapticInstant();
         projectileSpawner.SpawnProjectile(AimInputValue);
     }
