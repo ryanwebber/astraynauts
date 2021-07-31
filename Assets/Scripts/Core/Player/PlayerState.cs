@@ -32,6 +32,9 @@ public class PlayerState : MonoBehaviour
         [SerializeField]
         [Min(0f)]
         public float chargingStepTime;
+
+        [SerializeField]
+        public BatteryManager batteryManager;
     }
 
     [SerializeField]
@@ -54,6 +57,7 @@ public class PlayerState : MonoBehaviour
             states.chargingState.OnChargeStarted += () => Debug.Log("Player charge starting...", this);
             states.chargingState.OnChargeStep += () => Debug.Log("Player charging step ticked...", this);
             states.chargingState.OnChargeEnded += () => Debug.Log("Player charging step ended...", this);
+            states.chargingState.OnChargeStep += () => chargingProperties.batteryManager.AddBatteryValue(1);
 
             return states.mainState;
         });

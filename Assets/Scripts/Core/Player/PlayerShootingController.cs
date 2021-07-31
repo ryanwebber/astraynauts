@@ -18,6 +18,9 @@ public class PlayerShootingController : MonoBehaviour
     }
 
     [SerializeField]
+    private BatteryManager batteryManager;
+
+    [SerializeField]
     private Properties properties;
 
     public Vector2 AimInputValue;
@@ -54,8 +57,13 @@ public class PlayerShootingController : MonoBehaviour
         if (IsShootingLocked)
             return;
 
+        if (batteryManager.BatteryValue <= 0)
+            return;
+
         inputFeedback.TriggerHapticInstant();
         projectileSpawner.SpawnProjectile(AimInputValue);
+
+        batteryManager.AddBatteryValue(-1);
     }
 
     private void OnDrawGizmos()
