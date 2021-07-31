@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class Fixture : MonoBehaviour
 {
+    public void RegisterInWorld(WorldGrid grid)
+    {
+
+    }
 }

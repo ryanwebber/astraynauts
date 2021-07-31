@@ -104,6 +104,13 @@ public class WorldLoader : MonoBehaviour
         public TileBase southWestLower;
     }
 
+    [System.Serializable]
+    public class FixtureSettings
+    {
+        [SerializeField]
+        public Fixture batteryPrefab;
+    }
+
     [SerializeField]
     private int layoutScale;
 
@@ -116,6 +123,9 @@ public class WorldLoader : MonoBehaviour
     [SerializeField]
     private WallSettings wallSettings;
 
+    [SerializeField]
+    private FixtureSettings fixtureSettings;
+
     private World temp = null;
 
     public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action<World> completion)
@@ -127,27 +137,50 @@ public class WorldLoader : MonoBehaviour
     {
         // Create the world grid, describing every unit of the map
         var worldGrid = new WorldGrid();
-        LoadDescriptors(layout, worldGrid);
+        LoadBaseDescriptors(layout, worldGrid);
 
         // Load the world and generate the tilemaps
-        int frameCount = 0;
-        var loader = new SafeLoader(GetTileAssignments(worldGrid));
-        foreach (var y in loader.SparseLoad<YieldInstruction>(null))
+        var tileAssignmentLoader = new FrameDistributedLoader(GetTileAssignments(worldGrid));
+        foreach (var state in tileAssignmentLoader.SparseLoad())
         {
-            frameCount++;
-            yield return y;
+            Debug.Log($"Loaded {state.operationCount} tiles in {state.frameCount} frames ({state.duration}s).");
+            yield return null;
         }
-
-        Debug.Log($"Loaded tilemaps in {frameCount} frames");
 
         // Store the world data
         var originRoomIndex = Random.Range(0, layout.Rooms.AllRooms.Count);
         var originRoom = layout.Rooms.AllRooms[originRoomIndex];
         World world = new World(layout, layoutScale, originRoom);
 
+        var fixtureDecoration = new FrameDistributedLoader(GetFixturePopulations(world, worldGrid));
+        foreach (var state in fixtureDecoration.SparseLoad())
+        {
+            Debug.Log($"Loaded {state.operationCount} fixtures in {state.frameCount} frames ({state.duration}s).");
+            yield return null;
+        }
+
         // Generation complete!
         completion?.Invoke(world);
         this.temp = world;
+    }
+
+    private IEnumerable<IOperation> GetFixturePopulations(World world, WorldGrid grid)
+    {
+        foreach (var room in world.Layout.Rooms.AllRooms)
+        {
+            var sectionIdx = Random.Range(0, room.SectionCount);
+            var section = room.GetSection(sectionIdx);
+            var xPos = Random.Range(section.xMin, section.xMax - 1);
+            var yPos = Random.Range(section.yMin, section.yMax - 1);
+
+            Debug.Log($"x={xPos} y:{yPos}");
+
+            var unit = world.CellToWorldPosition(new Vector2(xPos, yPos)) + Vector2.one * 1.5f;
+            yield return new FixtureInitialization<Fixture>(fixtureSettings.batteryPrefab, grid, instance =>
+            {
+                instance.transform.position = unit;
+            });
+        }
     }
 
     private IEnumerable<IOperation> GetTileAssignments(WorldGrid grid)
@@ -162,7 +195,7 @@ public class WorldLoader : MonoBehaviour
                         yield return assignment;
     }
 
-    private void LoadDescriptors(WorldLayout layout, WorldGrid grid)
+    private void LoadBaseDescriptors(WorldLayout layout, WorldGrid grid)
     {
         var roomPositions = layout.Rooms.AllRooms
             .SelectMany(r => r.GetAllCells())

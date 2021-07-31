@@ -358,7 +358,6 @@ public static class WorldGenerator
         public static RoomLayout GenerateRooms(Parameters parameters)
         {
             Dictionary<Vector2Int, Room> roomLookup = new Dictionary<Vector2Int, Room>();
-            HashSet<Room> allRooms = new HashSet<Room>();
 
             int consecutiveFailedAttempts = 0;
             int maxConsecutiveFailedAttempts = VALID_CONSECUTIVE_FAILED_ROOM_INSERTION_ATTEMPTS.Resolve(parameters.RoomDensity);
@@ -385,7 +384,6 @@ public static class WorldGenerator
 
                 if (TryInsertSection(section, roomLookup, parameters, out var room))
                 {
-                    allRooms.Add(room);
                     foreach (var cell in section.allPositionsWithin)
                         roomLookup[cell] = room;
 
@@ -396,6 +394,8 @@ public static class WorldGenerator
                     consecutiveFailedAttempts++;
                 }
             }
+
+            var allRooms = new HashSet<Room>(roomLookup.Values);
 
             return new RoomLayout(new List<Room>(allRooms), roomLookup);
         }
