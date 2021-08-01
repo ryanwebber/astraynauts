@@ -86,209 +86,6 @@ public static class WorldGenerator
         }
     }
 
-    public class WorldLayout
-    {
-        public readonly RoomLayout Rooms;
-        public readonly IReadOnlyList<Hallway> Hallways;
-        public readonly IReadOnlyList<Airlock> Airlocks;
-        public readonly Parameters Parameters;
-        public readonly IReadOnlyDictionary<Vector2Int, CellReference> Cells;
-
-        public WorldLayout(RoomLayout rooms, IReadOnlyList<Hallway> hallways, IReadOnlyList<Airlock> airlocks, Parameters parameters)
-        {
-            this.Rooms = rooms;
-            this.Hallways = hallways;
-            this.Airlocks = airlocks;
-            this.Parameters = parameters;
-
-            var mutableCells = new Dictionary<Vector2Int, CellReference>();
-            foreach (var kv in rooms.Layout)
-                mutableCells[kv.Key] = CellReference.FromRoom(kv.Value);
-
-            foreach (var hallway in hallways)
-                foreach (var cell in hallway.Path)
-                    mutableCells[cell] = CellReference.FromHallway(hallway);
-
-            Cells = mutableCells;
-        }
-    }
-
-    public class CellReference
-    {
-        public enum CellType
-        {
-            ROOM, HALLWAY, AIRLOCK
-        }
-
-        public readonly CellType Type;
-
-        private Hallway hallway;
-        public Hallway AsHallway
-        {
-            get
-            {
-                Assert.AreEqual(Type, CellType.HALLWAY);
-                return hallway;
-            }
-        }
-
-        private Room room;
-        public Room AsRoom
-        {
-            get
-            {
-                Assert.AreEqual(Type, CellType.ROOM);
-                return room;
-            }
-        }
-
-        private Airlock airlock;
-        public Airlock AsAirlock
-        {
-            get
-            {
-                Assert.AreEqual(Type, CellType.AIRLOCK);
-                return airlock;
-            }
-        }
-
-        private CellReference(CellType type, Hallway hallway = null, Room room = null, Airlock airlock = null)
-        {
-            this.Type = type;
-            this.hallway = hallway;
-            this.room = room;
-            this.airlock = airlock;
-        }
-
-        public static CellReference FromHallway(Hallway hallway) => new CellReference(CellType.HALLWAY, hallway: hallway);
-        public static CellReference FromRoom(Room room) => new CellReference(CellType.ROOM, room: room);
-        public static CellReference FromAirlock(Airlock airlock) => new CellReference(CellType.AIRLOCK, airlock: airlock);
-    }
-
-    public class Room
-    {
-        private List<RectInt> sections;
-
-        public int CellCount => GetUniqueCells().Count;
-        public int SectionCount => sections.Count;
-
-        public Room(RectInt initialSection)
-        {
-            sections = new List<RectInt>(3);
-            sections.Add(initialSection);
-        }
-
-        private HashSet<Vector2Int> GetUniqueCells()
-        {
-            HashSet<Vector2Int> allCells = new HashSet<Vector2Int>();
-            foreach (var rect in sections)
-                allCells.UnionWith(rect.GetAllPositions());
-
-            return allCells;
-        }
-
-        public void AddSection(RectInt rect)
-        {
-            sections.Add(rect);
-        }
-
-        public IEnumerable<Vector2Int> GetAllCells()
-        {
-            return GetUniqueCells();
-        }
-
-        public IEnumerable<RectInt> GetSections()
-        {
-            return sections;
-        }
-
-        public RectInt GetSection(int idx)
-        {
-            return sections[idx];
-        }
-
-        public int SizeMerging(RectInt newSection)
-        {
-            var allCells = GetUniqueCells();
-            allCells.UnionWith(newSection.GetAllPositions());
-            return allCells.Count;
-        }
-
-        public int OpeningWidthMerging(RectInt newSection)
-        {
-            // For overlapping sctions, the merging width
-            // is the width of the gap created by the merge,
-            // computed by looking at the width and height of
-            // the overlapping rectangle
-
-            int maxWidth = 0;
-            foreach (var section in sections)
-            {
-                if (section.Overlaps(newSection))
-                {
-                    var yTop = Mathf.Min(section.yMax, newSection.yMax);
-                    var yBottom = Mathf.Max(section.yMin, newSection.yMin);
-                    var yWidth = yTop - yBottom;
-
-                    var xRight = Mathf.Min(section.xMax, newSection.xMax);
-                    var xLeft = Mathf.Max(section.xMin, newSection.xMin);
-                    var xWidth = xRight - xLeft;
-
-                    maxWidth = Mathf.Max(maxWidth, yWidth, xWidth);
-                }
-            }
-
-            Assert.IsTrue(maxWidth > 0);
-
-            return maxWidth;
-        }
-    }
-
-    public class RoomLayout
-    {
-        private IReadOnlyList<Room> rooms;
-        private IReadOnlyDictionary<Vector2Int, Room> layout;
-
-        public RoomLayout(IReadOnlyList<Room> rooms, IReadOnlyDictionary<Vector2Int, Room> layout)
-        {
-            this.rooms = rooms;
-            this.layout = layout;
-        }
-
-        public IReadOnlyList<Room> AllRooms => rooms;
-        public IReadOnlyDictionary<Vector2Int, Room> Layout => layout;
-    }
-
-    public class Hallway
-    {
-        private HashSet<Vector2Int> path;
-        private IReadOnlyDictionary<Room, Vector2Int> doorMapping;
-
-        public Hallway(HashSet<Vector2Int> path, IReadOnlyDictionary<Room, Vector2Int> doorMapping)
-        {
-            this.path = path;
-            this.doorMapping = doorMapping;
-        }
-
-        public IEnumerable<Vector2Int> GetCells() => path;
-        public IReadOnlyDictionary<Room, Vector2Int> DoorMapping => doorMapping;
-        public ISet<Vector2Int> Path => path;
-    }
-
-    public class Airlock
-    {
-        public readonly Room AttachedRoom;
-        public Vector2Int Cell;
-        public Vector2Int Direction;
-
-        public Airlock(Room attachedRoom, Vector2Int cell, Vector2Int direction)
-        {
-            AttachedRoom = attachedRoom;
-            Cell = cell;
-            Direction = direction;
-        }
-    }
-
     private static class RandomUtils
     {
         public static int RandomOddInRange(int min, int max)
@@ -301,7 +98,7 @@ public static class WorldGenerator
     {
         private static RangeInt VALID_CONSECUTIVE_FAILED_ROOM_INSERTION_ATTEMPTS = new RangeInt(1, 64);
 
-        private static bool CanMergeRooms(IEnumerable<Room> rooms, RectInt section, Parameters parameters)
+        private static bool CanMergeRooms(IEnumerable<GeneratedRoom> rooms, RectInt section, Parameters parameters)
         {
             var numSections = rooms.Aggregate(0, (a, r) => a + r.SectionCount) + 1;
             var numCells = rooms.Aggregate(0, (a, r) => a + r.SizeMerging(section));
@@ -314,12 +111,12 @@ public static class WorldGenerator
 
         private static bool TryInsertSection(
             RectInt section,
-            IDictionary<Vector2Int, Room> lookup,
+            IDictionary<Vector2Int, GeneratedRoom> lookup,
             Parameters parameters,
-            out Room updatedRoom)
+            out GeneratedRoom updatedRoom)
         {
             // Get all the rooms this new section would overlap with
-            HashSet<Room> overlappingRooms = new HashSet<Room>();
+            HashSet<GeneratedRoom> overlappingRooms = new HashSet<GeneratedRoom>();
             foreach (var pos in section.allPositionsWithin)
                 if (lookup.TryGetValue(pos, out var room))
                     overlappingRooms.Add(room);
@@ -327,12 +124,12 @@ public static class WorldGenerator
             if (overlappingRooms.Count == 0)
             {
                 // No overlapping rooms, just create a new one
-                updatedRoom = new Room(section);
+                updatedRoom = new GeneratedRoom(section);
                 return true;
             }
             else if (CanMergeRooms(overlappingRooms, section, parameters))
             {
-                Room newRoom = new Room(section);
+                GeneratedRoom newRoom = new GeneratedRoom(section);
                 foreach (var room in overlappingRooms)
                 {
                     foreach (var sectionToMove in room.GetSections())
@@ -355,9 +152,9 @@ public static class WorldGenerator
             }
         }
 
-        public static RoomLayout GenerateRooms(Parameters parameters)
+        public static GeneratedRoomMapping GenerateRooms(Parameters parameters)
         {
-            Dictionary<Vector2Int, Room> roomLookup = new Dictionary<Vector2Int, Room>();
+            Dictionary<Vector2Int, GeneratedRoom> roomLookup = new Dictionary<Vector2Int, GeneratedRoom>();
 
             int consecutiveFailedAttempts = 0;
             int maxConsecutiveFailedAttempts = VALID_CONSECUTIVE_FAILED_ROOM_INSERTION_ATTEMPTS.Resolve(parameters.RoomDensity);
@@ -395,9 +192,9 @@ public static class WorldGenerator
                 }
             }
 
-            var allRooms = new HashSet<Room>(roomLookup.Values);
+            var allRooms = new HashSet<GeneratedRoom>(roomLookup.Values);
 
-            return new RoomLayout(new List<Room>(allRooms), roomLookup);
+            return new GeneratedRoomMapping(new List<GeneratedRoom>(allRooms), roomLookup);
         }
     }
 
@@ -411,7 +208,7 @@ public static class WorldGenerator
         Vector2Int.left,
         };
 
-        public static List<Hallway> GenerateHallways(RoomLayout rooms, Parameters parameters)
+        public static List<GeneratedHallway> GenerateHallways(GeneratedRoomMapping rooms, Parameters parameters)
         {
             // Total generated maze size is 4 units bigger per dimension, giving
             // us a 2-width wide border around the normal world size. We place
@@ -425,16 +222,16 @@ public static class WorldGenerator
 
             // Filter the maze, isolating cells that form pathways that lead between
             // rooms and don't overlap rooms, also determing door cells
-            List<Hallway> validHallways = GetConnectingHallways(maze, rooms);
+            List<GeneratedHallway> validHallways = GetConnectingHallways(maze, rooms);
 
             // Filter the hallways futher, removing redundant hallways and removing
             // dead ends
-            List<Hallway> reducedHallways = ReduceHallways(validHallways, parameters);
+            List<GeneratedHallway> reducedHallways = ReduceHallways(validHallways, parameters);
 
             return reducedHallways;
         }
 
-        private static List<Hallway> ReduceHallways(List<Hallway> validHallways, Parameters parameters)
+        private static List<GeneratedHallway> ReduceHallways(List<GeneratedHallway> validHallways, Parameters parameters)
         {
             HashSet<Vector2Int> SearchPath(Vector2Int start, Vector2Int end, ISet<Vector2Int> path)
             {
@@ -469,7 +266,7 @@ public static class WorldGenerator
                 return new HashSet<Vector2Int>();
             }
 
-            Hallway GetSimplifiedHallway(Hallway hallway)
+            GeneratedHallway GetSimplifiedHallway(GeneratedHallway hallway)
             {
                 if (hallway.Path.Count == 1)
                     return hallway;
@@ -480,12 +277,12 @@ public static class WorldGenerator
                 foreach (var destDoor in hallway.DoorMapping.Where(d => d.Value != someDoor.Value))
                     newPath.UnionWith(SearchPath(someDoor.Value, destDoor.Value, hallway.Path));
 
-                return new Hallway(newPath, hallway.DoorMapping);
+                return new GeneratedHallway(newPath, hallway.DoorMapping);
             }
 
-            List<Hallway> newHallways = new List<Hallway>();
-            HashSet<Room> remainingRooms = new HashSet<Room>();
-            HashSet<Hallway> pickedHallwayOriginals = new HashSet<Hallway>();
+            List<GeneratedHallway> newHallways = new List<GeneratedHallway>();
+            HashSet<GeneratedRoom> remainingRooms = new HashSet<GeneratedRoom>();
+            HashSet<GeneratedHallway> pickedHallwayOriginals = new HashSet<GeneratedHallway>();
             foreach (var room in validHallways.SelectMany(h => h.DoorMapping.Keys))
                 remainingRooms.Add(room);
 
@@ -505,7 +302,7 @@ public static class WorldGenerator
                 var selectedHallway = fringeHallways[Random.Range(0, fringeHallways.Length)];
 
                 // Remove every room the hallway connects from the disconnected room set
-                IEnumerable<Room> connectedRooms = selectedHallway.DoorMapping.Keys;
+                IEnumerable<GeneratedRoom> connectedRooms = selectedHallway.DoorMapping.Keys;
                 foreach (var room in connectedRooms.Where(remainingRooms.Contains))
                     remainingRooms.Remove(room);
 
@@ -531,7 +328,7 @@ public static class WorldGenerator
             return newHallways;
         }
 
-        private static List<Hallway> GetConnectingHallways(bool[,] maze, RoomLayout rooms)
+        private static List<GeneratedHallway> GetConnectingHallways(bool[,] maze, GeneratedRoomMapping rooms)
         {
             Vector2Int gridSize = new Vector2Int(maze.GetLength(1), maze.GetLength(0));
 
@@ -562,7 +359,7 @@ public static class WorldGenerator
             }
 
             bool[,] colors = new bool[maze.GetLength(0), maze.GetLength(1)];
-            List<Hallway> validHallways = new List<Hallway>();
+            List<GeneratedHallway> validHallways = new List<GeneratedHallway>();
 
             for (int y = 0; y < maze.GetLength(0); y++)
             {
@@ -583,12 +380,12 @@ public static class WorldGenerator
                         .Select(n => (entrance: n.from, room: rooms.Layout[n.to]))
                         .ToList();
 
-                    Dictionary<Room, Vector2Int> entrances = new Dictionary<Room, Vector2Int>();
+                    Dictionary<GeneratedRoom, Vector2Int> entrances = new Dictionary<GeneratedRoom, Vector2Int>();
                     foreach (var (entrance, room) in doorMapping)
                         entrances[room] = entrance;
 
                     if (entrances.Count > 1)
-                        validHallways.Add(new Hallway(path, entrances));
+                        validHallways.Add(new GeneratedHallway(path, entrances));
 
                     foreach (var pathPos in path)
                         colors[pathPos.y, pathPos.x] = true;
@@ -661,7 +458,7 @@ public static class WorldGenerator
             Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
         };
 
-        public static IReadOnlyList<Airlock> GenerateAirlocks(RoomLayout roomLayout, IReadOnlyList<Hallway> hallways, Parameters parameters)
+        public static IReadOnlyList<GeneratedAirlock> GenerateAirlocks(GeneratedRoomMapping roomLayout, IReadOnlyList<GeneratedHallway> hallways, Parameters parameters)
         {
             HashSet<Vector2Int> allHallwaySquares = new HashSet<Vector2Int>(hallways.SelectMany(h => h.Path));
 
@@ -671,7 +468,7 @@ public static class WorldGenerator
             bool IsHallwayInDirection(Vector2Int cell, Vector2Int direction) =>
                 allHallwaySquares.Contains(cell + direction);
 
-            var allAirlocks = new List<Airlock>();
+            var allAirlocks = new List<GeneratedAirlock>();
             for (int x = -2; x < parameters.CellularDimensions.x + 2; x += 2)
             {
                 for (int y = -2; y < parameters.CellularDimensions.y + 2; y += 2)
@@ -707,7 +504,7 @@ public static class WorldGenerator
                         continue;
                     }
 
-                    allAirlocks.Add(new Airlock(room, cell, dir));
+                    allAirlocks.Add(new GeneratedAirlock(room, cell, dir));
                 }
             }
 
@@ -715,14 +512,14 @@ public static class WorldGenerator
         }
     }
 
-    public static WorldLayout Generate(Parameters parameters)
+    public static CellMapping Generate(Parameters parameters)
     {
         return Profile.Debug("Generate world layout", () =>
         {
             var rooms = Profile.Debug("Generate room layout", () => RoomGenerator.GenerateRooms(parameters));
             var hallways = Profile.Debug("Generate hallway layout", () => HallwayGenerator.GenerateHallways(rooms, parameters));
             var airlocks = Profile.Debug("Generate airlock layout", () => AirlockGenerator.GenerateAirlocks(rooms, hallways, parameters));
-            return new WorldLayout(rooms, hallways, airlocks, parameters);
+            return new CellMapping(rooms, hallways, airlocks, parameters);
         });
     }
 }

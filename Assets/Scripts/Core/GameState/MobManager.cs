@@ -33,8 +33,8 @@ public class MobManager : MonoBehaviour
             // TODO: Real mob spawning
             for (int i = 0; i < numMobsToSpawn; i ++)
             {
-                var randomRoomIndex = Random.Range(0, gameState.World.Layout.Rooms.AllRooms.Count);
-                var room = gameState.World.Layout.Rooms.AllRooms[randomRoomIndex];
+                var randomRoomIndex = Random.Range(0, gameState.World.CellLayout.Rooms.AllRooms.Count);
+                var room = gameState.World.CellLayout.Rooms.AllRooms[randomRoomIndex];
                 var sectionIndex = Random.Range(0, room.SectionCount);
                 var section = room.GetSection(sectionIndex);
                 var spawnPosition = gameState.World.CellToWorldPosition(section.center);

@@ -128,12 +128,12 @@ public class WorldLoader : MonoBehaviour
 
     private World temp = null;
 
-    public void LoadWorld(WorldGenerator.WorldLayout layout, System.Action<World> completion)
+    public void LoadWorld(CellMapping layout, System.Action<World> completion)
     {
         StartCoroutine(LoadWorldDistributed(layout, completion));
     }
 
-    private IEnumerator LoadWorldDistributed(WorldLayout layout, System.Action<World> completion)
+    private IEnumerator LoadWorldDistributed(CellMapping layout, System.Action<World> completion)
     {
         // Create the world grid, describing every unit of the map
         var worldGrid = new WorldGrid();
@@ -148,9 +148,7 @@ public class WorldLoader : MonoBehaviour
         }
 
         // Store the world data
-        var originRoomIndex = Random.Range(0, layout.Rooms.AllRooms.Count);
-        var originRoom = layout.Rooms.AllRooms[originRoomIndex];
-        World world = new World(layout, layoutScale, originRoom);
+        World world = new World(layout, layoutScale, worldGrid);
 
         var fixtureDecoration = new FrameDistributedLoader(GetFixturePopulations(world, worldGrid));
         foreach (var state in fixtureDecoration.SparseLoad())
@@ -166,14 +164,12 @@ public class WorldLoader : MonoBehaviour
 
     private IEnumerable<IOperation> GetFixturePopulations(World world, WorldGrid grid)
     {
-        foreach (var room in world.Layout.Rooms.AllRooms)
+        foreach (var room in world.CellLayout.Rooms.AllRooms)
         {
             var sectionIdx = Random.Range(0, room.SectionCount);
             var section = room.GetSection(sectionIdx);
             var xPos = Random.Range(section.xMin, section.xMax - 1);
             var yPos = Random.Range(section.yMin, section.yMax - 1);
-
-            Debug.Log($"x={xPos} y:{yPos}");
 
             var unit = world.CellToWorldPosition(new Vector2(xPos, yPos)) + Vector2.one * 1.5f;
             yield return new FixtureInitialization<Fixture>(fixtureSettings.batteryPrefab, grid, instance =>
@@ -195,14 +191,20 @@ public class WorldLoader : MonoBehaviour
                         yield return assignment;
     }
 
-    private void LoadBaseDescriptors(WorldLayout layout, WorldGrid grid)
+    private void LoadBaseDescriptors(CellMapping layout, WorldGrid grid)
     {
-        var roomPositions = layout.Rooms.AllRooms
+        var rooms = layout.Rooms.AllRooms
             .SelectMany(r => r.GetAllCells())
-            .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+            .Select(c => new Room(World.ExpandCellToUnits(c, layoutScale)));
 
-        foreach (var position in roomPositions)
-            grid.AddDescriptor(position, new FloorDescriptor(FloorDescriptor.Location.ROOM));
+        foreach (var room in rooms)
+        {
+            foreach (var unit in room.Units)
+            {
+                grid.AddDescriptor(unit, new FloorDescriptor(FloorDescriptor.Location.ROOM));
+                grid.AddDescriptor(unit, new RoomDescriptor(room));
+            }
+        }
 
         var hallwayCells = layout.Hallways
             .SelectMany(h => h.Path)
@@ -214,8 +216,15 @@ public class WorldLoader : MonoBehaviour
         var airlockCells = layout.Airlocks
             .SelectMany(a => World.ExpandCellToUnits(a.Cell, layoutScale));
 
-        foreach (var position in airlockCells)
-            grid.AddDescriptor(position, new FloorDescriptor(FloorDescriptor.Location.TELEPORTER));
+        foreach (var ga in layout.Airlocks)
+        {
+            var airlock = new Airlock(center: ga.Cell * layoutScale + Vector2.one, ga.Direction);
+            foreach (var unit in World.ExpandCellToUnits(ga.Cell, layoutScale))
+            {
+                grid.AddDescriptor(unit, new FloorDescriptor(FloorDescriptor.Location.TELEPORTER));
+                grid.AddDescriptor(unit, new AirlockDescriptor(airlock));
+            }
+        }
     }
 
     private void OnDrawGizmos()

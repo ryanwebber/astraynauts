@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct TileRulePair
+public struct TileRule
 {
     public ITileCondition condition;
     public TileGenerator[] generators;

@@ -4,17 +4,17 @@ using static WorldGenerator;
 
 public class World
 {
-    public readonly Room InitialRoom;
-    public readonly WorldLayout Layout;
+    public readonly WorldGrid Grid;
+    public readonly CellMapping CellLayout;
     public readonly int LayoutScale;
 
-    public RectInt Bounds => new RectInt(Vector2Int.zero, (Layout.Parameters.CellularDimensions + Vector2Int.one * 3) * LayoutScale);
+    public RectInt Bounds => new RectInt(Vector2Int.zero, (CellLayout.Parameters.CellularDimensions + Vector2Int.one * 3) * LayoutScale);
 
-    public World(WorldLayout layout, int layoutScale, Room initialRoom)
+    public World(CellMapping layout, int layoutScale, WorldGrid grid)
     {
-        Layout = layout;
+        CellLayout = layout;
         LayoutScale = layoutScale;
-        InitialRoom = initialRoom;
+        Grid = grid;
     }
 
     public Vector2 CellToWorldPosition(Vector2 cell)

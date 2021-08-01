@@ -2,26 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Polygon
+[System.Serializable]
+public class Polygon: MonoBehaviour
 {
-    public readonly Vector2[] points;
+    [SerializeField]
+    private List<Vector2> points;
+    public List<Vector2> Points => points;
 
-    public Polygon(IReadOnlyList<Vector2> points)
+    private void OnValidate()
     {
-        this.points = new Vector2[points.Count];
-        for (int i = 0; i < points.Count; i++)
+        if (points == null)
         {
-            this.points[i] = points[i];
+            points = new List<Vector2>(new Vector2[] {
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, -0.5f),
+                new Vector2(-0.5f, -0.5f),
+                new Vector2(-0.5f, 0.5f),
+            });
         }
-    }
-
-    public Polygon(Vector2[] points)
-    {
-        this.points = points;
-    }
-
-    public IEnumerable<Vector2> GetPoints()
-    {
-        return points;
     }
 }

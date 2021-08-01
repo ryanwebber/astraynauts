@@ -152,6 +152,14 @@ public class WorldGrid
             return descriptors.ContainsKey(typeof(T));
         }
 
+        public T GetDescriptorOrDefault<T>() where T : Descriptor
+        {
+            if (TryGetDescriptor<T>(out var t))
+                return t;
+
+            return default;
+        }
+
         public IEnumerable<Descriptor> GetDescriptors() => descriptors.Values;
     }
 

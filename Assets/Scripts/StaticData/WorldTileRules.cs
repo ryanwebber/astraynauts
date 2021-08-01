@@ -5,16 +5,16 @@ using static WorldLoader;
 
 public static class WorldTileRules
 {
-    public static ICollection<TileRulePair> GetRules(
+    public static ICollection<TileRule> GetRules(
         FloorSettings floorSettings,
         PerimeterSettings perimeterSettings,
         WallSettings wallSettings)
     {
-        return new TileRulePair[]
+        return new TileRule[]
         {
             // Room tiles
 
-            new TileRulePair
+            new TileRule
             {
                 condition = new RelativeTileTypeCondition<FloorDescriptor> {
                     predicate = FloorDescriptor.IsA(FloorDescriptor.Location.ROOM)
@@ -30,7 +30,7 @@ public static class WorldTileRules
 
             // Hallway tiles
 
-            new TileRulePair
+            new TileRule
             {
                 condition = new RelativeTileTypeCondition<FloorDescriptor>
                 {
@@ -47,7 +47,7 @@ public static class WorldTileRules
             },
 
             // Portal tiles
-            new TileRulePair
+            new TileRule
             {
                 condition = new AllOfCondition(
                     new RelativeTileTypeCondition<FloorDescriptor>
@@ -96,7 +96,7 @@ public static class WorldTileRules
 
             // Perimiter tiles
 
-            new TileRulePair
+            new TileRule
             {
                 condition = new AllOfCondition(
                     new NoneOfCondition(
@@ -125,7 +125,7 @@ public static class WorldTileRules
 
             // Wall tiles
 
-            new TileRulePair
+            new TileRule
             {
                 // South center wall pieces have a top and bottom part, and aren't adjacent
                 // to any floors diagonally southwards
@@ -157,7 +157,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // North center wall is not on a floor, has floor south,
                 // and no floor east or west
@@ -179,7 +179,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // South-east reflexive corner has a top and bottom part, and has
                 // floor east and west, but not south or south-east
@@ -209,7 +209,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // South-west reflexive corner has a top and bottom part, and has
                 // floor east and west, but not south or south-west
@@ -239,7 +239,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // East center wall piece is not on a floor, has no floor north or
                 // south, but has a floor west and south-west
@@ -262,7 +262,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // West center wall piece is not on a floor, has no floor north or
                 // south, but has a floor east and south-east
@@ -285,7 +285,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // North-east corner is not on a floor, has no floor west or
                 // south, but has floor south-west 
@@ -307,7 +307,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // North-west corner is not on a floor, has no floor east or
                 // south, but has floor south-east 
@@ -329,7 +329,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // North-east reflex corner is not on a floor, has floor west
                 // and south, and no floor east or north
@@ -352,7 +352,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // North-west reflex corner is not on a floor, has floor east
                 // and south, and no floor west or north
@@ -375,7 +375,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // South-east corner has an upper and lower part, is not on a floor, has
                 // floor west, and no floor south-west or south
@@ -403,7 +403,7 @@ public static class WorldTileRules
                 }
             },
 
-            new TileRulePair
+            new TileRule
             {
                 // South-west corner has an upper and lower part, is not on a floor, has
                 // floor east, and no floor south-east or south

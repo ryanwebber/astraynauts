@@ -6169,7 +6169,7 @@ MonoBehaviour:
     southWestUpper: {fileID: 11400000, guid: 34a40596e5e054cf6885647a73c980a4, type: 2}
     southWestLower: {fileID: 11400000, guid: 364d9ca97c8ce45ce999d09483cbd587, type: 2}
   fixtureSettings:
-    batteryPrefab: {fileID: 6125549719656565448, guid: 868162efc37cf43ff9f4ca7ad3e90676, type: 3}
+    batteryPrefab: {fileID: 7183515431595988126, guid: 868162efc37cf43ff9f4ca7ad3e90676, type: 3}
 --- !u!1 &1232315630
 GameObject:
   m_ObjectHideFlags: 0
