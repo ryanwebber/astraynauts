@@ -8,7 +8,7 @@ public interface ISceneLoader
     public T GetContext<T>();
     public bool TryGetContext<T>(out T context);
 
-    public ILimboObject TryRecoverGameObject(SceneStoreKey key);
+    public ILimboObject RecoverGameObject(SceneStoreKey key);
     public bool TryRecoverGameObject(SceneStoreKey key, out ILimboObject gameObject);
 }
 
@@ -45,7 +45,7 @@ public class SceneLoader: ISceneLoader
         return false;
     }
 
-    public ILimboObject TryRecoverGameObject(SceneStoreKey key)
+    public ILimboObject RecoverGameObject(SceneStoreKey key)
     {
         if (gameObjectStore.TryGetValue(key, out var foundObject))
         {

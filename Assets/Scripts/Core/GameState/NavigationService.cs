@@ -19,14 +19,14 @@ public class NavigationService : MonoBehaviour
 
     private void InitializeNavigationTopology()
     {
-        var world = gameState.World;
-        var layout = world.CellLayout;
-        navigationTopology.InitalizeTopology(world.Bounds.size);
-        foreach (var cell in layout.Hallways.SelectMany(h => h.Path).SelectMany(world.ExpandCellToUnits))
-            navigationTopology.SetState(cell, NavigationTopology.PathType.TRAVERSABLE);
+        navigationTopology.InitalizeTopology(gameState.World.Bounds.size);
 
-        foreach (var cell in layout.Rooms.Layout.Keys.SelectMany(world.ExpandCellToUnits))
-            navigationTopology.SetState(cell, NavigationTopology.PathType.TRAVERSABLE);
+        var traversableUnits = gameState.World.Grid.GetUnits()
+            .Where(u => u.unit.ContainsDescriptor<FloorDescriptor>() && !u.unit.ContainsDescriptor<FixtureDescriptor>())
+            .Select(u => u.position);
+
+        foreach (var unit in traversableUnits)
+            navigationTopology.SetState(unit, NavigationTopology.PathType.TRAVERSABLE);
     }
 
     private void BindNavigationToPlayers()

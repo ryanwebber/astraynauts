@@ -18,7 +18,8 @@ public class Fixture : MonoBehaviour
         {
             var worldPosition = (Vector2)transform.position + point;
             var unit = new Vector2Int(Mathf.FloorToInt(worldPosition.x), Mathf.FloorToInt(worldPosition.y));
-            grid.AddDescriptor(unit, new FixtureDescriptor(this));
+            var descriptor = new FixtureDescriptor(this);
+            grid.AddDescriptor(unit, descriptor);
         }
     }
 }

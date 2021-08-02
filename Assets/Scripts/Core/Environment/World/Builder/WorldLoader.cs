@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using static WorldGenerator;
+using UnityEngine.Assertions;
 
 public class WorldLoader : MonoBehaviour
 {
@@ -148,7 +149,7 @@ public class WorldLoader : MonoBehaviour
         }
 
         // Store the world data
-        World world = new World(layout, layoutScale, worldGrid);
+        World world = World.Build(layout, layoutScale, worldGrid);
 
         var fixtureDecoration = new FrameDistributedLoader(GetFixturePopulations(world, worldGrid));
         foreach (var state in fixtureDecoration.SparseLoad())
@@ -157,6 +158,26 @@ public class WorldLoader : MonoBehaviour
             yield return null;
         }
 
+        // Setup the player spawn
+        var teleporter = IterationUtils.TryUntil(2, (i) =>
+        {
+            var spawnableRooms = world.Components.GetAll<Room>()
+                .Where(room => room.Teleporters.Count >= (2 - i))
+                .ToArray();
+
+            if (spawnableRooms.Length == 0)
+                return null;
+
+            var spawnRoomIndex = Random.Range(0, spawnableRooms.Length);
+            var spawnRoom = spawnableRooms[spawnRoomIndex];
+
+            var teleporterIndex = Random.Range(0, spawnRoom.Teleporters.Count);
+            return spawnRoom.Teleporters[teleporterIndex];
+        });
+
+        Assert.IsNotNull(teleporter, "Unable to find a player spawn teleporter");
+        world.State.PlayerSpawnTeleporter = teleporter;
+
         // Generation complete!
         completion?.Invoke(world);
         this.temp = world;
@@ -164,7 +185,7 @@ public class WorldLoader : MonoBehaviour
 
     private IEnumerable<IOperation> GetFixturePopulations(World world, WorldGrid grid)
     {
-        foreach (var room in world.CellLayout.Rooms.AllRooms)
+        foreach (var room in world.Layout.cellMapping.Rooms.AllRooms)
         {
             var sectionIdx = Random.Range(0, room.SectionCount);
             var section = room.GetSection(sectionIdx);
@@ -218,12 +239,19 @@ public class WorldLoader : MonoBehaviour
 
         foreach (var ga in layout.Airlocks)
         {
-            var airlock = new Airlock(center: ga.Cell * layoutScale + Vector2.one, ga.Direction);
+            var teleporterCenter = ga.Cell * layoutScale + Vector2.one;
+            var teleporterRoomAttachment = teleporterCenter + ga.Direction * layoutScale;
+            var teleporterRoomAttachmentUnit = new Vector2Int(Mathf.FloorToInt(teleporterRoomAttachment.x), Mathf.FloorToInt(teleporterRoomAttachment.y));
+            var teleporterRoom = grid.GetDescriptor<RoomDescriptor>(teleporterRoomAttachmentUnit).Room;
+
+            var teleporter = new Teleporter(center: ga.Cell * layoutScale + Vector2.one, ga.Direction, teleporterRoom);
             foreach (var unit in World.ExpandCellToUnits(ga.Cell, layoutScale))
             {
                 grid.AddDescriptor(unit, new FloorDescriptor(FloorDescriptor.Location.TELEPORTER));
-                grid.AddDescriptor(unit, new AirlockDescriptor(airlock));
+                grid.AddDescriptor(unit, new TeleporterDescriptor(teleporter));
             }
+
+            teleporterRoom.Teleporters.Add(teleporter);
         }
     }
 

@@ -4,6 +4,7 @@ using UnityEngine;
 public interface ILimboObject
 {
     public GameObject ReparentToScene(Transform t);
+    public T ReparentToScene<T>(Transform t) where T: MonoBehaviour;
 }
 
 public struct LimboObject: ILimboObject
@@ -16,4 +17,7 @@ public struct LimboObject: ILimboObject
         reparent?.Invoke(t);
         return gameObject;
     }
+
+    public T ReparentToScene<T>(Transform t) where T : MonoBehaviour
+        => ReparentToScene(t).GetComponent<T>();
 }

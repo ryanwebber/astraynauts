@@ -1,6 +1,6 @@
 ﻿using System;
 
-public class RoomDescriptor: WorldGrid.Descriptor
+public class RoomDescriptor: WorldGrid.Descriptor, IComponentDescriptor<Room>
 {
     public readonly Room Room;
 
@@ -8,4 +8,6 @@ public class RoomDescriptor: WorldGrid.Descriptor
     {
         Room = room;
     }
+
+    Room IComponentDescriptor<Room>.Component => Room;
 }

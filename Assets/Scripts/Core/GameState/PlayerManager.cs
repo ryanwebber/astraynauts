@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using static WorldGenerator;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -21,14 +20,10 @@ public class PlayerManager : MonoBehaviour
 
     private void SpawnPlayers()
     {
-        var airlock = gameState.World.Grid.GetUnits()
-            .FirstOrDefault(u => u.unit.ContainsDescriptor<AirlockDescriptor>())
-            .unit.GetDescriptorOrDefault<AirlockDescriptor>()
-            .Airlock;
-
+        var teleporter = gameState.World.State.PlayerSpawnTeleporter;
         foreach (var player in GetAlivePlayers())
         {
-            var position = airlock.Center + Random.insideUnitCircle.normalized * 0.2f;
+            var position = teleporter.Center + Random.insideUnitCircle.normalized * 0.2f;
             player.transform.position = position;
         }
     }

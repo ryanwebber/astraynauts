@@ -27,6 +27,14 @@ public class WorldGrid
         return unitMap.TryGetValue(position, out unit);
     }
 
+    public T GetDescriptor<T>(Vector2Int position) where T: Descriptor
+    {
+        if (TryGetDescriptor<T>(position, out var descriptor))
+            return descriptor;
+        else
+            throw new Exception($"Descruptor not present at {position}");
+    }
+
     public bool TryGetDescriptor<T>(Vector2Int position, out T descriptor) where T: Descriptor
     {
         if (TryGetUnit(position, out var tmp) && tmp.TryGetDescriptor<T>(out var desc))
