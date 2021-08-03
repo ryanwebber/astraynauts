@@ -3,8 +3,7 @@ using System.Collections;
 
 public class Mob : MonoBehaviour
 {
-    private void Start()
-    {
-    }
+    public Event OnWillSpawnIntoWorld;
+    public Event OnDidSpawnIntoWorld;
+    public Event OnMobDefeated;
 }
-

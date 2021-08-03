@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public PlayerInputFeedback InputFeedback { get; private set; }
 
     public PlayerState State { get; private set; }
+    public Vector2 WorldPosition => transform.position;
 
     private void Awake()
     {

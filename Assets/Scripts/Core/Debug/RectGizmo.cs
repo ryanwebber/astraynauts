@@ -4,10 +4,10 @@ using System.Collections;
 public class RectGizmo : MonoBehaviour
 {
     [SerializeField]
-    private Color color;
+    public Color color;
 
     [SerializeField]
-    private Vector3 size;
+    public Vector3 size;
 
     private void OnDrawGizmos()
     {

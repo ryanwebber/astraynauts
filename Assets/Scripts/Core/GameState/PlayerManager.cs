@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Assertions;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -8,6 +9,19 @@ public class PlayerManager : MonoBehaviour
     private GameState gameState;
 
     private List<Player> players;
+
+    public Vector2 ApproximatePlayerPositioning
+    {
+        get
+        {
+            var alivePlayers = players.Where(player => player.State.IsAlive).ToList();
+            var releventPlayers = alivePlayers.Count == 0 ? players : alivePlayers;
+
+            Assert.IsTrue(releventPlayers.Count > 0, "There are no players?");
+
+            return releventPlayers.Aggregate(Vector2.zero, (accum, player) => accum + player.WorldPosition) / releventPlayers.Count;
+        }
+    }
 
     private void Awake()
     {

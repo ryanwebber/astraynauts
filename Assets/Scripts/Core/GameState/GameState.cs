@@ -4,12 +4,32 @@ using static GameManager;
 
 public class GameState: MonoBehaviour
 {
+    [System.Serializable]
+    public class GameServices
+    {
+        [SerializeField]
+        private PlayerManager playerManager;
+        public PlayerManager PlayerManager => playerManager;
+
+        [SerializeField]
+        private CameraController cameraController;
+        public CameraController CameraController => cameraController;
+
+        [SerializeField]
+        private MobManager mobManager;
+        public MobManager MobManager => mobManager;
+
+        [SerializeField]
+        private WaveManager waveManager;
+        public WaveManager WaveManager => waveManager;
+    }
+
     public Event OnGameStateInitializationBegin;
     public Event OnGameStateInitializationEnd;
 
     [SerializeField]
-    private Services services;
-    public Services Services => services;
+    private GameServices services;
+    public GameServices Services => services;
 
     private World world;
     public World World => world;

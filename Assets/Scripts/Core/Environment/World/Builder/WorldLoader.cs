@@ -159,7 +159,7 @@ public class WorldLoader : MonoBehaviour
         }
 
         // Setup the player spawn
-        var teleporter = IterationUtils.TryUntil(2, (i) =>
+        var spawnTeleporter = IterationUtils.TryUntil(2, (i) =>
         {
             var spawnableRooms = world.Components.GetAll<Room>()
                 .Where(room => room.Teleporters.Count >= (2 - i))
@@ -175,8 +175,19 @@ public class WorldLoader : MonoBehaviour
             return spawnRoom.Teleporters[teleporterIndex];
         });
 
-        Assert.IsNotNull(teleporter, "Unable to find a player spawn teleporter");
-        world.State.PlayerSpawnTeleporter = teleporter;
+        Assert.IsNotNull(spawnTeleporter, "Unable to find a player spawn teleporter");
+        world.State.PlayerSpawnTeleporter = spawnTeleporter;
+
+        // Setup the accessible world region
+        foreach (var room in world.Components.GetAll<Room>())
+        {
+            // TODO: Don't use all the rooms in the world, we should
+            // have doors and this should be small to start
+            foreach (var teleporter in room.Teleporters)
+            {
+                world.State.AccessibleTeleporters.Add(teleporter);
+            }    
+        }
 
         // Generation complete!
         completion?.Invoke(world);

@@ -46,6 +46,9 @@ public class PlayerState : MonoBehaviour
 
     private StateMachine<States> stateMachine;
 
+    // TODO: Track this with player health and a death state
+    public bool IsAlive => true;
+
     private void Awake()
     {
         movementController = GetComponent<PlayerMovementController>();
