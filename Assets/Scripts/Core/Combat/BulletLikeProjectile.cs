@@ -3,6 +3,7 @@ using System.Collections;
 
 [RequireComponent(typeof(Velocity2D))]
 [RequireComponent(typeof(Projectile))]
+[RequireComponent(typeof(DestructionTrigger))]
 public class BulletLikeProjectile : MonoBehaviour
 {
     [SerializeField]
@@ -11,6 +12,9 @@ public class BulletLikeProjectile : MonoBehaviour
     [SerializeField]
     private LayerMask collisionMask;
 
+    private bool IsMoving = true;
+
+    private DestructionTrigger destructionTrigger;
     private Velocity2D headingSource;
     private Vector2 CurrentVelocity
     {
@@ -20,23 +24,22 @@ public class BulletLikeProjectile : MonoBehaviour
 
     private void Awake()
     {
+        destructionTrigger = GetComponent<DestructionTrigger>();
         headingSource = GetComponent<Velocity2D>();
-        GetComponent<Projectile>().OnProjectileSpawn += v =>
-        {
-            CurrentVelocity = v;
-        };
+
+        destructionTrigger.OnDestructionTriggered += () => IsMoving = false;
+        GetComponent<Projectile>().OnProjectileSpawn += v => CurrentVelocity = v;
     }
 
     private void Update()
     {
-        transform.Translate(Time.deltaTime * CurrentVelocity);
+        if (IsMoving)
+            transform.Translate(Time.deltaTime * CurrentVelocity);
     }
 
-    public void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collider)
     {
-        if (((1 << collision.gameObject.layer) & collisionMask) != 0)
-        {
-            Debug.Log("Projectile collision");
-        }
+        if (((1 << collider.gameObject.layer) & collisionMask) != 0)
+            destructionTrigger.DestroyWithBehaviour();
     }
 }
