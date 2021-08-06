@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 5086075006856838917}
   - component: {fileID: 5086075006856838926}
   - component: {fileID: 5765114581109109214}
+  - component: {fileID: 4174713653191116010}
+  - component: {fileID: 2564065571054891167}
   m_Layer: 0
   m_Name: PlayerProjectile_tmp
   m_TagString: Untagged
@@ -56,7 +58,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0c57ccd98460451784d4aae0d81e3ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocity: 10
   maxSteerForce: 0.95
   steerForceMultiplier: 4
   maxSeekVision: 2
@@ -68,4 +69,32 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   maxTargetSortCount: 4
-  currentTarget: {fileID: 0}
+--- !u!114 &4174713653191116010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5086075006856838916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 976b36a8d1375485397ae7b927c0ff58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentVelocity: {x: 0, y: 0}
+--- !u!114 &2564065571054891167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5086075006856838916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa6d65da4ecd410599a51847336f76a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  constantVeclocity: 6
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 128
