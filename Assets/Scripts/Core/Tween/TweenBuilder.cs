@@ -20,7 +20,9 @@ public class TweenBuilder
 
     public TweenBuilder ThenWait(float duration)
     {
-        enumerators.Add(Coroutines.After(duration, () => { }));
+        if (duration > 0f)
+            enumerators.Add(Coroutines.After(duration, () => { }));
+
         return this;
     }
 
@@ -81,7 +83,7 @@ public class TweenBuilder
             .ThenWait(duration);
     }
 
-    public static TweenBuilder New()
+    public static TweenBuilder StartImmediately()
     {
         return new TweenBuilder();
     }

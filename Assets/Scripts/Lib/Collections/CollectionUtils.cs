@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public static class Collections
+public static class CollectionUtils
 {
     public static IEnumerable<(T, T)> Pair<T>(IEnumerator<T> collection, bool close = false)
     {
