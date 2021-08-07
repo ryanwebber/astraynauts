@@ -8,13 +8,15 @@ using System.Linq;
 [RequireComponent(typeof(CollisionAvoidanceInfluencer))]
 [RequireComponent(typeof(ForwardMomentumInfluencer))]
 [RequireComponent(typeof(NavigationTopologyInfluencer))]
-public class SwarmMovementController : MonoBehaviour
+public class SwarmMovementController : MonoBehaviour, IActivatable
 {
     private LocomotableInput input;
     private BoidInfluencer boidInfluencer;
     private CollisionAvoidanceInfluencer collisionAvoidanceInfluencer;
     private ForwardMomentumInfluencer forwardMomentumInfluencer;
     private NavigationTopologyInfluencer navigationTopologyInfluencer;
+
+    public bool IsActive { get; set; } = false;
 
     private void Awake()
     {
@@ -27,7 +29,8 @@ public class SwarmMovementController : MonoBehaviour
 
     private void Update()
     {
-        input.MovementDirection = GetInfluence();
+        if (IsActive)
+            input.MovementDirection = GetInfluence();
     }
 
     private Vector2 GetInfluence()

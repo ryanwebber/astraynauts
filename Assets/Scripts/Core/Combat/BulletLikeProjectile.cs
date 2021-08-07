@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Velocity2D))]
 [RequireComponent(typeof(Projectile))]
+[RequireComponent(typeof(Velocity2D))]
+[RequireComponent(typeof(DamageDealer))]
 [RequireComponent(typeof(DestructionTrigger))]
 public class BulletLikeProjectile : MonoBehaviour
 {
@@ -14,8 +15,10 @@ public class BulletLikeProjectile : MonoBehaviour
 
     private bool IsMoving = true;
 
+    private DamageDealer damageDealer;
     private DestructionTrigger destructionTrigger;
     private Velocity2D headingSource;
+
     private Vector2 CurrentVelocity
     {
         get => headingSource.CurrentVelocity;
@@ -24,6 +27,7 @@ public class BulletLikeProjectile : MonoBehaviour
 
     private void Awake()
     {
+        damageDealer = GetComponent<DamageDealer>();
         destructionTrigger = GetComponent<DestructionTrigger>();
         headingSource = GetComponent<Velocity2D>();
 
@@ -40,6 +44,9 @@ public class BulletLikeProjectile : MonoBehaviour
     public void OnTriggerEnter2D(Collider2D collider)
     {
         if (((1 << collider.gameObject.layer) & collisionMask) != 0)
+        {
+            damageDealer.TryDealDamage(collider.gameObject);
             destructionTrigger.DestroyWithBehaviour();
+        }
     }
 }

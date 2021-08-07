@@ -7080,6 +7080,8 @@ GameObject:
   - component: {fileID: 2037969540}
   - component: {fileID: 2037969542}
   - component: {fileID: 2037969528}
+  - component: {fileID: 2037969547}
+  - component: {fileID: 2037969546}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7427,3 +7429,30 @@ MonoBehaviour:
   chargingProperties:
     chargingStepTime: 0.5
     batteryManager: {fileID: 1555617897}
+--- !u!114 &2037969546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd561d9572604964a54f3755fee9c94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2037969547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9a636ef1a4b5433c825e05f7d57e4fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  properties:
+    maxHealth: 3
+  healthValue: 3

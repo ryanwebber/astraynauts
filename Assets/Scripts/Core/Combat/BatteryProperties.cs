@@ -6,7 +6,12 @@ public struct BatteryProperties : IEquatable<BatteryProperties>
 {
     [SerializeField]
     [Min(0)]
-    public int maxCharge;
+    private int maxCharge;
+    public int MaxCharge
+    {
+        get => maxCharge;
+        set => maxCharge = Mathf.Max(0, value);
+    }
 
     public override bool Equals(object obj)
     {

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2564065571054891167}
   - component: {fileID: 3947240868342531228}
   - component: {fileID: 5419170977823108747}
+  - component: {fileID: 7657517661560827771}
   - component: {fileID: 5452229429312754351}
   - component: {fileID: 7829625054904076360}
   - component: {fileID: 7963257339953912265}
@@ -102,7 +103,7 @@ MonoBehaviour:
   constantVeclocity: 10
   collisionMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 384
 --- !u!114 &3947240868342531228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,6 +128,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ff9ead896ba549e2b92306038145aba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7657517661560827771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5086075006856838916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5abd1514ce4c94b2891f02822a19bdc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mask:
+    serializedVersion: 2
+    m_Bits: 256
+  baseDamage: 1
 --- !u!114 &5452229429312754351
 MonoBehaviour:
   m_ObjectHideFlags: 0

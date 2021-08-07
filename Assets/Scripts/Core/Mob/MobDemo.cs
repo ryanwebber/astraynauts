@@ -4,6 +4,7 @@ using System.Collections;
 // TODO: Delete this
 [RequireComponent(typeof(Mob))]
 [RequireComponent(typeof(RectGizmo))]
+[RequireComponent(typeof(DestructionTrigger))]
 public class MobDemo : MonoBehaviour
 {
     private void Awake()
@@ -14,8 +15,7 @@ public class MobDemo : MonoBehaviour
             GetComponent<RectGizmo>().color = Color.cyan;
             StartCoroutine(Coroutines.After(5f, () =>
             {
-                mob.OnMobDefeated?.Invoke();
-                Destroy(gameObject);
+                GetComponent<DestructionTrigger>().DestroyWithBehaviour();
             }));
         };
     }

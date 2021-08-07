@@ -13,16 +13,18 @@ public class BatteryManager : MonoBehaviour, IPropertiesMutable<BatteryPropertie
 
     public Event<PropertyChange<int>, BatteryManager> OnBatteryLevelChanged;
     public Event<PropertyChange<BatteryProperties>, BatteryManager> OnBatteryPropertiesChanged;
-        
 
-    private void Start()
+    private void Awake()
     {
-        SetBatteryValue(int.MaxValue);
+        OnBatteryLevelChanged += (change, _) =>
+        {
+            Debug.Log($"Battery level changed from {change.oldValue} to {change.newValue}", this);
+        };
     }
 
     public void SetBatteryValue(int value)
     {
-        value = Mathf.Clamp(value, 0, properties.maxCharge);
+        value = Mathf.Clamp(value, 0, properties.MaxCharge);
         if (value != batteryValue)
         {
             var prevValue = batteryValue;
@@ -49,6 +51,6 @@ public class BatteryManager : MonoBehaviour, IPropertiesMutable<BatteryPropertie
 
     private void OnValidate()
     {
-        batteryValue = Mathf.Clamp(batteryValue, 0, properties.maxCharge);
+        batteryValue = Mathf.Clamp(batteryValue, 0, properties.MaxCharge);
     }
 }
