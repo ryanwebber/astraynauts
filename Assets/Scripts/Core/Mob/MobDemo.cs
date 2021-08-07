@@ -12,11 +12,14 @@ public class MobDemo : MonoBehaviour
         var mob = GetComponent<Mob>();
         mob.OnDidSpawnIntoWorld += () =>
         {
-            GetComponent<RectGizmo>().color = Color.cyan;
-            StartCoroutine(Coroutines.After(5f, () =>
+            if (this != null)
             {
-                GetComponent<DestructionTrigger>().DestroyWithBehaviour();
-            }));
+                GetComponent<RectGizmo>().color = Color.cyan;
+                StartCoroutine(Coroutines.After(5f, () =>
+                {
+                    GetComponent<DestructionTrigger>().DestroyWithBehaviour();
+                }));
+            }
         };
     }
 }

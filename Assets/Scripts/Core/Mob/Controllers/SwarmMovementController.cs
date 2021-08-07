@@ -16,7 +16,13 @@ public class SwarmMovementController : MonoBehaviour, IActivatable
     private ForwardMomentumInfluencer forwardMomentumInfluencer;
     private NavigationTopologyInfluencer navigationTopologyInfluencer;
 
-    public bool IsActive { get; set; } = false;
+    [SerializeField]
+    private bool isActive = false;
+    public bool IsActive
+    {
+        get => isActive;
+        set => isActive = value;
+    }
 
     private void Awake()
     {

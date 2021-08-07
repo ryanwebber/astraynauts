@@ -5,6 +5,7 @@ using System.Collections;
 public class DamageReceiver : MonoBehaviour
 {
     private HealthManager healthManager;
+    public HealthManager HealthManager => healthManager;
 
     private void Awake()
     {

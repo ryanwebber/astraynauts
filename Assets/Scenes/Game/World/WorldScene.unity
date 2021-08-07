@@ -6449,7 +6449,7 @@ MonoBehaviour:
   boidManager: {fileID: 521608993}
   navigationService: {fileID: 509416141}
   mobSpawner: {fileID: 1342330583}
-  mobPrefab: {fileID: 5218154309642842118, guid: a671fc8872b4449c4b3ea5b194503fa7, type: 3}
+  mobPrefab: {fileID: 2234429384227885141, guid: beaedb4e24bbd4ca28cbd901dfaf0f2a, type: 3}
   spawnDistanceProbabilityCurve:
     serializedVersion: 2
     m_Curve:

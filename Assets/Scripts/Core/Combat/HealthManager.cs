@@ -29,6 +29,8 @@ public class HealthManager : MonoBehaviour
         OnHealthValueChanged += (change) =>
         {
             Debug.Log($"Health value changed from {change.oldValue} to {change.newValue}", this);
+            if (change.newValue == 0)
+                state = Damagability.TRANSPARENT;
         };
 
         OnHealthStateChanged += (change) =>
@@ -98,7 +100,7 @@ public class HealthManager : MonoBehaviour
 
     public void SetState(Damagability damagability)
     {
-        if (damagability != state)
+        if (damagability != state && healthValue > 0)
         {
             var oldValue = state;
             state = damagability;

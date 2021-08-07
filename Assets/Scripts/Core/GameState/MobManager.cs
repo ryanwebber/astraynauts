@@ -46,9 +46,9 @@ public class MobManager : MonoBehaviour
 
     private IEnumerator TestMobSpawning()
     {
-        while (true)
+        for (int i = 0; i < 10; i++)
         {
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(5f);
             if (TryFindSpawnableTeleporter(out var teleporter))
             {
                 SpawnMobDelayed(mobPrefab, teleporter, 5f);
