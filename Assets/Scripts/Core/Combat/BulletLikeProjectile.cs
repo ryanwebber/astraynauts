@@ -43,6 +43,7 @@ public class BulletLikeProjectile : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collider)
     {
+        Debug.Log($"Bullet trigger: {collider.name}");
         if (((1 << collider.gameObject.layer) & collisionMask) != 0)
         {
             if (damageDealer.TryDealDamage(collider.gameObject, out var result))

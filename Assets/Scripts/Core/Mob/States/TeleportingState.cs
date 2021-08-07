@@ -13,11 +13,11 @@ public class TeleportingState : State
 
     public override void OnEnter(IStateMachine sm)
     {
-        healthManager.State = HealthManager.Damagability.TRANSPARENT;
+        healthManager.SetState(HealthManager.Damagability.TRANSPARENT);
     }
 
     public override void OnExit(IStateMachine sm)
     {
-        healthManager.State = HealthManager.Damagability.VULNERABLE;
+        healthManager.SetState(HealthManager.Damagability.VULNERABLE);
     }
 }

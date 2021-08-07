@@ -24,6 +24,9 @@ public class DashActor : MonoBehaviour
     {
         kinematicBody = GetComponent<KinematicBody>();
         OnDashEnd += () => currentDash = null;
+
+        OnDashStart += () => Debug.Log("Dash start", this);
+        OnDashEnd += () => Debug.Log("Dash end", this);
     }
 
     public void DashInDirection(Vector2 direction)

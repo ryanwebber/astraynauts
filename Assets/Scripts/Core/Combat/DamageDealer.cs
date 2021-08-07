@@ -12,7 +12,7 @@ public class DamageDealer : MonoBehaviour
 
     public bool TryDealDamage(GameObject gameObject, out DamageResult result)
     {
-        if (gameObject.TryGetComponent<DamageReceiver>(out var receiver))
+        if (((1 << gameObject.layer) & mask) != 0 && gameObject.TryGetComponent<DamageReceiver>(out var receiver))
         {
             result = receiver.DealDamage(baseDamage);
             return true;

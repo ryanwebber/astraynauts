@@ -30,6 +30,9 @@ public class PlayerMovementController : MonoBehaviour
         public State DefaultMovementState => runState;
     }
 
+    [SerializeField]
+    private BatteryManager batteryManager;
+
     private DashActor dashActor;
     private WalkingActor walkingActor;
 
@@ -57,16 +60,22 @@ public class PlayerMovementController : MonoBehaviour
     {
         dashActor = GetComponent<DashActor>();
         walkingActor = GetComponent<WalkingActor>();
+
         stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
 
             OnDashTriggered += () =>
             {
                 var movementDirection = walkingActor.TargetMovementDirection;
-                if (stateMachine.IsStateCurrent(states.runState) && movementDirection.SqrMagnitude() > 0f)
+                if (CanDash(movementDirection))
                 {
                     states.dashState.Direction = movementDirection.normalized;
                     stateMachine.SetState(states.dashState);
                 }
+            };
+
+            dashActor.OnDashStart += () =>
+            {
+                batteryManager.AddBatteryValue(-1);
             };
 
             dashActor.OnDashEnd += () =>
@@ -79,6 +88,14 @@ public class PlayerMovementController : MonoBehaviour
 
             return states.DefaultMovementState;
         });
+    }
+
+    private bool CanDash(Vector2 direction)
+    {
+        Debug.Log($"dir={direction} state={stateMachine.CurrentState.Name} battery={batteryManager.BatteryValue}");
+        return direction.SqrMagnitude() > 0f
+            && stateMachine.IsStateCurrent(stateMachine.States.runState)
+            && batteryManager.BatteryValue > 0;
     }
 
     private void Update()

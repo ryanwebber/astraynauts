@@ -47,10 +47,10 @@ public class PlayerHealthController : MonoBehaviour
     private void UpdateState()
     {
         if (invincibilityCounter > 0)
-            healthManager.State = HealthManager.Damagability.SHIELDED;
+            healthManager.SetState(HealthManager.Damagability.SHIELDED);
         else if (transparencyCounter > 0)
-            healthManager.State = HealthManager.Damagability.TRANSPARENT;
+            healthManager.SetState(HealthManager.Damagability.TRANSPARENT);
         else
-            healthManager.State = HealthManager.Damagability.VULNERABLE;
+            healthManager.SetState(HealthManager.Damagability.VULNERABLE);
     }
 }

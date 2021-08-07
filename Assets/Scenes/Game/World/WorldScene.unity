@@ -7180,6 +7180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beab014940c234f5f9e0bee8afa5a136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  batteryManager: {fileID: 1555617897}
 --- !u!61 &2037969533
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7445,4 +7446,3 @@ MonoBehaviour:
   properties:
     maxHealth: 3
   healthValue: 3
-  CanTakeDamage: 1
