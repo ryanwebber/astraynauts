@@ -45,8 +45,11 @@ public class BulletLikeProjectile : MonoBehaviour
     {
         if (((1 << collider.gameObject.layer) & collisionMask) != 0)
         {
-            damageDealer.TryDealDamage(collider.gameObject);
-            destructionTrigger.DestroyWithBehaviour();
+            if (damageDealer.TryDealDamage(collider.gameObject, out var result))
+            {
+                if (result.totalDamageDealt > 0 || result.targetWasShielded)
+                    destructionTrigger.DestroyWithBehaviour();
+            }
         }
     }
 }

@@ -3,6 +3,11 @@ using System.Collections;
 
 public class HealthManager : MonoBehaviour
 {
+    public enum Damagability
+    {
+        VULNERABLE, TRANSPARENT, SHIELDED
+    }
+
     [SerializeField]
     private HealthProperties properties;
     public HealthProperties Properties => properties;
@@ -11,7 +16,8 @@ public class HealthManager : MonoBehaviour
     private int healthValue;
     public int HealthValue => healthValue;
 
-    public bool CanTakeDamage = true;
+    public Damagability State = Damagability.VULNERABLE;
+    public bool CanTakeDamage => State == Damagability.VULNERABLE;
 
     public Event<PropertyChange<int>, HealthManager> OnHealthValueChanged;
     public Event<PropertyChange<HealthProperties>, HealthManager> OnHealthPropertiesChanged;
@@ -27,7 +33,7 @@ public class HealthManager : MonoBehaviour
     public PropertyChange<int> SetHealthValue(int value)
     {
         value = Mathf.Clamp(value, 0, properties.MaxHealth);
-        if (value != healthValue && CanTakeDamage)
+        if (value != healthValue)
         {
             var prevValue = healthValue;
             healthValue = value;
@@ -43,7 +49,32 @@ public class HealthManager : MonoBehaviour
 
     public PropertyChange<int> AddHealth(int delta)
     {
-        return SetHealthValue(healthValue + delta);
+        return SetHealthValue(healthValue + Mathf.Abs(delta));
+    }
+
+    public DamageResult DealDamage(int damage)
+    {
+        switch (State)
+        {
+            case Damagability.VULNERABLE:
+                var delta = SetHealthValue(healthValue - Mathf.Abs(damage));
+                return new DamageResult
+                {
+                    totalDamageDealt = delta.oldValue - delta.newValue,
+                };
+            case Damagability.TRANSPARENT:
+                return new DamageResult
+                {
+                    targetWasTransparent = true
+                };
+            case Damagability.SHIELDED:
+                return new DamageResult
+                {
+                    targetWasShielded = true
+                };
+        }
+
+        throw new System.Exception("Unknown health state");
     }
 
     public void UpdateProperties(PropertiesUpdating<HealthProperties> updater)

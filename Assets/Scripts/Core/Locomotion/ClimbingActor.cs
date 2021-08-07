@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 
 [RequireComponent(typeof(KinematicBody))]
-[RequireComponent(typeof(SpideringInput))]
-public class SpideringActor : MonoBehaviour, IActivatable
+[RequireComponent(typeof(ClimbingInput))]
+public class ClimbingActor : MonoBehaviour, IActivatable
 {
     private struct States
     {
         public FloatState floatState;
         public TraversingState traversingState;
 
-        public static States FromComponent(SpideringActor actor)
+        public static States FromComponent(ClimbingActor actor)
         {
             return new States
             {
@@ -38,12 +38,12 @@ public class SpideringActor : MonoBehaviour, IActivatable
 
     private StateMachine<States> stateMachine;
     private KinematicBody kinematicBody;
-    private SpideringInput virtualInput;
+    private ClimbingInput virtualInput;
 
     private void Awake()
     {
         this.kinematicBody = GetComponent<KinematicBody>();
-        this.virtualInput = GetComponent<SpideringInput>();
+        this.virtualInput = GetComponent<ClimbingInput>();
 
         stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
 

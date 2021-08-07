@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SpideringInput : MonoBehaviour
+public class ClimbingInput : MonoBehaviour
 {
     [ReadOnly]
     public Vector2 MovementDirection;

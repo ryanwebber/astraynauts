@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(KinematicBody))]
-[RequireComponent(typeof(LocomotableInput))]
-public class LocomotableActor : MonoBehaviour, IActivatable
+[RequireComponent(typeof(WalkingInput))]
+public class WalkingActor : MonoBehaviour, IActivatable
 {
 
     [SerializeField]
-    private LocomotionProperties properties;
+    private WalkingProperties properties;
 
     [SerializeField]
     [ReadOnly]
@@ -26,26 +26,15 @@ public class LocomotableActor : MonoBehaviour, IActivatable
         set => isActive = value;
     }
 
-    private LocomotableInput virtualInput;
+    public Vector2 TargetMovementDirection => virtualInput.MovementDirection;
+
+    private WalkingInput virtualInput;
     private KinematicBody kinematicBody;
-
-    private Vector2 NormalizedFacingDirection
-    {
-        get
-        {
-            var facingDirection = virtualInput.FacingDirection;
-            if (facingDirection == Vector2.zero)
-                facingDirection = Vector2.down;
-
-            return facingDirection.normalized;
-        }
-    }
-
 
     private void Awake()
     {
         kinematicBody = GetComponent<KinematicBody>();
-        virtualInput = GetComponent<LocomotableInput>();
+        virtualInput = GetComponent<WalkingInput>();
     }
 
     private void Update()
@@ -65,5 +54,10 @@ public class LocomotableActor : MonoBehaviour, IActivatable
         kinematicBody.MoveAndCollide(dampenedHeading * Time.deltaTime * properties.movementSpeed);
 
         previousHeading = dampenedHeading;
+    }
+
+    public void EraseMomentum()
+    {
+        velocity = Vector2.zero;
     }
 }

@@ -39,13 +39,13 @@ public class TraversingState: State, IPropertiesMutable<TraversingState.Properti
 
     public override string Name => $"TraversingState[{stateMachine.CurrentState.Name}]";
 
-    private SpideringInput input;
+    private ClimbingInput input;
     private KinematicBody body;
     private Properties properties;
 
     private StateMachine<States> stateMachine;
 
-    public TraversingState(SpideringInput input, KinematicBody body, Properties properties)
+    public TraversingState(ClimbingInput input, KinematicBody body, Properties properties)
     {
         this.input = input;
         this.body = body;

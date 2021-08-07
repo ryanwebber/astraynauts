@@ -13,7 +13,7 @@ public class FloatState: State, IPropertiesMutable<FloatState.Properties>
 
     public override string Name => "FloatState";
 
-    private SpideringInput input;
+    private ClimbingInput input;
     private KinematicBody body;
     private Properties properties;
 
@@ -25,7 +25,7 @@ public class FloatState: State, IPropertiesMutable<FloatState.Properties>
 
     public Event OnFloatStateCollision;
 
-    public FloatState(SpideringInput input, KinematicBody body, Properties properties)
+    public FloatState(ClimbingInput input, KinematicBody body, Properties properties)
     {
         this.input = input;
         this.body = body;

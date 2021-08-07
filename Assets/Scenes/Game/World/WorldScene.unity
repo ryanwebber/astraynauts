@@ -7072,8 +7072,6 @@ GameObject:
   - component: {fileID: 2037969541}
   - component: {fileID: 2037969536}
   - component: {fileID: 2037969535}
-  - component: {fileID: 2037969539}
-  - component: {fileID: 2037969538}
   - component: {fileID: 2037969537}
   - component: {fileID: 2037969545}
   - component: {fileID: 2037969544}
@@ -7082,6 +7080,8 @@ GameObject:
   - component: {fileID: 2037969528}
   - component: {fileID: 2037969547}
   - component: {fileID: 2037969546}
+  - component: {fileID: 2037969538}
+  - component: {fileID: 2037969539}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7150,7 +7150,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MovementDirection: {x: 0, y: 0}
-  FacingDirection: {x: 0, y: 0}
 --- !u!114 &2037969531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7181,7 +7180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beab014940c234f5f9e0bee8afa5a136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isWeightless: 0
 --- !u!61 &2037969533
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7241,8 +7239,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2273263d1c4c04df3b57fce3279befe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spideringInput: {fileID: 2037969539}
-  locomotionInput: {fileID: 2037969530}
+  walkingInput: {fileID: 2037969530}
+  movementController: {fileID: 2037969532}
   shootingController: {fileID: 2037969540}
   interactionController: {fileID: 2037969544}
 --- !u!114 &2037969536
@@ -7278,19 +7276,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2037969526}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca465345d5ba648fa913b564a62903db, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d91c26ecf8a04955af91da280513bfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floatStateProperties:
-    jumpForce: 2.25
-    steerForce: 0.02
-    maxVelocity: 2.5
-  traversingStateProperties:
-    climbSpeed: 1.5
-    corneringSpeedMultiplier: 0.85
-    automaticDetachEnabled: 0
-    maxCornerCutTriggerDistance: 1.25
-  isActive: 0
+  properties:
+    dashSpeed: 8
+    dashDuration: 0.2
 --- !u!114 &2037969539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7300,11 +7291,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2037969526}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b5f7873f4d24eca88acbde34448a69, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d4e0514f3b4f4cf6bfcbe174a318f75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementDirection: {x: 0, y: 0}
-  IsJumping: 0
 --- !u!114 &2037969540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7456,3 +7445,4 @@ MonoBehaviour:
   properties:
     maxHealth: 3
   healthValue: 3
+  CanTakeDamage: 1

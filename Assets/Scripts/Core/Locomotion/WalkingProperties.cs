@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct  LocomotionProperties
+public struct  WalkingProperties
 {
     public float movementSpeed;
     public float movementDampening;

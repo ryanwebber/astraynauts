@@ -2,38 +2,37 @@
 using System.Collections;
 using System.Threading;
 
-[RequireComponent(typeof(LocomotableActor))]
-[RequireComponent(typeof(SpideringActor))]
+[RequireComponent(typeof(DashActor))]
+[RequireComponent(typeof(WalkingActor))]
 public class PlayerMovementController : MonoBehaviour
 {
+    public Event OnDashTriggered;
+
     private struct States
     {
-        public State spiderState;
         public State runState;
-        public State idleState;
+        public DashState dashState;
+        public EmptyState idleState;
 
         public static States FromComponent(PlayerMovementController controller)
         {
             return new States
             {
-                spiderState = new ComponentActivationState<SpideringActor>(controller.spideringActor, "SpideringState", actor =>
+                runState = new ComponentActivationState<WalkingActor>(controller.walkingActor, "RunningState", actor =>
                 {
-                    // TODO: remove floating velocity when re-entering the spider state
+                    actor.EraseMomentum();
                 }),
-                runState = new ComponentActivationState<LocomotableActor>(controller.locomotableActor, "RunningState"),
-                idleState = new EmptyState("IdleState")
+                dashState = new DashState(controller),
+                idleState = new EmptyState("IdleState"),
             };
         }
 
-        public State GetMovementState(bool isWeightless)
-            => isWeightless ? spiderState : runState;
+        public State DefaultMovementState => runState;
     }
 
-    [SerializeField]
-    private bool isWeightless = false;
+    private DashActor dashActor;
+    private WalkingActor walkingActor;
 
-    private SpideringActor spideringActor;
-    private LocomotableActor locomotableActor;
     private StateMachine<States> stateMachine;
 
     private bool isLocked = false;
@@ -45,7 +44,7 @@ public class PlayerMovementController : MonoBehaviour
             if (value != isLocked)
             {
                 if (!value)
-                    stateMachine.SetState(stateMachine.States.GetMovementState(isWeightless));
+                    stateMachine.SetState(stateMachine.States.DefaultMovementState);
                 else
                     stateMachine.SetState(stateMachine.States.idleState);
 
@@ -56,16 +55,53 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Awake()
     {
-        this.spideringActor = GetComponent<SpideringActor>();
-        this.locomotableActor = GetComponent<LocomotableActor>();
-
+        dashActor = GetComponent<DashActor>();
+        walkingActor = GetComponent<WalkingActor>();
         stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
-            return states.GetMovementState(isWeightless);
+
+            OnDashTriggered += () =>
+            {
+                var movementDirection = walkingActor.TargetMovementDirection;
+                if (stateMachine.IsStateCurrent(states.runState) && movementDirection.SqrMagnitude() > 0f)
+                {
+                    states.dashState.Direction = movementDirection.normalized;
+                    stateMachine.SetState(states.dashState);
+                }
+            };
+
+            dashActor.OnDashEnd += () =>
+            {
+                if (stateMachine.IsStateCurrent<DashState>())
+                {
+                    stateMachine.SetState(states.DefaultMovementState);
+                }
+            };
+
+            return states.DefaultMovementState;
         });
     }
 
     private void Update()
     {
         this.stateMachine.CurrentState.Update();
+    }
+
+    private class DashState : State
+    {
+        private PlayerMovementController controller;
+
+        public override string Name => "DashState";
+
+        public Vector2 Direction;
+
+        public DashState(PlayerMovementController controller)
+        {
+            this.controller = controller;
+        }
+
+        public override void OnEnter(IStateMachine sm)
+        {
+            controller.dashActor.DashInDirection(Direction);
+        }
     }
 }

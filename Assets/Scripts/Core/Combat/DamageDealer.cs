@@ -10,14 +10,15 @@ public class DamageDealer : MonoBehaviour
     [Min(0)]
     private int baseDamage;
 
-    public bool TryDealDamage(GameObject gameObject)
+    public bool TryDealDamage(GameObject gameObject, out DamageResult result)
     {
         if (gameObject.TryGetComponent<DamageReceiver>(out var receiver))
         {
-            receiver.DealDamage(baseDamage);
+            result = receiver.DealDamage(baseDamage);
             return true;
         }
 
+        result = default;
         return false;
     }
 }

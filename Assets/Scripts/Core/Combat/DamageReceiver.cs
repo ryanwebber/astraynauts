@@ -11,8 +11,8 @@ public class DamageReceiver : MonoBehaviour
         healthManager = GetComponent<HealthManager>();
     }
 
-    public void DealDamage(int damage)
+    public DamageResult DealDamage(int damage)
     {
-        healthManager?.AddHealth(-Mathf.Abs(damage));
+        return healthManager.DealDamage(damage);
     }
 }

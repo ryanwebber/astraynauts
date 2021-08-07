@@ -6,10 +6,10 @@ using UnityEngine.InputSystem;
 public class PlayerInputRouter : MonoBehaviour
 {
     [SerializeField]
-    private SpideringInput spideringInput;
+    private WalkingInput walkingInput;
 
     [SerializeField]
-    private LocomotableInput locomotionInput;
+    private PlayerMovementController movementController;
 
     [SerializeField]
     private PlayerShootingController shootingController;
@@ -43,7 +43,7 @@ public class PlayerInputRouter : MonoBehaviour
     private void AttachToInput(IInputSource source)
     {
         // Bind to events
-        source.OnMovementSpecialAction += () => spideringInput.IsJumping = true;
+        source.OnMovementSpecialAction += () => movementController.OnDashTriggered?.Invoke();
         source.OnFireBegin += () => shootingController.OnFireInputBegin?.Invoke();
         source.OnFireEnd += () => shootingController.OnFireInputEnd?.Invoke();
         source.OnInteractionBegin += () => interactionController.OnInteractionInputBegin?.Invoke();
@@ -64,14 +64,12 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if (currentSource != null)
         {
-            locomotionInput.MovementDirection = currentSource.MovementValue;
-            spideringInput.MovementDirection = currentSource.MovementValue;
+            walkingInput.MovementDirection = currentSource.MovementValue;
             shootingController.AimInputValue = currentSource.AimValue;
         }
         else
         {
-            locomotionInput.MovementDirection = Vector2.zero;
-            spideringInput.MovementDirection = Vector2.zero;
+            walkingInput.MovementDirection = Vector2.zero;
         }
     }
 }
