@@ -38,7 +38,14 @@ public class BulletLikeProjectile : MonoBehaviour
     private void Update()
     {
         if (IsMoving)
+        {
+            var oldPosition = transform.position;
             transform.Translate(Time.deltaTime * CurrentVelocity);
+            var newPosition = transform.position;
+
+            // TODO: Check raycast to avoid missing some collisions with trigger
+            // enter
+        }
     }
 
     public void OnTriggerEnter2D(Collider2D collider)

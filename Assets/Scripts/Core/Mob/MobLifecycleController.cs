@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent(typeof(Mob))]
-public class MobLifecycle : MonoBehaviour
+public class MobLifecycleController : MonoBehaviour
 {
     private struct States
     {
@@ -13,7 +13,7 @@ public class MobLifecycle : MonoBehaviour
         // trigger component handling death
         public EmptyState deathState;
 
-        public static States FromController(MobLifecycle controller)
+        public static States FromController(MobLifecycleController controller)
         {
             return new States
             {
@@ -48,13 +48,29 @@ public class MobLifecycle : MonoBehaviour
         });
     }
 
+    public void Bind(IActivatable activatable)
+    {
+        OnBeginMobControl += () => activatable.IsActive = true;
+        OnEndMobControl += () => activatable.IsActive = false;
+    }
+
+    public State Bind<T>(System.Func<StateMachine<T>> stateMachineGetter, State entryState)
+    {
+        var teleportState = new EmptyState("TeleportState");
+        var deathState = new EmptyState("DeathState");
+        OnBeginMobControl += () => stateMachineGetter?.Invoke().SetState(entryState);
+        OnEndMobControl += () => stateMachineGetter?.Invoke().SetState(deathState);
+
+        return teleportState;
+    }
+
     private class MainState : State
     {
         public override string Name => "MainState";
 
-        private MobLifecycle controller;
+        private MobLifecycleController controller;
 
-        public MainState(MobLifecycle controller)
+        public MainState(MobLifecycleController controller)
         {
             this.controller = controller;
         }

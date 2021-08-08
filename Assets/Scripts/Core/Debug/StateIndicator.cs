@@ -36,8 +36,18 @@ public class StateIndicator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        var hue = state == null ? 0f : Mathf.InverseLerp(0, 255, state.GetHashCode() % 255);
-        Gizmos.color = Color.HSVToRGB(hue, 1f, 1f);
+        Color color;
+        if (state == null || state.Length == 0)
+        {
+            color = Color.white;
+        }
+        else
+        {
+            var hue = Mathf.InverseLerp(0, 255, state.GetHashCode() % 255);
+            color = Color.HSVToRGB(hue, 1f, 1f);
+        }
+
+        Gizmos.color = color;
         Gizmos.DrawSphere((Vector2)transform.position + offset, size);
     }
 }
