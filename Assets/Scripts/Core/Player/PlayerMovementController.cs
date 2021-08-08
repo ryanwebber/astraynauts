@@ -33,6 +33,9 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField]
     private BatteryManager batteryManager;
 
+    [SerializeField]
+    private StateIndicator stateIndicator;
+
     private DashActor dashActor;
     private WalkingActor walkingActor;
 
@@ -88,11 +91,12 @@ public class PlayerMovementController : MonoBehaviour
 
             return states.DefaultMovementState;
         });
+
+        stateIndicator?.Bind(stateMachine);
     }
 
     private bool CanDash(Vector2 direction)
     {
-        Debug.Log($"dir={direction} state={stateMachine.CurrentState.Name} battery={batteryManager.BatteryValue}");
         return direction.SqrMagnitude() > 0f
             && stateMachine.IsStateCurrent(stateMachine.States.runState)
             && batteryManager.BatteryValue > 0;

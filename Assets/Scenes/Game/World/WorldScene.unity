@@ -7082,6 +7082,7 @@ GameObject:
   - component: {fileID: 2037969546}
   - component: {fileID: 2037969538}
   - component: {fileID: 2037969539}
+  - component: {fileID: 2037969548}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7181,6 +7182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   batteryManager: {fileID: 1555617897}
+  stateIndicator: {fileID: 2037969548}
 --- !u!61 &2037969533
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7446,3 +7448,18 @@ MonoBehaviour:
   properties:
     maxHealth: 3
   healthValue: 3
+--- !u!114 &2037969548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4851a1973d8e04c1e954b182f8375ba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0.25, y: 0.25}
+  size: 0.1
+  state: 
