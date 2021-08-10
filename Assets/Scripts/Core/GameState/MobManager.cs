@@ -20,39 +20,84 @@ public class MobManager : MonoBehaviour
     private MobSpawner mobSpawner;
     public MobSpawner MobSpawner => mobSpawner;
 
-    [Header("Temporary")]
-
-    [SerializeField]
-    private MobInitializable mobPrefab;
-
     [SerializeField]
     private AnimationCurve spawnDistanceProbabilityCurve;
 
-    public Event OnAllMobsDefeated;
+    [SerializeField]
+    private float teleportTime = 2.5f;
+
+    [SerializeField]
+    private float spawnAttemptRefreshTime = 1f;
+
     public Event<Mob> OnMobDefeated;
     public Event<Mob> OnMobWillSpawn;
 
     private HashSet<Mob> aliveMobs;
+    private Queue<MobSpawnBatch> spawnBatches;
+
+    public int AliveMobCount => aliveMobs.Count;
+    public int EnqueuedBatchCount => spawnBatches.Count;
 
     private void Awake()
     {
         aliveMobs = new HashSet<Mob>();
+        spawnBatches = new Queue<MobSpawnBatch>();
+
         gameState.OnGameStateInitializationEnd += () =>
         {
-            // TODO: Real mob spawning
-            StartCoroutine(TestMobSpawning());
+            StartCoroutine(ContinuouslySpawnMobs());
         };
     }
 
-    private IEnumerator TestMobSpawning()
+    public void EnqueueBatch(MobSpawnBatch batch)
     {
-        for (int i = 0; i < 10; i++)
+        spawnBatches.Enqueue(batch);
+    }
+
+    private IEnumerator ContinuouslySpawnMobs()
+    {
+        IEnumerable<MobInitializable> ExpandBatch(MobSpawnEntry entry)
         {
-            yield return new WaitForSeconds(5f);
-            if (TryFindSpawnableTeleporter(out var teleporter))
+            for (int i = 0; i < entry.count; i++)
+                yield return entry.prefab;
+        }
+
+        while (true)
+        {
+            if (spawnBatches.Count > 0)
             {
-                SpawnMobDelayed(mobPrefab, teleporter, 5f);
+                var currentBatch = spawnBatches.Dequeue();
+                var mobsToSpawn = currentBatch.SpawnEntries.SelectMany(ExpandBatch);
+                var numMobsToSpawn = currentBatch.SpawnEntries.Sum(entry => entry.count);
+                var currentIndex = 0;
+
+                currentBatch.OnBatchSpawnBegin?.Invoke();
+
+                foreach (var mob in mobsToSpawn)
+                {
+                    // Wait until there are few enough mobs to spawn one
+                    while (AliveMobCount >= currentBatch.MaximumAliveMobs)
+                        yield return new WaitForSeconds(spawnAttemptRefreshTime);
+
+                    if (TryFindSpawnableTeleporter(out var teleporter))
+                    {
+                        SpawnMobDelayed(mob, teleporter, teleportTime);
+                        currentBatch.OnSpawnTriggeredInBatch?.Invoke(mob, new MobSpawnBatch.MobIndex
+                        {
+                            currentIndex = currentIndex,
+                            countInBatch = numMobsToSpawn,
+                        });
+
+                        yield return new WaitForSeconds(currentBatch.SpawnDelay);
+                    }
+
+                    currentIndex++;
+                }
+
+                currentBatch.OnBatchSpawnComplete?.Invoke();
             }
+
+            yield return new WaitForSeconds(spawnAttemptRefreshTime);
         }
     }
 
@@ -101,17 +146,14 @@ public class MobManager : MonoBehaviour
 
     private void HandleMobDefeated(Mob mob)
     {
-        OnMobDefeated?.Invoke(mob);
-
         if (aliveMobs.Contains(mob))
         {
             aliveMobs.Remove(mob);
-            if (aliveMobs.Count == 0)
-                OnAllMobsDefeated?.Invoke();
+            OnMobDefeated?.Invoke(mob);
         }
         else
         {
-            Debug.LogWarning("Defeated mob is not tracked by mob manager");
+            Debug.LogWarning("Defeated mob is not tracked by mob manager", mob);
         }
     }
 }
