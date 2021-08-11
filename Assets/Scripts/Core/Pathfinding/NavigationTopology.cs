@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class NavigationTopology: MonoBehaviour
 {
@@ -57,8 +58,10 @@ public class NavigationTopology: MonoBehaviour
             if (fringe.Count == 0)
                 return false;
 
-            IEnumerable<(Vector2Int cell, Vector2 direction)> GetSteps(Vector2Int cell)
+            int GetSteps(Vector2Int cell, (Vector2Int cell, Vector2 direction)[] steps)
             {
+                Assert.AreEqual(steps.Length, 8);
+
                 bool IsTraversable(Vector2Int c) =>
                         c.x >= 0 && c.x < dimensions.x &&
                         c.y >= 0 && c.y < dimensions.y &&
@@ -72,29 +75,33 @@ public class NavigationTopology: MonoBehaviour
                 bool IsTraversableLeft = IsTraversable(cell + Vector2Int.left);
                 bool IsTraversableRight = IsTraversable(cell + Vector2Int.right);
 
+                int i = 0;
+
                 if (IsTraversableUp)
-                    yield return MakeStep(Vector2Int.up);
+                    steps[i++] = MakeStep(Vector2Int.up);
 
                 if (IsTraversableDown)
-                    yield return MakeStep(Vector2Int.down);
+                    steps[i++] = MakeStep(Vector2Int.down);
 
                 if (IsTraversableLeft)
-                    yield return MakeStep(Vector2Int.left);
+                    steps[i++] = MakeStep(Vector2Int.left);
 
                 if (IsTraversableRight)
-                    yield return MakeStep(Vector2Int.right);
+                    steps[i++] = MakeStep(Vector2Int.right);
 
                 if (IsTraversableUp && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, 1)))
-                    yield return MakeStep(new Vector2Int(1, 1));
+                    steps[i++] = MakeStep(new Vector2Int(1, 1));
 
                 if (IsTraversableUp && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, 1)))
-                    yield return MakeStep(new Vector2Int(-1, 1));
+                    steps[i++] = MakeStep(new Vector2Int(-1, 1));
 
                 if (IsTraversableDown && IsTraversableRight && IsTraversable(cell + new Vector2Int(1, -1)))
-                    yield return MakeStep(new Vector2Int(1, -1));
+                    steps[i++] = MakeStep(new Vector2Int(1, -1));
 
                 if (IsTraversableDown && IsTraversableLeft && IsTraversable(cell + new Vector2Int(-1, -1)))
-                    yield return MakeStep(new Vector2Int(-1, -1));
+                    steps[i++] = MakeStep(new Vector2Int(-1, -1));
+
+                return i;
             }
 
             // Update the height of all cells in the current fringe
@@ -105,11 +112,16 @@ public class NavigationTopology: MonoBehaviour
                 topology[cell.x, cell.y].height = currentHeight;
             }
 
+            var steps = new (Vector2Int cell, Vector2 direction)[8];
+
             // Walk through each neighbor, updating the topology
             foreach (var cell in fringe)
             {
-                foreach (var step in GetSteps(cell))
+                int count = GetSteps(cell, steps);
+                for (int i = 0; i < count; i++)
                 {
+                    var step = steps[i];
+
                     // Add the cell to the next fringe if we've never seen it before
                     if (!ignoreSet.Contains(step.cell) && !seenSet.Contains(step.cell))
                     {

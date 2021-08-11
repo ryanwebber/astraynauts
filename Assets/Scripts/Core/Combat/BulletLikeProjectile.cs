@@ -43,21 +43,34 @@ public class BulletLikeProjectile : MonoBehaviour
             transform.Translate(Time.deltaTime * CurrentVelocity);
             var newPosition = transform.position;
 
-            // TODO: Check raycast to avoid missing some collisions with trigger
-            // enter
+            var collision = Physics2D.Linecast(oldPosition, newPosition, collisionMask);
+            if (collision)
+            {
+                HandleImpact(collision.collider);
+            }
         }
     }
 
     public void OnTriggerEnter2D(Collider2D collider)
     {
-        Debug.Log($"Bullet trigger: {collider.name}");
         if (((1 << collider.gameObject.layer) & collisionMask) != 0)
         {
-            if (damageDealer.TryDealDamage(collider.gameObject, out var result))
-            {
-                if (result.totalDamageDealt > 0 || result.targetWasShielded)
-                    destructionTrigger.DestroyWithBehaviour();
-            }
+            HandleImpact(collider);
+        }
+    }
+
+    private void HandleImpact(Collider2D collider)
+    {
+        Debug.Log($"Bullet trigger: {collider.name}");
+        
+        if (damageDealer.TryDealDamage(collider.gameObject, out var result))
+        {
+            if (result.totalDamageDealt > 0 || result.targetWasShielded)
+                destructionTrigger.DestroyWithBehaviour();
+        }
+        else
+        {
+            destructionTrigger.DestroyWithBehaviour();
         }
     }
 }

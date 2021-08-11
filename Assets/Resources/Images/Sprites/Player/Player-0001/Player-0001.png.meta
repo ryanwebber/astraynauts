@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 240c647a725bc4f44b6f5b1d4426be36
+guid: b39f600b59609497aa092673891618fd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1203419037266783344
-    second: Battery-00010
+      213: -7376043927509114673
+    second: Player-00010
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -82,13 +82,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Battery-00010
+      name: Player-00010
       rect:
         serializedVersion: 2
         x: 1
         y: 1
-        width: 96
-        height: 96
+        width: 48
+        height: 48
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -96,8 +96,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 07caa380d3763b010800000000000000
-      internalID: 1203419037266783344
+      spriteID: fc0642db02703a990800000000000000
+      internalID: -7376043927509114673
       vertices: []
       indices: 
       edges: []

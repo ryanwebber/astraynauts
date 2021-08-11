@@ -241,7 +241,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -278,9 +278,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 463
-        width: 64
-        height: 64
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -298,10 +298,10 @@ TextureImporter:
       name: Wall-0001_1
       rect:
         serializedVersion: 2
-        x: 67
-        y: 463
-        width: 64
-        height: 64
+        x: 35
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -319,10 +319,10 @@ TextureImporter:
       name: Wall-0001_2
       rect:
         serializedVersion: 2
-        x: 133
-        y: 463
-        width: 64
-        height: 64
+        x: 69
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -340,10 +340,10 @@ TextureImporter:
       name: Wall-0001_3
       rect:
         serializedVersion: 2
-        x: 199
-        y: 463
-        width: 64
-        height: 64
+        x: 103
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -361,10 +361,10 @@ TextureImporter:
       name: Wall-0001_4
       rect:
         serializedVersion: 2
-        x: 265
-        y: 463
-        width: 64
-        height: 64
+        x: 137
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -382,10 +382,10 @@ TextureImporter:
       name: Wall-0001_5
       rect:
         serializedVersion: 2
-        x: 331
-        y: 463
-        width: 64
-        height: 64
+        x: 171
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -403,10 +403,10 @@ TextureImporter:
       name: Wall-0001_6
       rect:
         serializedVersion: 2
-        x: 397
-        y: 463
-        width: 64
-        height: 64
+        x: 205
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -424,10 +424,10 @@ TextureImporter:
       name: Wall-0001_7
       rect:
         serializedVersion: 2
-        x: 463
-        y: 463
-        width: 64
-        height: 64
+        x: 239
+        y: 239
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -446,9 +446,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 397
-        width: 64
-        height: 64
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -466,10 +466,10 @@ TextureImporter:
       name: Wall-0001_9
       rect:
         serializedVersion: 2
-        x: 67
-        y: 397
-        width: 64
-        height: 64
+        x: 35
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -487,10 +487,10 @@ TextureImporter:
       name: Wall-0001_10
       rect:
         serializedVersion: 2
-        x: 133
-        y: 397
-        width: 64
-        height: 64
+        x: 69
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -508,10 +508,10 @@ TextureImporter:
       name: Wall-0001_11
       rect:
         serializedVersion: 2
-        x: 199
-        y: 397
-        width: 64
-        height: 64
+        x: 103
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -529,10 +529,10 @@ TextureImporter:
       name: Wall-0001_12
       rect:
         serializedVersion: 2
-        x: 265
-        y: 397
-        width: 64
-        height: 64
+        x: 137
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -550,10 +550,10 @@ TextureImporter:
       name: Wall-0001_13
       rect:
         serializedVersion: 2
-        x: 331
-        y: 397
-        width: 64
-        height: 64
+        x: 171
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -571,10 +571,10 @@ TextureImporter:
       name: Wall-0001_14
       rect:
         serializedVersion: 2
-        x: 397
-        y: 397
-        width: 64
-        height: 64
+        x: 205
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -592,10 +592,10 @@ TextureImporter:
       name: Wall-0001_15
       rect:
         serializedVersion: 2
-        x: 463
-        y: 397
-        width: 64
-        height: 64
+        x: 239
+        y: 205
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -614,9 +614,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 331
-        width: 64
-        height: 64
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -634,10 +634,10 @@ TextureImporter:
       name: Wall-0001_17
       rect:
         serializedVersion: 2
-        x: 67
-        y: 331
-        width: 64
-        height: 64
+        x: 35
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -655,10 +655,10 @@ TextureImporter:
       name: Wall-0001_18
       rect:
         serializedVersion: 2
-        x: 133
-        y: 331
-        width: 64
-        height: 64
+        x: 69
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -676,10 +676,10 @@ TextureImporter:
       name: Wall-0001_19
       rect:
         serializedVersion: 2
-        x: 199
-        y: 331
-        width: 64
-        height: 64
+        x: 103
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -697,10 +697,10 @@ TextureImporter:
       name: Wall-0001_20
       rect:
         serializedVersion: 2
-        x: 265
-        y: 331
-        width: 64
-        height: 64
+        x: 137
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -718,10 +718,10 @@ TextureImporter:
       name: Wall-0001_21
       rect:
         serializedVersion: 2
-        x: 331
-        y: 331
-        width: 64
-        height: 64
+        x: 171
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -739,10 +739,10 @@ TextureImporter:
       name: Wall-0001_22
       rect:
         serializedVersion: 2
-        x: 397
-        y: 331
-        width: 64
-        height: 64
+        x: 205
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -760,10 +760,10 @@ TextureImporter:
       name: Wall-0001_23
       rect:
         serializedVersion: 2
-        x: 463
-        y: 331
-        width: 64
-        height: 64
+        x: 239
+        y: 171
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -782,9 +782,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 265
-        width: 64
-        height: 64
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -802,10 +802,10 @@ TextureImporter:
       name: Wall-0001_25
       rect:
         serializedVersion: 2
-        x: 67
-        y: 265
-        width: 64
-        height: 64
+        x: 35
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -823,10 +823,10 @@ TextureImporter:
       name: Wall-0001_26
       rect:
         serializedVersion: 2
-        x: 133
-        y: 265
-        width: 64
-        height: 64
+        x: 69
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -844,10 +844,10 @@ TextureImporter:
       name: Wall-0001_27
       rect:
         serializedVersion: 2
-        x: 199
-        y: 265
-        width: 64
-        height: 64
+        x: 103
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -865,10 +865,10 @@ TextureImporter:
       name: Wall-0001_28
       rect:
         serializedVersion: 2
-        x: 265
-        y: 265
-        width: 64
-        height: 64
+        x: 137
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -886,10 +886,10 @@ TextureImporter:
       name: Wall-0001_29
       rect:
         serializedVersion: 2
-        x: 331
-        y: 265
-        width: 64
-        height: 64
+        x: 171
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -907,10 +907,10 @@ TextureImporter:
       name: Wall-0001_30
       rect:
         serializedVersion: 2
-        x: 397
-        y: 265
-        width: 64
-        height: 64
+        x: 205
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -928,10 +928,10 @@ TextureImporter:
       name: Wall-0001_31
       rect:
         serializedVersion: 2
-        x: 463
-        y: 265
-        width: 64
-        height: 64
+        x: 239
+        y: 137
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -950,9 +950,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 199
-        width: 64
-        height: 64
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -970,10 +970,10 @@ TextureImporter:
       name: Wall-0001_33
       rect:
         serializedVersion: 2
-        x: 67
-        y: 199
-        width: 64
-        height: 64
+        x: 35
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -991,10 +991,10 @@ TextureImporter:
       name: Wall-0001_34
       rect:
         serializedVersion: 2
-        x: 133
-        y: 199
-        width: 64
-        height: 64
+        x: 69
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1012,10 +1012,10 @@ TextureImporter:
       name: Wall-0001_35
       rect:
         serializedVersion: 2
-        x: 199
-        y: 199
-        width: 64
-        height: 64
+        x: 103
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1033,10 +1033,10 @@ TextureImporter:
       name: Wall-0001_36
       rect:
         serializedVersion: 2
-        x: 265
-        y: 199
-        width: 64
-        height: 64
+        x: 137
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1054,10 +1054,10 @@ TextureImporter:
       name: Wall-0001_37
       rect:
         serializedVersion: 2
-        x: 331
-        y: 199
-        width: 64
-        height: 64
+        x: 171
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1075,10 +1075,10 @@ TextureImporter:
       name: Wall-0001_38
       rect:
         serializedVersion: 2
-        x: 397
-        y: 199
-        width: 64
-        height: 64
+        x: 205
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1096,10 +1096,10 @@ TextureImporter:
       name: Wall-0001_39
       rect:
         serializedVersion: 2
-        x: 463
-        y: 199
-        width: 64
-        height: 64
+        x: 239
+        y: 103
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1118,9 +1118,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 133
-        width: 64
-        height: 64
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1138,10 +1138,10 @@ TextureImporter:
       name: Wall-0001_41
       rect:
         serializedVersion: 2
-        x: 67
-        y: 133
-        width: 64
-        height: 64
+        x: 35
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1159,10 +1159,10 @@ TextureImporter:
       name: Wall-0001_42
       rect:
         serializedVersion: 2
-        x: 133
-        y: 133
-        width: 64
-        height: 64
+        x: 69
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1180,10 +1180,10 @@ TextureImporter:
       name: Wall-0001_43
       rect:
         serializedVersion: 2
-        x: 199
-        y: 133
-        width: 64
-        height: 64
+        x: 103
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1201,10 +1201,10 @@ TextureImporter:
       name: Wall-0001_44
       rect:
         serializedVersion: 2
-        x: 265
-        y: 133
-        width: 64
-        height: 64
+        x: 137
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1222,10 +1222,10 @@ TextureImporter:
       name: Wall-0001_45
       rect:
         serializedVersion: 2
-        x: 331
-        y: 133
-        width: 64
-        height: 64
+        x: 171
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1243,10 +1243,10 @@ TextureImporter:
       name: Wall-0001_46
       rect:
         serializedVersion: 2
-        x: 397
-        y: 133
-        width: 64
-        height: 64
+        x: 205
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1264,10 +1264,10 @@ TextureImporter:
       name: Wall-0001_47
       rect:
         serializedVersion: 2
-        x: 463
-        y: 133
-        width: 64
-        height: 64
+        x: 239
+        y: 69
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1286,9 +1286,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 67
-        width: 64
-        height: 64
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1306,10 +1306,10 @@ TextureImporter:
       name: Wall-0001_49
       rect:
         serializedVersion: 2
-        x: 67
-        y: 67
-        width: 64
-        height: 64
+        x: 35
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1327,10 +1327,10 @@ TextureImporter:
       name: Wall-0001_50
       rect:
         serializedVersion: 2
-        x: 133
-        y: 67
-        width: 64
-        height: 64
+        x: 69
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1348,10 +1348,10 @@ TextureImporter:
       name: Wall-0001_51
       rect:
         serializedVersion: 2
-        x: 199
-        y: 67
-        width: 64
-        height: 64
+        x: 103
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1369,10 +1369,10 @@ TextureImporter:
       name: Wall-0001_52
       rect:
         serializedVersion: 2
-        x: 265
-        y: 67
-        width: 64
-        height: 64
+        x: 137
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1390,10 +1390,10 @@ TextureImporter:
       name: Wall-0001_53
       rect:
         serializedVersion: 2
-        x: 331
-        y: 67
-        width: 64
-        height: 64
+        x: 171
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1411,10 +1411,10 @@ TextureImporter:
       name: Wall-0001_54
       rect:
         serializedVersion: 2
-        x: 397
-        y: 67
-        width: 64
-        height: 64
+        x: 205
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1432,10 +1432,10 @@ TextureImporter:
       name: Wall-0001_55
       rect:
         serializedVersion: 2
-        x: 463
-        y: 67
-        width: 64
-        height: 64
+        x: 239
+        y: 35
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1455,8 +1455,8 @@ TextureImporter:
         serializedVersion: 2
         x: 1
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1474,10 +1474,10 @@ TextureImporter:
       name: Wall-0001_57
       rect:
         serializedVersion: 2
-        x: 67
+        x: 35
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1495,10 +1495,10 @@ TextureImporter:
       name: Wall-0001_58
       rect:
         serializedVersion: 2
-        x: 133
+        x: 69
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1516,10 +1516,10 @@ TextureImporter:
       name: Wall-0001_59
       rect:
         serializedVersion: 2
-        x: 199
+        x: 103
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1537,10 +1537,10 @@ TextureImporter:
       name: Wall-0001_60
       rect:
         serializedVersion: 2
-        x: 265
+        x: 137
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1558,10 +1558,10 @@ TextureImporter:
       name: Wall-0001_61
       rect:
         serializedVersion: 2
-        x: 331
+        x: 171
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1579,10 +1579,10 @@ TextureImporter:
       name: Wall-0001_62
       rect:
         serializedVersion: 2
-        x: 397
+        x: 205
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1600,10 +1600,10 @@ TextureImporter:
       name: Wall-0001_63
       rect:
         serializedVersion: 2
-        x: 463
+        x: 239
         y: 1
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

@@ -40,9 +40,19 @@ public class PlayerState : MonoBehaviour
     [SerializeField]
     private ChargingProperties chargingProperties;
 
+    public Event OnBatteryChargeStateEnter;
+    public Event OnBatteryChargeStateExit;
+    public Event OnDefaultMovementStateEnter;
+    public Event OnDefaultMovementStateExit;
+
     private PlayerMovementController movementController;
+    public PlayerMovementController MovementController => movementController;
+
     private PlayerShootingController shootingController;
+    public PlayerShootingController ShootingController => shootingController;
+
     private PlayerInteractionController interactionController;
+    public PlayerInteractionController InteractionController => interactionController;
 
     private StateMachine<States> stateMachine;
 
@@ -57,9 +67,8 @@ public class PlayerState : MonoBehaviour
 
         stateMachine = new StateMachine<States>(States.FromComponent(this), states =>
         {
-            states.chargingState.OnChargeStarted += () => Debug.Log("Player charge starting...", this);
-            states.chargingState.OnChargeStep += () => Debug.Log("Player charging step ticked...", this);
-            states.chargingState.OnChargeEnded += () => Debug.Log("Player charging step ended...", this);
+            states.chargingState.OnChargeStarted += () => OnBatteryChargeStateEnter?.Invoke();
+            states.chargingState.OnChargeEnded += () => OnBatteryChargeStateExit?.Invoke();
             states.chargingState.OnChargeStep += () => chargingProperties.batteryManager.AddBatteryValue(1);
 
             return states.mainState;
@@ -108,6 +117,12 @@ public class PlayerState : MonoBehaviour
             player.movementController.IsMovementLocked = false;
             player.shootingController.IsShootingLocked = false;
             player.interactionController.IsInteractionLocked = false;
+            player.OnDefaultMovementStateEnter?.Invoke();
+        }
+
+        public override void OnExit(IStateMachine sm)
+        {
+            player.OnDefaultMovementStateExit?.Invoke();
         }
     }
 

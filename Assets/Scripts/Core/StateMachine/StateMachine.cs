@@ -70,6 +70,18 @@ public class StateMachine<TStates>: IStateMachine
         return currentState is T;
     }
 
+    public bool IsStateCurrent<T>(out T state) where T : State
+    {
+        if (currentState is T typedState)
+        {
+            state = typedState;
+            return true;
+        }
+
+        state = default;
+        return false;
+    }
+
     private struct StateHandle: IStateHandle
     {
         public State underlyingState;

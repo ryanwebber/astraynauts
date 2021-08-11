@@ -27,6 +27,7 @@ public class WalkingActor : MonoBehaviour, IActivatable
     }
 
     public Vector2 TargetMovementDirection => virtualInput.MovementDirection;
+    public Vector2 CurrentVelocity => velocity;
 
     private WalkingInput virtualInput;
     private KinematicBody kinematicBody;

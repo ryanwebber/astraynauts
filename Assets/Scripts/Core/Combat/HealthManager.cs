@@ -28,14 +28,14 @@ public class HealthManager : MonoBehaviour
     {
         OnHealthValueChanged += (change) =>
         {
-            Debug.Log($"Health value changed from {change.oldValue} to {change.newValue}", this);
+            Debug.Log($"{name} Health value changed from {change.oldValue} to {change.newValue}", this);
             if (change.newValue == 0)
                 state = Damagability.TRANSPARENT;
         };
 
         OnHealthStateChanged += (change) =>
         {
-            Debug.Log($"Health state changed from {change.oldValue} to {change.newValue}", this);
+            Debug.Log($"{name} Health state changed from {change.oldValue} to {change.newValue}", this);
         };
     }
 

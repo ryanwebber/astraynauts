@@ -24,6 +24,12 @@ public class MobManager : MonoBehaviour
     private AnimationCurve spawnDistanceProbabilityCurve;
 
     [SerializeField]
+    private int maxTopTeleporterSelectionCount = 6;
+
+    [SerializeField]
+    private int minTeleporterPoolSizeForCurvedSelection = 4;
+
+    [SerializeField]
     private float teleportTime = 2.5f;
 
     [SerializeField]
@@ -32,11 +38,11 @@ public class MobManager : MonoBehaviour
     public Event<Mob> OnMobDefeated;
     public Event<Mob> OnMobWillSpawn;
 
-    private HashSet<Mob> aliveMobs;
-    private Queue<MobSpawnBatch> spawnBatches;
-
     public int AliveMobCount => aliveMobs.Count;
     public int EnqueuedBatchCount => spawnBatches.Count;
+
+    private HashSet<Mob> aliveMobs;
+    private Queue<MobSpawnBatch> spawnBatches;
 
     private void Awake()
     {
@@ -109,6 +115,7 @@ public class MobManager : MonoBehaviour
         // curve should slope upwards.
         var sortedAvailableTeleporters = gameState.World.State.AccessibleTeleporters
             .OrderBy(teleporter => Vector2.Distance(playerPosition, teleporter.Center))
+            .Take(maxTopTeleporterSelectionCount)
             .Reverse()
             .ToArray();
 
@@ -120,7 +127,7 @@ public class MobManager : MonoBehaviour
 
         // Don't actually use the animation curve if there are only a couple
         // teleporters, as is the case in the early game
-        var randomUnit = sortedAvailableTeleporters.Length > 4
+        var randomUnit = sortedAvailableTeleporters.Length > minTeleporterPoolSizeForCurvedSelection
             ? spawnDistanceProbabilityCurve.Evaluate(Random.value)
             : Random.value;
 

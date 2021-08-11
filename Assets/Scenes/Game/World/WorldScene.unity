@@ -704,8 +704,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startColor:
       serializedVersion: 2
-      minMaxState: 0
-      minColor: {r: 1, g: 1, b: 1, a: 1}
+      minMaxState: 2
+      minColor: {r: 0.9056604, g: 0.8816636, b: 0.8159487, a: 0.80784315}
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
@@ -768,8 +768,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.02
+      scalar: 0.15
+      minScalar: 0.08
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -5378,7 +5378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fastHeightCalculationBound: 10
   slowHeightCalculationBound: 5
-  showDebug: 1
+  showDebug: 0
 --- !u!114 &509416141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6474,6 +6474,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  maxTopTeleporterSelectionCount: 6
+  minTeleporterPoolSizeForCurvedSelection: 4
   teleportTime: 2.5
   spawnAttemptRefreshTime: 1
 --- !u!114 &1342330583
@@ -6653,8 +6655,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   properties:
-    maxCharge: 5
-  batteryValue: 5
+    maxCharge: 50
+  batteryValue: 50
 --- !u!1 &1796169829
 GameObject:
   m_ObjectHideFlags: 0
@@ -7024,7 +7026,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.777998, y: 1}
+    m_SensorSize: {x: 1.778002, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -7134,6 +7136,8 @@ GameObject:
   - component: {fileID: 2037969538}
   - component: {fileID: 2037969539}
   - component: {fileID: 2037969548}
+  - component: {fileID: 2037969550}
+  - component: {fileID: 2037969549}
   m_Layer: 6
   m_Name: Player (Debug)
   m_TagString: Untagged
@@ -7247,18 +7251,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.4}
+  m_Offset: {x: 0, y: -0.42}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
+    oldSize: {x: 1.5, y: 1.5}
+    newSize: {x: 1.5, y: 1.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.5, y: 0.25}
+  m_Size: {x: 0.78, y: 0.5}
   m_EdgeRadius: 0.015
 --- !u!50 &2037969534
 Rigidbody2D:
@@ -7433,12 +7437,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -7376043927509114673, guid: c2ebf319cb0ab40fab2006f2e909193c, type: 3}
+  m_Sprite: {fileID: -7376043927509114673, guid: b39f600b59609497aa092673891618fd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.5, y: 1.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7514,3 +7518,35 @@ MonoBehaviour:
   offset: {x: 0.25, y: 0.25}
   size: 0.1
   state: 
+--- !u!95 &2037969549
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6db37d7d5c71e41deab36fd195979864, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2037969550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 859424af29f6e4e69ae20d531077f120, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerState: {fileID: 2037969545}

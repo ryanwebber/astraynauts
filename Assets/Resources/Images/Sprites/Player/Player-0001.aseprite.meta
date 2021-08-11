@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f52fb5e44f9a34cdcab5e33893fb5330
+guid: b018a6b96bd244512a26178511d8e551
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -9,7 +9,7 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: d1956ce1ff810451f9738b29e9df561a, type: 3}
   settings:
-    importType: 1
+    importType: 0
     transparencyMode: 0
     transparentColor: {r: 1, g: 0, b: 1, a: 1}
     pixelsPerUnit: 32
@@ -21,7 +21,7 @@ ScriptedImporter:
     animType: 0
     baseAnimator: {instanceID: 0}
     buildAtlas: 0
-    tileSize: {x: 32, y: 32}
+    tileSize: {x: 16, y: 16}
     tileNameType: 0
     tileEmpty: 0
   textureImporterSettings:

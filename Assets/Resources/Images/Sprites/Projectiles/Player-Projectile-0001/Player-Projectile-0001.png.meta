@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c2ebf319cb0ab40fab2006f2e909193c
+guid: 667d8e46fd71c464c8e4ff78adc7c5ab
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7376043927509114673
-    second: Player-00010
+      213: 7814470231935943981
+    second: Player-Projectile-00010
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -49,7 +49,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -82,22 +82,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Player-00010
+      name: Player-Projectile-00010
       rect:
         serializedVersion: 2
         x: 1
         y: 1
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 8
+        height: 32
+      alignment: 2
+      pivot: {x: 0.5, y: 1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fc0642db02703a990800000000000000
-      internalID: -7376043927509114673
+      spriteID: d25086ae543927c60800000000000000
+      internalID: 7814470231935943981
       vertices: []
       indices: 
       edges: []

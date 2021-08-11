@@ -6,7 +6,11 @@ using System.Threading;
 [RequireComponent(typeof(WalkingActor))]
 public class PlayerMovementController : MonoBehaviour
 {
-    public Event OnDashTriggered;
+    public Event OnDashInputBegin;
+    public Event OnDashStateEnter;
+    public Event OnDashStateExit;
+    public Event OnFreeRunStateEnter;
+    public Event OnFreeRunStateExit;
 
     private struct States
     {
@@ -18,9 +22,14 @@ public class PlayerMovementController : MonoBehaviour
         {
             return new States
             {
-                runState = new ComponentActivationState<WalkingActor>(controller.walkingActor, "RunningState", actor =>
+                runState = new ComponentActivationState<WalkingActor>(controller.walkingActor, "RunningState", (actor, state) =>
                 {
                     actor.EraseMomentum();
+
+                    if (state == LifecycleEvent.BEGIN)
+                        controller.OnFreeRunStateEnter?.Invoke();
+                    else if (state == LifecycleEvent.END)
+                        controller.OnFreeRunStateExit?.Invoke();
                 }),
                 dashState = new DashState(controller),
                 idleState = new EmptyState("IdleState"),
@@ -37,7 +46,10 @@ public class PlayerMovementController : MonoBehaviour
     private StateIndicator stateIndicator;
 
     private DashActor dashActor;
+    public DashActor DashActor => dashActor;
+
     private WalkingActor walkingActor;
+    public WalkingActor WalkingActor => walkingActor;
 
     private StateMachine<States> stateMachine;
 
@@ -59,6 +71,9 @@ public class PlayerMovementController : MonoBehaviour
         }
     }
 
+    public bool IsWalking => stateMachine.IsStateCurrent(stateMachine.States.runState);
+    public bool IsDashing => stateMachine.IsStateCurrent(stateMachine.States.dashState);
+
     private void Awake()
     {
         dashActor = GetComponent<DashActor>();
@@ -66,7 +81,7 @@ public class PlayerMovementController : MonoBehaviour
 
         stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
 
-            OnDashTriggered += () =>
+            OnDashInputBegin += () =>
             {
                 var movementDirection = walkingActor.TargetMovementDirection;
                 if (CanDash(movementDirection))
@@ -122,7 +137,13 @@ public class PlayerMovementController : MonoBehaviour
 
         public override void OnEnter(IStateMachine sm)
         {
+            controller.OnDashStateEnter?.Invoke();
             controller.dashActor.DashInDirection(Direction);
+        }
+
+        public override void OnExit(IStateMachine sm)
+        {
+            controller.OnDashStateExit?.Invoke();
         }
     }
 }

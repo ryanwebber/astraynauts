@@ -12,7 +12,7 @@ ScriptedImporter:
     importType: 1
     transparencyMode: 0
     transparentColor: {r: 1, g: 0, b: 1, a: 1}
-    pixelsPerUnit: 64
+    pixelsPerUnit: 32
     spriteAlignment: 0
     spritePivot: {x: 0.5, y: 0.5}
     generateAnimations: 1
@@ -21,7 +21,7 @@ ScriptedImporter:
     animType: 0
     baseAnimator: {instanceID: 0}
     buildAtlas: 0
-    tileSize: {x: 64, y: 64}
+    tileSize: {x: 32, y: 32}
     tileNameType: 0
     tileEmpty: 0
   textureImporterSettings:
