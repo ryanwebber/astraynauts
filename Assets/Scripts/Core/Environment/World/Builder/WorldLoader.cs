@@ -221,6 +221,19 @@ public class WorldLoader : MonoBehaviour
                 foreach (var pair in rules)
                     foreach (var assignment in pair.GetAssignments(grid, new Vector2Int(x, y)))
                         yield return assignment;
+
+        foreach (var pair in grid.GetUnits())
+        {
+            if (pair.unit.ContainsDescriptor<DoorDescriptor>())
+            {
+                yield return new TileAssignment
+                {
+                    position = pair.position,
+                    tilemap = floorSettings.tilemap,
+                    tile = perimeterSettings.collisionTile,
+                };
+            }
+        }
     }
 
     private void LoadBaseDescriptors(CellMapping layout, WorldGrid grid)
@@ -263,6 +276,35 @@ public class WorldLoader : MonoBehaviour
             }
 
             teleporterRoom.Teleporters.Add(teleporter);
+        }
+
+        foreach (var doorPairing in layout.Hallways.SelectMany(h => h.DoorMapping))
+        {
+            var connectingRoom = doorPairing.Key;
+            var hallwayCell = doorPairing.Value;
+
+            foreach (var unit in World.ExpandCellToUnits(hallwayCell, layoutScale))
+            {
+                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.right))
+                {
+                    grid.AddDescriptor(unit, new DoorDescriptor());
+                }
+
+                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.left))
+                {
+                    grid.AddDescriptor(unit, new DoorDescriptor());
+                }
+
+                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.up))
+                {
+                    grid.AddDescriptor(unit, new DoorDescriptor());
+                }
+
+                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.down))
+                {
+                    grid.AddDescriptor(unit, new DoorDescriptor());
+                }
+            }
         }
     }
 

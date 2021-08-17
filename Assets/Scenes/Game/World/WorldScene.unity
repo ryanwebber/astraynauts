@@ -6611,6 +6611,63 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1001 &1510052104
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.771
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.201
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355432019784390638, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167995518029131013, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+      propertyPath: m_Name
+      value: Door Right
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
 --- !u!1 &1555617895
 GameObject:
   m_ObjectHideFlags: 0
@@ -7026,7 +7083,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.778002, y: 1}
+    m_SensorSize: {x: 1.7780269, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

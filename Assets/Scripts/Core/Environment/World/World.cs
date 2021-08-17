@@ -120,6 +120,11 @@ public class World
         }
     }
 
+    public static RectInt BoundCellToUnits(Vector2Int cell, int layoutScale)
+    {
+        return new RectInt(cell * layoutScale, new Vector2Int(layoutScale, layoutScale));
+    }
+
     public static World Build(CellMapping cellMapping, int scale, WorldGrid grid)
     {
         var layout = new LayoutGeneration(cellMapping, scale);
