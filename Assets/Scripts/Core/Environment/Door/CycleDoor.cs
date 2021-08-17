@@ -18,9 +18,10 @@ public class CycleDoor : MonoBehaviour
 
     private IEnumerator OpenCloseDoor(Animator animator)
     {
+        yield return new WaitForSeconds(Random.value * cycleDuration * 2);
+
         while (true)
         {
-            Debug.Log("Door tick", this);
             animator.SetBool(animationProperty, !animator.GetBool(animationProperty));
             yield return new WaitForSeconds(cycleDuration);
         }

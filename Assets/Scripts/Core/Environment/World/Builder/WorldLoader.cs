@@ -112,6 +112,13 @@ public class WorldLoader : MonoBehaviour
         public Fixture batteryPrefab;
     }
 
+    [System.Serializable]
+    public class DoorSettings
+    {
+        [SerializeField]
+        public DoorController horizontalFacingDoorPrefab;
+    }
+
     [SerializeField]
     private int layoutScale;
 
@@ -126,6 +133,9 @@ public class WorldLoader : MonoBehaviour
 
     [SerializeField]
     private FixtureSettings fixtureSettings;
+
+    [SerializeField]
+    private DoorSettings doorSettings;
 
     private World temp = null;
 
@@ -151,6 +161,15 @@ public class WorldLoader : MonoBehaviour
         // Store the world data
         World world = World.Build(layout, layoutScale, worldGrid);
 
+        // Decorate the world with doors
+        var doorDecoration = new FrameDistributedLoader(GetDoorPopulations(world));
+        foreach (var state in doorDecoration.SparseLoad())
+        {
+            Debug.Log($"Loaded {state.operationCount} doors in {state.frameCount} frames ({state.duration}s).");
+            yield return null;
+        }
+
+        // Decorate the world with fixtures
         var fixtureDecoration = new FrameDistributedLoader(GetFixturePopulations(world, worldGrid));
         foreach (var state in fixtureDecoration.SparseLoad())
         {
@@ -198,6 +217,11 @@ public class WorldLoader : MonoBehaviour
     {
         foreach (var room in world.Layout.cellMapping.Rooms.AllRooms)
         {
+            // TODO: Determine battery at a more intelligent rate, ensuring there's one in the
+            // spawn room
+            if (Random.value < 0.5f)
+                break;
+
             var sectionIdx = Random.Range(0, room.SectionCount);
             var section = room.GetSection(sectionIdx);
             var xPos = Random.Range(section.xMin, section.xMax - 1);
@@ -211,6 +235,15 @@ public class WorldLoader : MonoBehaviour
         }
     }
 
+    private IEnumerable<IOperation> GetDoorPopulations(World world)
+    {
+        foreach (var door in world.Components.GetAll<Door>())
+        {
+            if (door.IsHorizontal)
+                yield return new DoorInitialization(door, doorSettings.horizontalFacingDoorPrefab);
+        }
+    }
+
     private IEnumerable<IOperation> GetTileAssignments(WorldGrid grid)
     {
         var perimiterBuffer = 1;
@@ -221,25 +254,6 @@ public class WorldLoader : MonoBehaviour
                 foreach (var pair in rules)
                     foreach (var assignment in pair.GetAssignments(grid, new Vector2Int(x, y)))
                         yield return assignment;
-
-        // TODO: Remove this in favor of actual door instantiation
-        foreach (var pair in grid.GetUnits())
-        {
-            if (pair.unit.TryGetDescriptor<DoorDescriptor>(out var descriptor))
-            {
-                yield return new TileAssignment
-                {
-                    position = pair.position,
-                    tilemap = floorSettings.tilemap,
-                    tile = perimeterSettings.collisionTile,
-                };
-
-                foreach (var gateway in descriptor.Door.Gateways)
-                {
-                    Debug.DrawRay((Vector2)descriptor.Unit.Position + Vector2.one * 0.5f, (Vector2)gateway.OpeningDirection * 0.3f, Color.cyan, 60f);
-                }
-            }
-        }
     }
 
     private void LoadBaseDescriptors(CellMapping layout, WorldGrid grid)
@@ -298,7 +312,7 @@ public class WorldLoader : MonoBehaviour
             if (grid.TryGetDescriptor<HallwayDescriptor>(World.ExpandCellToAnyUnit(hallwayCell, layoutScale), out var hallwayDescriptor))
             {
                 var hallway = hallwayDescriptor.Hallway;
-                var door = new Door();
+                var door = new Door(World.BoundCellToUnits(hallwayCell, layoutScale).center);
 
                 foreach (var direction in Direction.Orthogonals)
                 {

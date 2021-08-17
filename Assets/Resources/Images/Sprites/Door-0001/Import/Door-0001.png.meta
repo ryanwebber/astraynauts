@@ -101,11 +101,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 171
-        width: 8
-        height: 86
+        y: 168
+        width: 16
+        height: 89
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -121,12 +121,12 @@ TextureImporter:
       name: Door-0001_Mask
       rect:
         serializedVersion: 2
-        x: 10
-        y: 204
-        width: 4
+        x: 18
+        y: 201
+        width: 12
         height: 48
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -142,12 +142,12 @@ TextureImporter:
       name: Door-0001_Upper
       rect:
         serializedVersion: 2
-        x: 15
-        y: 193
-        width: 4
+        x: 31
+        y: 190
+        width: 12
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -163,12 +163,12 @@ TextureImporter:
       name: Door-0001_Lower
       rect:
         serializedVersion: 2
-        x: 20
-        y: 193
-        width: 4
+        x: 44
+        y: 190
+        width: 12
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

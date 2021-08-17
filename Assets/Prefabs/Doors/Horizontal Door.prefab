@@ -123,14 +123,14 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.125, y: 2}
+    oldSize: {x: 0.375, y: 2}
     newSize: {x: 0.125, y: 2}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.25, y: 1}
+  m_Size: {x: 0.5, y: 1}
   m_EdgeRadius: 0.025
 --- !u!1 &3103066443824431019
 GameObject:
@@ -234,14 +234,14 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.125, y: 2}
+    oldSize: {x: 0.375, y: 2}
     newSize: {x: 0.125, y: 2}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.25, y: 1}
+  m_Size: {x: 0.5, y: 1}
   m_EdgeRadius: 0.025
 --- !u!50 &6241570273671227091
 Rigidbody2D:
@@ -390,7 +390,7 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
 --- !u!1 &7116386786140125615
 GameObject:
   m_ObjectHideFlags: 0
@@ -416,7 +416,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7116386786140125615}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.4375, z: 0}
+  m_LocalPosition: {x: 0, y: 0.39061, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1209355186074091881}
@@ -498,7 +498,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7133160847879793199}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.4375, z: 0}
+  m_LocalPosition: {x: 0, y: 0.39061, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8095784150077361095}
@@ -610,6 +610,7 @@ GameObject:
   - component: {fileID: 5355432019784390638}
   - component: {fileID: 112060524654093511}
   - component: {fileID: 4790364111386774517}
+  - component: {fileID: 61320661533595720}
   m_Layer: 7
   m_Name: Horizontal Door
   m_TagString: Untagged
@@ -667,3 +668,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cycleDuration: 4
   animationProperty: DoorOpen
+--- !u!114 &61320661533595720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9167995518029131013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56bb3c87bea6e4d5bb0e0010cb84cf96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
