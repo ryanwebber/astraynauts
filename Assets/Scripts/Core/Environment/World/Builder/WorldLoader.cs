@@ -138,7 +138,7 @@ public class WorldLoader : MonoBehaviour
     {
         // Create the world grid, describing every unit of the map
         var worldGrid = new WorldGrid();
-        LoadBaseDescriptors(layout, worldGrid);
+        Profile.Debug("Load world descriptors", () => LoadBaseDescriptors(layout, worldGrid));
 
         // Load the world and generate the tilemaps
         var tileAssignmentLoader = new FrameDistributedLoader(GetTileAssignments(worldGrid));
@@ -222,9 +222,10 @@ public class WorldLoader : MonoBehaviour
                     foreach (var assignment in pair.GetAssignments(grid, new Vector2Int(x, y)))
                         yield return assignment;
 
+        // TODO: Remove this in favor of actual door instantiation
         foreach (var pair in grid.GetUnits())
         {
-            if (pair.unit.ContainsDescriptor<DoorDescriptor>())
+            if (pair.unit.TryGetDescriptor<DoorDescriptor>(out var descriptor))
             {
                 yield return new TileAssignment
                 {
@@ -232,6 +233,11 @@ public class WorldLoader : MonoBehaviour
                     tilemap = floorSettings.tilemap,
                     tile = perimeterSettings.collisionTile,
                 };
+
+                foreach (var gateway in descriptor.Door.Gateways)
+                {
+                    Debug.DrawRay((Vector2)descriptor.Unit.Position + Vector2.one * 0.5f, (Vector2)gateway.OpeningDirection * 0.3f, Color.cyan, 60f);
+                }
             }
         }
     }
@@ -251,12 +257,18 @@ public class WorldLoader : MonoBehaviour
             }
         }
 
-        var hallwayCells = layout.Hallways
+        var hallways = layout.Hallways
             .SelectMany(h => h.Path)
-            .SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+            .Select(c => new Hallway(World.ExpandCellToUnits(c, layoutScale)));
 
-        foreach (var position in hallwayCells)
-            grid.AddDescriptor(position, new FloorDescriptor(FloorDescriptor.Location.HALLWAY));
+        foreach (var hallway in hallways)
+        {
+            foreach (var unit in hallway.Units)
+            {
+                grid.AddDescriptor(unit, new FloorDescriptor(FloorDescriptor.Location.HALLWAY));
+                grid.AddDescriptor(unit, new HallwayDescriptor(hallway));
+            }
+        }
 
         var airlockCells = layout.Airlocks
             .SelectMany(a => World.ExpandCellToUnits(a.Cell, layoutScale));
@@ -283,26 +295,27 @@ public class WorldLoader : MonoBehaviour
             var connectingRoom = doorPairing.Key;
             var hallwayCell = doorPairing.Value;
 
-            foreach (var unit in World.ExpandCellToUnits(hallwayCell, layoutScale))
+            if (grid.TryGetDescriptor<HallwayDescriptor>(World.ExpandCellToAnyUnit(hallwayCell, layoutScale), out var hallwayDescriptor))
             {
-                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.right))
+                var hallway = hallwayDescriptor.Hallway;
+                var door = new Door();
+
+                foreach (var direction in Direction.Orthogonals)
                 {
-                    grid.AddDescriptor(unit, new DoorDescriptor());
+                    var neighboringRoomCell = hallwayCell + direction;
+                    if (grid.TryGetDescriptor<RoomDescriptor>(World.ExpandCellToAnyUnit(neighboringRoomCell, layoutScale), out var roomDescriptor))
+                    {
+                        var gateway = new Gateway(roomDescriptor.Room, hallway, door, direction);
+                        hallway.AddGateway(gateway);
+                        door.AddGateway(gateway);
+                    }
                 }
 
-                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.left))
-                {
-                    grid.AddDescriptor(unit, new DoorDescriptor());
-                }
+                Assert.IsTrue(door.Gateways.Count > 0);
 
-                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.up))
+                foreach (var unit in World.ExpandCellToUnits(hallwayCell, layoutScale))
                 {
-                    grid.AddDescriptor(unit, new DoorDescriptor());
-                }
-
-                if (grid.ContainsDescriptor<RoomDescriptor>(unit + Vector2Int.down))
-                {
-                    grid.AddDescriptor(unit, new DoorDescriptor());
+                    grid.AddDescriptor(unit, new DoorDescriptor(door));
                 }
             }
         }

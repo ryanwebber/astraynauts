@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Room
+public class Room: ComponentMarker
 {
     public readonly IReadOnlyList<Vector2Int> Units;
     public List<Teleporter> Teleporters;

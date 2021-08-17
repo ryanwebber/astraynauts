@@ -1,5 +1,5 @@
 ﻿using System;
-public class TeleporterDescriptor: WorldGrid.Descriptor, IComponentDescriptor<Teleporter>
+public class TeleporterDescriptor: WorldGrid.Descriptor
 {
     public readonly Teleporter Teleporter;
 
@@ -7,6 +7,4 @@ public class TeleporterDescriptor: WorldGrid.Descriptor, IComponentDescriptor<Te
     {
         Teleporter = teleporter;
     }
-
-    Teleporter IComponentDescriptor<Teleporter>.Component => Teleporter;
 }

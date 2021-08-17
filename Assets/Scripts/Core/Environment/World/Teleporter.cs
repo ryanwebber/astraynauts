@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class Teleporter
+public class Teleporter: ComponentMarker
 {
     public readonly Vector2 Center;
     public readonly Vector2 OpenFace;

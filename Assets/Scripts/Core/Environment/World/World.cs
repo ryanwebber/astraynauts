@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+public interface ComponentMarker
+{
+}
+
 public class World
 {
     public struct LayoutGeneration
@@ -30,7 +34,7 @@ public class World
             this.typeMap = typeMap;
         }
 
-        public ICollection<T> GetAll<T>()
+        public ICollection<T> GetAll<T>() where T: ComponentMarker
         {
             if (typeMap.TryGetValue(typeof(T), out var obj) && obj is ICollection<T> collection)
                 return collection;
@@ -49,20 +53,7 @@ public class World
                 typeMap = new Dictionary<Type, object>();
             }
 
-            public Builder With<D, T>() where D: WorldGrid.Descriptor, IComponentDescriptor<T>
-            {
-                return With(unit =>
-                {
-                    if (unit.TryGetDescriptor<D>(out var d))
-                    {
-                        return d.Component;
-                    }
-
-                    return default;
-                });
-            }
-
-            public Builder With<T>(Func<WorldGrid.Unit, T> mapFn)
+            public Builder With<T>(Func<WorldGrid.Unit, T> mapFn) where T: ComponentMarker
             {
                 var components = new HashSet<T>();
                 foreach (var u in grid.GetUnits())
@@ -120,6 +111,11 @@ public class World
         }
     }
 
+    public static Vector2Int ExpandCellToAnyUnit(Vector2Int cell, int layoutScale)
+    {
+        return cell * layoutScale;
+    }
+
     public static RectInt BoundCellToUnits(Vector2Int cell, int layoutScale)
     {
         return new RectInt(cell * layoutScale, new Vector2Int(layoutScale, layoutScale));
@@ -132,8 +128,9 @@ public class World
         var components = Profile.Debug("Generate world components", () =>
         {
             return new ComponentSet.Builder(grid)
-                .With<RoomDescriptor, Room>()
-                .With<TeleporterDescriptor, Teleporter>()
+                .With(u => u.GetDescriptorOrDefault<RoomDescriptor>()?.Room)
+                .With(u => u.GetDescriptorOrDefault<TeleporterDescriptor>()?.Teleporter)
+                .With(u => u.GetDescriptorOrDefault<DoorDescriptor>()?.Door)
                 .Build();
         });
 
