@@ -117,6 +117,9 @@ public class WorldLoader : MonoBehaviour
     {
         [SerializeField]
         public DoorController horizontalFacingDoorPrefab;
+
+        [SerializeField]
+        public Vector2 horizontalFacingDoorOffset;
     }
 
     [SerializeField]
@@ -240,7 +243,12 @@ public class WorldLoader : MonoBehaviour
         foreach (var door in world.Components.GetAll<Door>())
         {
             if (door.IsHorizontal)
-                yield return new DoorInitialization(door, doorSettings.horizontalFacingDoorPrefab);
+                yield return new DoorInitialization
+                {
+                    door = door,
+                    prefab = doorSettings.horizontalFacingDoorPrefab,
+                    offset = doorSettings.horizontalFacingDoorOffset,
+                };
         }
     }
 

@@ -6254,6 +6254,7 @@ MonoBehaviour:
     batteryPrefab: {fileID: 7183515431595988126, guid: 868162efc37cf43ff9f4ca7ad3e90676, type: 3}
   doorSettings:
     horizontalFacingDoorPrefab: {fileID: 61320661533595720, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+    horizontalFacingDoorOffset: {x: 0, y: 0.5625}
 --- !u!1 &1232315630
 GameObject:
   m_ObjectHideFlags: 0
