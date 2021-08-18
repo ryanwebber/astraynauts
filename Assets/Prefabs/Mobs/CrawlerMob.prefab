@@ -91,7 +91,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.75, y: 0.75}
+    oldSize: {x: 1.5, y: 1.5}
     newSize: {x: 0.75, y: 0.75}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -197,10 +197,13 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 128
-  viewDistance: 1
+  viewDistance: 0.6
   stepAngle: 15
-  collisionRadius: 0.75
-  collisionAvoidanceWeight: 12
+  maxViewFieldAngle: 90
+  collisionRadius: 0.2
+  rayStartRadius: 0.4
+  offset: {x: 0, y: -0.6}
+  collisionAvoidanceWeight: 6
 --- !u!114 &2106960228142386216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   topology: {fileID: 0}
-  weight: 2.5
+  weight: 4
 --- !u!114 &138564682830808024
 MonoBehaviour:
   m_ObjectHideFlags: 0
