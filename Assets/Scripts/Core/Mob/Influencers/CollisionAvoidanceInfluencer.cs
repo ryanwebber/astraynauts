@@ -46,8 +46,11 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
     private Vector2 GetCollisionAvoidanceHeading()
     {
         var heading = currentHeading.CurrentHeading;
-        if (!TestForCollision(heading, heading))
-            return Vector2.zero;
+
+        if (heading.sqrMagnitude < 0.01f)
+            heading = Random.insideUnitCircle.normalized;
+        else if (!TestForCollision(Vector2.zero, heading))
+            return currentHeading.CurrentHeading;
 
         if (TryFindCollisionFreeHeading(heading.normalized, out var freeHeading))
             return freeHeading * collisionAvoidanceWeight;
@@ -59,6 +62,33 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
     {
         bool TryGetHeadingInternal(out Vector2 newForward)
         {
+            bool TryTestCollision(float angle, out Vector2 freeHeading)
+            {
+                foreach (var crossDir in new Vector3[] { Vector3.back, Vector3.forward })
+                {
+                    var crossHeading = (Vector2)Vector3.Cross(forward, crossDir);
+                    var rayOffset = crossHeading * rayStartRadius;
+                    float thetaPos = angle * Mathf.Deg2Rad;
+                    var testHeading = Rotate(forward, thetaPos);
+                    if (!TestForCollision(rayOffset, testHeading))
+                    {
+                        freeHeading = testHeading + crossHeading;
+                        return true;
+                    }
+
+                    float thetaNeg = angle * Mathf.Deg2Rad * -1;
+                    testHeading = Rotate(forward, thetaNeg);
+                    if (!TestForCollision(rayOffset, testHeading))
+                    {
+                        freeHeading = testHeading + crossHeading;
+                        return true;
+                    }
+                }
+
+                freeHeading = default;
+                return false;
+            }
+
             // Avoid infinite loops
             if (stepAngle <= 0f)
             {
@@ -66,26 +96,11 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
                 return false;
             }
 
-            var normalizedTargetDir = forward.normalized;
-
             float angle = stepAngle;
             while (angle < maxViewFieldAngle)
             {
-                float thetaPos = angle * Mathf.Deg2Rad;
-                var testHeading = Rotate(forward, thetaPos);
-                if (!TestForCollision(testHeading, normalizedTargetDir))
-                {
-                    newForward = testHeading;
+                if (TryTestCollision(angle, out newForward))
                     return true;
-                }
-
-                float thetaNeg = angle * Mathf.Deg2Rad * -1;
-                testHeading = Rotate(forward, thetaNeg);
-                if (!TestForCollision(testHeading, normalizedTargetDir))
-                {
-                    newForward = testHeading;
-                    return true;
-                }
 
                 angle += stepAngle;
             }
@@ -97,22 +112,8 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
         if (TryGetHeadingInternal(out newHeading))
         {
             newHeading.Normalize();
-            return true;
-        }
+            Debug.DrawRay((Vector2)transform.position + offset, newHeading, Color.cyan);
 
-        var crossForward = Vector3.Cross(forward, Vector3.forward);
-        if (TestForCollision(forward, crossForward, true))
-        {
-            newHeading = forward - (Vector2)crossForward;
-            Debug.DrawRay((Vector2)transform.position + offset, newHeading, Color.yellow);
-            return true;
-        }
-
-        var crossDown = Vector3.Cross(forward, Vector3.back);
-        if (TestForCollision(forward, crossDown, true))
-        {
-            newHeading = forward - (Vector2)crossDown;
-            Debug.DrawRay((Vector2)transform.position + offset, newHeading, Color.yellow);
             return true;
         }
 
@@ -120,14 +121,12 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
         return false;
     }
 
-    private RaycastHit2D TestForCollision(Vector2 heading, Vector2 desiredHeading, bool special = false)
+    private RaycastHit2D TestForCollision(Vector2 rayOffset, Vector2 heading)
     {
-        var ray = new Ray2D((Vector2)transform.position + offset + desiredHeading * rayStartRadius, heading);
+        var ray = new Ray2D((Vector2)transform.position + offset + rayOffset, heading);
         var collision = Physics2D.CircleCast(ray.origin, collisionRadius, ray.direction, viewDistance, layerMask);
 
-        if (special)
-            Debug.DrawRay(ray.origin, ray.direction * viewDistance, Color.cyan, 0.25f);
-        else if (!collision)
+        if (!collision)
             Debug.DrawRay(ray.origin, ray.direction * viewDistance, Color.green);
         else
             Debug.DrawRay(ray.origin, ray.direction * viewDistance, Color.red);

@@ -25,6 +25,12 @@ public class NavigationTopologyInfluencer : MonoBehaviour
             Mathf.FloorToInt(transform.position.y)
         );
 
-        yield return topology.GetTopology(cell).slope * weight;
+        var slope = topology.GetTopology(cell).slope;
+        foreach (var dir in Direction.Neighboring)
+        {
+            slope += topology.GetTopology(cell + dir).slope;
+        }
+
+        yield return slope.normalized * weight;
     }
 }

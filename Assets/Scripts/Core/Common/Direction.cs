@@ -99,4 +99,17 @@ public struct Direction : IEquatable<Direction>
     {
         Up, Right, Down, Left
     };
+
+    public static readonly IEnumerable<Vector2Int> Neighboring = new Vector2Int[]
+    {
+        Vector2Int.up,
+        Vector2Int.down,
+        Vector2Int.left,
+        Vector2Int.right,
+
+        new Vector2Int(1, 1),
+        new Vector2Int(1, -1),
+        new Vector2Int(-1, 1),
+        new Vector2Int(-1, -1),
+    };
 }
