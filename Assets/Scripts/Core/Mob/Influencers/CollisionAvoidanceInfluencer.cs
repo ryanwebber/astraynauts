@@ -50,7 +50,7 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
         if (heading.sqrMagnitude < 0.01f)
             heading = Random.insideUnitCircle.normalized;
         else if (!TestForCollision(Vector2.zero, heading))
-            return currentHeading.CurrentHeading;
+            return heading.normalized;
 
         if (TryFindCollisionFreeHeading(heading.normalized, out var freeHeading))
             return freeHeading * collisionAvoidanceWeight;

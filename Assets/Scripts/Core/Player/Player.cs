@@ -6,6 +6,8 @@ using System.Collections;
 [RequireComponent(typeof(PlayerInputBinder))]
 public class Player : MonoBehaviour
 {
+    public Event<GameState> OnPlayerWillSpawn;
+
     public PlayerIdentifier Identifier { get; private set; }
     public PlayerInputBinder InputBinder { get; private set; }
     public PlayerInputFeedback InputFeedback { get; private set; }

@@ -22,6 +22,10 @@ public class GameState: MonoBehaviour
         [SerializeField]
         private WaveManager waveManager;
         public WaveManager WaveManager => waveManager;
+
+        [SerializeField]
+        private BankService bankService;
+        public BankService BankService => bankService;
     }
 
     public Event OnGameStateInitializationBegin;

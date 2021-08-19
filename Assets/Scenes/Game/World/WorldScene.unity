@@ -182,6 +182,49 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 519420031}
+--- !u!1 &107068082
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 107068084}
+  - component: {fileID: 107068083}
+  m_Layer: 0
+  m_Name: BankService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &107068083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 107068082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e799033a1b5ff4984903a9a3c3456650, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &107068084
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 107068082}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 261099361}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &110007085
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,6 +425,7 @@ Transform:
   - {fileID: 19656583}
   - {fileID: 509416139}
   - {fileID: 1837161994}
+  - {fileID: 107068084}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -415,7 +459,8 @@ MonoBehaviour:
     playerManager: {fileID: 1956087749}
     cameraController: {fileID: 19656584}
     mobManager: {fileID: 1342330582}
-    waveManager: {fileID: 0}
+    waveManager: {fileID: 1837161995}
+    bankService: {fileID: 107068083}
 --- !u!1 &311411843
 GameObject:
   m_ObjectHideFlags: 0
@@ -7165,6 +7210,7 @@ GameObject:
   - component: {fileID: 2037969545}
   - component: {fileID: 2037969544}
   - component: {fileID: 2037969540}
+  - component: {fileID: 2037969551}
   - component: {fileID: 2037969542}
   - component: {fileID: 2037969528}
   - component: {fileID: 2037969547}
@@ -7291,7 +7337,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.5, y: 1.5}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 1.5, y: 1.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -7586,3 +7632,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerState: {fileID: 2037969545}
+--- !u!114 &2037969551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037969526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5cc9d369480b4fbb9635b452c1109c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

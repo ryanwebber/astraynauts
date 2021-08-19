@@ -163,9 +163,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebug: 0
   parameters:
-    alignmentWeight: 1.1
-    separationWeight: 2.2
-    cohesionWeight: 0.6
+    alignmentWeight: 1.4
+    separationWeight: 3
+    cohesionWeight: 1
   separationLayermask:
     serializedVersion: 2
     m_Bits: 256

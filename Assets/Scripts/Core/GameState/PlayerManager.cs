@@ -26,10 +26,18 @@ public class PlayerManager : MonoBehaviour
     private void Awake()
     {
         gameState.OnGameStateInitializationBegin += () =>
-            this.players = new List<Player>(gameState.SceneParameters.players);
+        {
+            players = new List<Player>(gameState.SceneParameters.players);
+            foreach (var player in players)
+            {
+                player.OnPlayerWillSpawn?.Invoke(gameState);
+            }
+        };
 
         gameState.OnGameStateInitializationEnd += () =>
+        {
             SpawnPlayers();
+        };
     }
 
     private void SpawnPlayers()
