@@ -9,10 +9,14 @@ public class DashActor : MonoBehaviour
     {
         public float dashSpeed;
         public float dashDuration;
+        public float jumpHeight;
     }
 
     [SerializeField]
     private Properties properties;
+
+    [SerializeField]
+    private Transform entitySprite;
 
     public Event OnDashStart;
     public Event OnDashEnd;
@@ -23,10 +27,11 @@ public class DashActor : MonoBehaviour
     private void Awake()
     {
         kinematicBody = GetComponent<KinematicBody>();
-        OnDashEnd += () => currentDash = null;
-
-        OnDashStart += () => Debug.Log("Dash start", this);
-        OnDashEnd += () => Debug.Log("Dash end", this);
+        OnDashEnd += () =>
+        {
+            currentDash = null;
+            ResetDashState();
+        };
     }
 
     public void DashInDirection(Vector2 direction)
@@ -34,9 +39,15 @@ public class DashActor : MonoBehaviour
         if (currentDash != null)
         {
             StopCoroutine(currentDash);
+            ResetDashState();
         }
 
         currentDash = StartCoroutine(DoDash(direction.normalized));
+    }
+
+    private void ResetDashState()
+    {
+        entitySprite.transform.localPosition = Vector3.zero;
     }
 
     private IEnumerator DoDash(Vector2 direction)
@@ -46,6 +57,9 @@ public class DashActor : MonoBehaviour
         var startTime = Time.time;
         while (Time.time < startTime + properties.dashDuration)
         {
+            float t = Mathf.Clamp01(Mathf.InverseLerp(startTime, startTime + properties.dashDuration, Time.time));
+            entitySprite.transform.localPosition = PhysicsUtils.LerpGravity(t, properties.jumpHeight);
+
             kinematicBody.MoveAndCollide(direction * Time.deltaTime * properties.dashSpeed);
             yield return null;
         }

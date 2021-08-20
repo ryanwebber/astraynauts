@@ -4,10 +4,10 @@ using UnityEngine;
 public class Teleporter: ComponentMarker
 {
     public readonly Vector2 Center;
-    public readonly Vector2 OpenFace;
+    public readonly Direction OpenFace;
     public readonly Room AttachedRoom;
 
-    public Teleporter(Vector2 center, Vector2 openFace, Room attachedRoom)
+    public Teleporter(Vector2 center, Direction openFace, Room attachedRoom)
     {
         Center = center;
         OpenFace = openFace;

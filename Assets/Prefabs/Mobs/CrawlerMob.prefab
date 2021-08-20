@@ -358,6 +358,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stateIndicator: {fileID: 9145813460231330271}
+  entitySearchPollDelay:
+    min: 0.75
+    max: 2
+  entitySearchRadius: 2
+  entityLayermask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &5946074907459975968
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -302,7 +302,7 @@ public class WorldLoader : MonoBehaviour
             var teleporterRoomAttachmentUnit = new Vector2Int(Mathf.FloorToInt(teleporterRoomAttachment.x), Mathf.FloorToInt(teleporterRoomAttachment.y));
             var teleporterRoom = grid.GetDescriptor<RoomDescriptor>(teleporterRoomAttachmentUnit).Room;
 
-            var teleporter = new Teleporter(center: ga.Cell * layoutScale + Vector2.one, ga.Direction, teleporterRoom);
+            var teleporter = new Teleporter(center: ga.Cell * layoutScale + Vector2.one, new Direction(ga.Direction), teleporterRoom);
             foreach (var unit in World.ExpandCellToUnits(ga.Cell, layoutScale))
             {
                 grid.AddDescriptor(unit, new FloorDescriptor(FloorDescriptor.Location.TELEPORTER));
