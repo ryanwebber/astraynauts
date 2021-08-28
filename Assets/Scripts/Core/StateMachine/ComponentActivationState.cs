@@ -28,3 +28,30 @@ public class ComponentActivationState<T>: State where T: IActivatable
         activatable.IsActive = false;
     }
 }
+
+public class ComponentActivationState : State
+{
+    private IActivatable activatable;
+    private Action<LifecycleEvent> resetFn;
+
+    public override string Name { get; }
+
+    public ComponentActivationState(IActivatable activatable, string name, Action<LifecycleEvent> resetFn = null)
+    {
+        this.resetFn = resetFn;
+        this.activatable = activatable;
+        this.Name = name;
+    }
+
+    public sealed override void OnEnter(IStateMachine sm)
+    {
+        resetFn?.Invoke(LifecycleEvent.BEGIN);
+        activatable.IsActive = true;
+    }
+
+    public sealed override void OnExit(IStateMachine sm)
+    {
+        resetFn?.Invoke(LifecycleEvent.END);
+        activatable.IsActive = false;
+    }
+}

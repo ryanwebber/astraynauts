@@ -43,7 +43,7 @@ public class PlayerInputRouter : MonoBehaviour
     private void AttachToInput(IInputSource source)
     {
         // Bind to events
-        source.OnMovementSpecialAction += () => movementController.OnDashInputBegin?.Invoke();
+        source.OnMovementSpecialAction += () => movementController.TryTriggerDash();
         source.OnFireBegin += () => shootingController.OnFireInputBegin?.Invoke();
         source.OnFireEnd += () => shootingController.OnFireInputEnd?.Invoke();
         source.OnInteractionBegin += () => interactionController.OnInteractionInputBegin?.Invoke();

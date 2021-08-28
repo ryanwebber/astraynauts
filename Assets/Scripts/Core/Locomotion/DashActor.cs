@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(KinematicBody))]
-public class DashActor : MonoBehaviour
+[RequireComponent(typeof(ComponentBehavior))]
+public class DashActor : MonoBehaviour, BehaviorControlling
 {
     [System.Serializable]
     private struct Properties
@@ -16,38 +16,50 @@ public class DashActor : MonoBehaviour
     private Properties properties;
 
     [SerializeField]
-    private Transform entitySprite;
+    private Height2D heightComponent;
+
+    [SerializeField]
+    private KinematicBody kinematicBody;
+
+    private Coroutine currentDash;
+    private ComponentBehavior behavior;
 
     public Event OnDashStart;
     public Event OnDashEnd;
 
-    private KinematicBody kinematicBody;
-    private Coroutine currentDash;
+    public bool IsDashing => currentDash != null;
+    public ComponentBehavior Behavior => behavior;
 
     private void Awake()
     {
-        kinematicBody = GetComponent<KinematicBody>();
-        OnDashEnd += () =>
-        {
-            currentDash = null;
-            ResetDashState();
-        };
+        behavior = GetComponent<ComponentBehavior>()
+            .BindOnDisable((ref Event ev) =>
+            {
+                ev += MaybeCancelDash;
+            });
     }
 
     public void DashInDirection(Vector2 direction)
+    {
+        behavior.MakeCurrent();
+        MaybeCancelDash();
+        currentDash = StartCoroutine(DoDash(direction.normalized));
+    }
+
+    private void MaybeCancelDash()
     {
         if (currentDash != null)
         {
             StopCoroutine(currentDash);
             ResetDashState();
+            OnDashEnd?.Invoke();
+            currentDash = null;
         }
-
-        currentDash = StartCoroutine(DoDash(direction.normalized));
     }
 
     private void ResetDashState()
     {
-        entitySprite.transform.localPosition = Vector3.zero;
+        heightComponent.Height = 0f;
     }
 
     private IEnumerator DoDash(Vector2 direction)
@@ -58,12 +70,14 @@ public class DashActor : MonoBehaviour
         while (Time.time < startTime + properties.dashDuration)
         {
             float t = Mathf.Clamp01(Mathf.InverseLerp(startTime, startTime + properties.dashDuration, Time.time));
-            entitySprite.transform.localPosition = PhysicsUtils.LerpGravity(t, properties.jumpHeight);
+            heightComponent.Height = PhysicsUtils.LerpGravity(t, properties.jumpHeight);
 
             kinematicBody.MoveAndCollide(direction * Time.deltaTime * properties.dashSpeed);
             yield return null;
         }
 
+        ResetDashState();
         OnDashEnd?.Invoke();
+        currentDash = null;
     }
 }

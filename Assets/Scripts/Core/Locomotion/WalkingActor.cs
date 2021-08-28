@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(KinematicBody))]
 [RequireComponent(typeof(WalkingInput))]
 public class WalkingActor : MonoBehaviour, IActivatable
 {
+
+    [SerializeField]
+    private KinematicBody kinematicBody;
 
     [SerializeField]
     private WalkingProperties properties;
@@ -30,11 +32,9 @@ public class WalkingActor : MonoBehaviour, IActivatable
     public Vector2 CurrentVelocity => velocity;
 
     private WalkingInput virtualInput;
-    private KinematicBody kinematicBody;
 
     private void Awake()
     {
-        kinematicBody = GetComponent<KinematicBody>();
         virtualInput = GetComponent<WalkingInput>();
     }
 

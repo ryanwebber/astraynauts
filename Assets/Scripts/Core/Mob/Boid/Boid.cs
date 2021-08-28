@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
 
-[RequireComponent(typeof(Heading2D))]
 public class Boid : MonoBehaviour
 {
     public struct Force
@@ -11,6 +10,9 @@ public class Boid : MonoBehaviour
         public Vector2 cohesionForce;
         public Vector2 separationForce;
     }
+
+    [SerializeField]
+    private Heading2D heading;
 
     [System.Serializable]
     public struct Parameters
@@ -42,7 +44,6 @@ public class Boid : MonoBehaviour
     private float detectionRadius;
 
     private BoidManager attachedManager = null;
-    private Heading2D heading;
     private Collider2D[] reusableCollisionResults;
 
     public Vector2 CurrentPosition => transform.position;
@@ -52,7 +53,6 @@ public class Boid : MonoBehaviour
 
     private void Awake()
     {
-        heading = GetComponent<Heading2D>();
         reusableCollisionResults = new Collider2D[8];
     }
 

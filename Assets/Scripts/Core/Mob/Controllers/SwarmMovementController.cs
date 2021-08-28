@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 
-[RequireComponent(typeof(WalkingActor))]
-[RequireComponent(typeof(WalkingInput))]
+[RequireComponent(typeof(ComponentBehavior))]
 [RequireComponent(typeof(BoidInfluencer))]
 [RequireComponent(typeof(CollisionAvoidanceInfluencer))]
 [RequireComponent(typeof(ForwardMomentumInfluencer))]
 [RequireComponent(typeof(NavigationTopologyInfluencer))]
 public class SwarmMovementController : MonoBehaviour, IActivatable
 {
+    [SerializeField]
     private WalkingInput input;
+
+    [SerializeField]
+    private WalkingActor actor;
+
     private BoidInfluencer boidInfluencer;
     private CollisionAvoidanceInfluencer collisionAvoidanceInfluencer;
     private ForwardMomentumInfluencer forwardMomentumInfluencer;
@@ -26,11 +30,14 @@ public class SwarmMovementController : MonoBehaviour, IActivatable
 
     private void Awake()
     {
-        input = GetComponent<WalkingInput>();
         boidInfluencer = GetComponent<BoidInfluencer>();
         collisionAvoidanceInfluencer = GetComponent<CollisionAvoidanceInfluencer>();
         forwardMomentumInfluencer = GetComponent<ForwardMomentumInfluencer>();
         navigationTopologyInfluencer = GetComponent<NavigationTopologyInfluencer>();
+
+        GetComponent<ComponentBehavior>()
+            .Bind(this)
+            .Bind(actor);
     }
 
     private void Update()

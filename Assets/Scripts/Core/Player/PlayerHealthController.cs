@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(DashActor))]
 [RequireComponent(typeof(HealthManager))]
 public class PlayerHealthController : MonoBehaviour
 {
@@ -15,9 +14,6 @@ public class PlayerHealthController : MonoBehaviour
     {
         dashActor = GetComponent<DashActor>();
         healthManager = GetComponent<HealthManager>();
-
-        dashActor.OnDashStart += () => PushTransparency();
-        dashActor.OnDashEnd += () => PopTransparency();
     }
 
     private void PushTransparency()

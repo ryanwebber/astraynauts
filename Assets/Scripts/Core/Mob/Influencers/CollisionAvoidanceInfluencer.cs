@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(Heading2D))]
 public class CollisionAvoidanceInfluencer : MonoBehaviour
 {
+    [SerializeField]
+    private Heading2D currentHeading;
+
     [SerializeField]
     private LayerMask layerMask;
 
@@ -30,13 +32,6 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
 
     [SerializeField]
     private float collisionAvoidanceWeight = 1f;
-
-    private Heading2D currentHeading;
-
-    private void Awake()
-    {
-        currentHeading = GetComponent<Heading2D>();
-    }
 
     public IEnumerable<Vector2> GetInfluences()
     {

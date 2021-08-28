@@ -13,7 +13,7 @@ public class InspectorRefreshableEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        if (GUILayout.Button("Refresh"))
+        if (GUILayout.Button(refreshable.ButtonText ?? "Refresh"))
         {
             refreshable?.OnInspectorRefresh?.Invoke();
         }

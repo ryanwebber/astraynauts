@@ -2,37 +2,24 @@
 using System.Collections;
 using System.Threading;
 
-[RequireComponent(typeof(DashActor))]
-[RequireComponent(typeof(WalkingActor))]
-public class PlayerMovementController : MonoBehaviour
+[RequireComponent(typeof(ComponentBehavior))]
+public class PlayerMovementController : MonoBehaviour, IActivatable, BehaviorControlling
 {
-    public Event OnDashInputBegin;
-    public Event OnDashStateEnter;
-    public Event OnDashStateExit;
-    public Event OnFreeRunStateEnter;
-    public Event OnFreeRunStateExit;
+    private Event<Vector2> OnDashTriggered;
 
     private struct States
     {
         public State runState;
-        public DashState dashState;
-        public EmptyState idleState;
+        public State idleState;
+        public DashInDirectionState dashState;
 
         public static States FromComponent(PlayerMovementController controller)
         {
             return new States
             {
-                runState = new ComponentActivationState<WalkingActor>(controller.walkingActor, "RunningState", (actor, state) =>
-                {
-                    actor.EraseMomentum();
-
-                    if (state == LifecycleEvent.BEGIN)
-                        controller.OnFreeRunStateEnter?.Invoke();
-                    else if (state == LifecycleEvent.END)
-                        controller.OnFreeRunStateExit?.Invoke();
-                }),
-                dashState = new DashState(controller),
+                runState = new ComponentBehaviorState(controller.walkingComponent.Behavior),
                 idleState = new EmptyState("IdleState"),
+                dashState = new DashInDirectionState(controller.dashActor, () => controller.stateMachine.States.DefaultMovementState),
             };
         }
 
@@ -45,69 +32,58 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField]
     private StateIndicator stateIndicator;
 
+    [SerializeField]
     private DashActor dashActor;
-    public DashActor DashActor => dashActor;
 
-    private WalkingActor walkingActor;
-    public WalkingActor WalkingActor => walkingActor;
+    [SerializeField]
+    private WalkingComponent walkingComponent;
 
     private StateMachine<States> stateMachine;
-
-    private bool isLocked = false;
-    public bool IsMovementLocked
-    {
-        get => isLocked;
-        set
-        {
-            if (value != isLocked)
-            {
-                if (!value)
-                    stateMachine.SetState(stateMachine.States.DefaultMovementState);
-                else
-                    stateMachine.SetState(stateMachine.States.idleState);
-
-                isLocked = value;
-            }
-        }
-    }
 
     public bool IsWalking => stateMachine.IsStateCurrent(stateMachine.States.runState);
     public bool IsDashing => stateMachine.IsStateCurrent(stateMachine.States.dashState);
 
+    public bool IsActive { get; set; }
+    public ComponentBehavior Behavior { get; private set; }
+
     private void Awake()
     {
-        dashActor = GetComponent<DashActor>();
-        walkingActor = GetComponent<WalkingActor>();
-
         stateMachine = new StateMachine<States>(States.FromComponent(this), states => {
 
-            OnDashInputBegin += () =>
-            {
-                var movementDirection = walkingActor.TargetMovementDirection;
-                if (CanDash(movementDirection))
-                {
-                    states.dashState.Direction = movementDirection.normalized;
-                    stateMachine.SetState(states.dashState);
-                }
-            };
-
-            dashActor.OnDashStart += () =>
+            OnDashTriggered += direction =>
             {
                 batteryManager.AddBatteryValue(-1);
-            };
-
-            dashActor.OnDashEnd += () =>
-            {
-                if (stateMachine.IsStateCurrent<DashState>())
-                {
-                    stateMachine.SetState(states.DefaultMovementState);
-                }
+                stateMachine.States.dashState.Direction = direction;
+                stateMachine.SetState(stateMachine.States.dashState);
             };
 
             return states.DefaultMovementState;
         });
 
         stateIndicator?.Bind(stateMachine);
+
+        this.Behavior = GetComponent<ComponentBehavior>()
+            .Bind(this)
+            .BindOnEnable((ref Event ev) =>
+            {
+                ev += () => stateMachine.SetState(stateMachine.States.DefaultMovementState);
+            })
+            .BindOnDisable((ref Event ev) =>
+            {
+                ev += () => stateMachine.SetState(stateMachine.States.idleState);
+            });
+    }
+
+    public bool TryTriggerDash()
+    {
+        var movementDirection = walkingComponent.Actor.TargetMovementDirection;
+        if (CanDash(movementDirection))
+        {
+            OnDashTriggered?.Invoke(movementDirection.normalized);
+            return true;
+        }
+
+        return false;
     }
 
     private bool CanDash(Vector2 direction)
@@ -115,35 +91,5 @@ public class PlayerMovementController : MonoBehaviour
         return direction.SqrMagnitude() > 0f
             && stateMachine.IsStateCurrent(stateMachine.States.runState)
             && batteryManager.BatteryValue > 0;
-    }
-
-    private void Update()
-    {
-        this.stateMachine.CurrentState.Update();
-    }
-
-    private class DashState : State
-    {
-        private PlayerMovementController controller;
-
-        public override string Name => "DashState";
-
-        public Vector2 Direction;
-
-        public DashState(PlayerMovementController controller)
-        {
-            this.controller = controller;
-        }
-
-        public override void OnEnter(IStateMachine sm)
-        {
-            controller.OnDashStateEnter?.Invoke();
-            controller.dashActor.DashInDirection(Direction);
-        }
-
-        public override void OnExit(IStateMachine sm)
-        {
-            controller.OnDashStateExit?.Invoke();
-        }
     }
 }

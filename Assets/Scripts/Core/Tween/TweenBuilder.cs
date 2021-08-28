@@ -3,13 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TweenBuilder
+public class TweenBuilder: ITweenAction, ITweenActionProvider
 {
     private List<IEnumerator> enumerators;
+    public ITweenAction Action => this;
 
-    private TweenBuilder()
+    public TweenBuilder()
     {
         enumerators = new List<IEnumerator>();
+    }
+
+    IEnumerator ITweenAction.GetYieldInstructions()
+    {
+        return Build();
     }
 
     public TweenBuilder Then(ITweenAction tweenAction)
@@ -18,10 +24,30 @@ public class TweenBuilder
         return this;
     }
 
+    public TweenBuilder Then(ITweenActionProvider provider)
+    {
+        enumerators.Add(provider.Action.GetYieldInstructions());
+        return this;
+    }
+
     public TweenBuilder ThenWait(float duration)
     {
         if (duration > 0f)
             enumerators.Add(Coroutines.After(duration, () => { }));
+
+        return this;
+    }
+
+    public TweenBuilder ThenWaitFrame()
+    {
+        enumerators.Add(Coroutines.Next(() => { }));
+        return this;
+    }
+
+    public TweenBuilder ThenWaitUntil(Func<bool> fn)
+    {
+        if (fn != null)
+            enumerators.Add(Coroutines.Until(fn));
 
         return this;
     }

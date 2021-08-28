@@ -28,9 +28,6 @@ public class BoidManager : MonoBehaviour
         new Vector2Int(-1, -1),
     };
 
-    private static BoidManager _instance;
-    public static BoidManager Instance => _instance;
-
     [SerializeField]
     private Vector2Int gridSize;
 
@@ -45,12 +42,6 @@ public class BoidManager : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance != null)
-            throw new System.Exception("Boid server already exists");
-
-        _instance = this;
-
-
         int nBuckets = gridSize.x * gridSize.y;
         System.Func<Vector2Int, int> hashFn = cell => cell.x + (cell.y * gridSize.x);
         spatialPartition = new SpaciallyPartitionedCollection<Boid, Vector2Int>(nBuckets, hashFn);
@@ -96,6 +87,9 @@ public class BoidManager : MonoBehaviour
 
     private void UpdateCellularPerception(Boid boid)
     {
+        if (boid == null)
+            return;
+
         var currentCell = GetCell(boid.CurrentPosition);
         if (cellularPerceptions.TryGetValue(currentCell, out var perception))
             return;
@@ -116,9 +110,12 @@ public class BoidManager : MonoBehaviour
 
         foreach (var itrBoid in localBoids)
         {
-            flockCount++;
-            cumulativeFlockHeading += itrBoid.CurrentHeading;
-            cumulativeFlockCenter += itrBoid.CurrentPosition;
+            if (itrBoid != null)
+            {
+                flockCount++;
+                cumulativeFlockHeading += itrBoid.CurrentHeading;
+                cumulativeFlockCenter += itrBoid.CurrentPosition;
+            }
         }
 
         cellularPerceptions[currentCell] = new LocalPerception
@@ -127,11 +124,6 @@ public class BoidManager : MonoBehaviour
             cumulativeFlockHeading = cumulativeFlockHeading,
             flockCount = flockCount,
         };
-    }
-
-    private void OnDestroy()
-    {
-        _instance = null;
     }
 
     private void OnDrawGizmos()

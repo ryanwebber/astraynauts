@@ -1,22 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(PlayerInteractionController))]
-[RequireComponent(typeof(PlayerMovementController))]
-[RequireComponent(typeof(PlayerShootingController))]
 public class PlayerState : MonoBehaviour
 {
     private struct States
     {
-        public MainState mainState;
-        public ChargingState chargingState;
+        public State mainState;
+        public State chargingState;
 
         public static States FromComponent(PlayerState player)
         {
             return new States
             {
-                mainState = new MainState(player),
-                chargingState = new ChargingState(player)
+                mainState = new ComponentBehaviorState(player.movementController.Behavior, "MainState"),
+                chargingState = new ComponentBehaviorState(player.chargingController.Behavior, "ChargingState"),
             };
         }
 
@@ -26,33 +23,17 @@ public class PlayerState : MonoBehaviour
         }
     }
 
-    [System.Serializable]
-    public struct ChargingProperties
-    {
-        [SerializeField]
-        [Min(0f)]
-        public float chargingStepTime;
-
-        [SerializeField]
-        public BatteryManager batteryManager;
-    }
+    [SerializeField]
+    private PlayerMovementController movementController;
 
     [SerializeField]
-    private ChargingProperties chargingProperties;
+    private PlayerChargingController chargingController;
 
-    public Event OnBatteryChargeStateEnter;
-    public Event OnBatteryChargeStateExit;
-    public Event OnDefaultMovementStateEnter;
-    public Event OnDefaultMovementStateExit;
-
-    private PlayerMovementController movementController;
-    public PlayerMovementController MovementController => movementController;
-
+    [SerializeField]
     private PlayerShootingController shootingController;
-    public PlayerShootingController ShootingController => shootingController;
 
+    [SerializeField]
     private PlayerInteractionController interactionController;
-    public PlayerInteractionController InteractionController => interactionController;
 
     private StateMachine<States> stateMachine;
 
@@ -61,23 +42,15 @@ public class PlayerState : MonoBehaviour
 
     private void Awake()
     {
-        movementController = GetComponent<PlayerMovementController>();
-        shootingController = GetComponent<PlayerShootingController>();
-        interactionController = GetComponent<PlayerInteractionController>();
-
         stateMachine = new StateMachine<States>(States.FromComponent(this), states =>
         {
-            states.chargingState.OnChargeStarted += () => OnBatteryChargeStateEnter?.Invoke();
-            states.chargingState.OnChargeEnded += () => OnBatteryChargeStateExit?.Invoke();
-            states.chargingState.OnChargeStep += () => chargingProperties.batteryManager.AddBatteryValue(1);
-
             return states.mainState;
         });
     }
 
     public bool TryStartCharging(BatteryInteraction battery)
     {
-        if (stateMachine.IsStateCurrent<MainState>())
+        if (stateMachine.IsStateCurrent(stateMachine.States.mainState))
         {
             void EndCharging(Player player)
             {
@@ -97,71 +70,6 @@ public class PlayerState : MonoBehaviour
         {
             Debug.Log("Player unable to start charging, ignoring interaction", this);
             return false;
-        }
-    }
-
-    private class MainState : State
-    {
-        public override string Name => "MainState";
-
-        private PlayerState player;
-
-        public MainState(PlayerState player)
-        {
-            this.player = player;
-        }
-
-        public override void OnEnter(IStateMachine sm)
-        {
-            Debug.Log("Enabling all player controls");
-            player.movementController.IsMovementLocked = false;
-            player.shootingController.IsShootingLocked = false;
-            player.interactionController.IsInteractionLocked = false;
-            player.OnDefaultMovementStateEnter?.Invoke();
-        }
-
-        public override void OnExit(IStateMachine sm)
-        {
-            player.OnDefaultMovementStateExit?.Invoke();
-        }
-    }
-
-    private class ChargingState : CoroutineState
-    {
-        public override string Name => "ChargingState";
-
-        public Event OnChargeStarted;
-        public Event OnChargeStep;
-        public Event OnChargeEnded;
-
-        private PlayerState player;
-        private ChargingProperties Properties => player.chargingProperties;
-
-        public ChargingState(PlayerState playerState): base(playerState)
-        {
-            this.player = playerState;
-        }
-
-        protected override IEnumerator GetCoroutine()
-        {
-            player.movementController.IsMovementLocked = true;
-            player.shootingController.IsShootingLocked = true;
-            player.interactionController.IsInteractionLocked = false;
-
-            OnChargeStarted?.Invoke();
-
-            // This state never exits, the state machine must be modified
-            // externally
-            while (true)
-            {
-                yield return new WaitForSeconds(Properties.chargingStepTime);
-                OnChargeStep?.Invoke();
-            }
-        }
-
-        protected override void OnExit()
-        {
-            OnChargeEnded?.Invoke();
         }
     }
 }
