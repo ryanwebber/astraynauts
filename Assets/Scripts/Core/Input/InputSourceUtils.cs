@@ -10,14 +10,11 @@ public static class InputSourceUtils
     {
         public Vector2 MovementValue => Vector2.zero;
         public Vector2 AimValue => Vector2.zero;
-
-        public Event OnFireBegin { get; set; }
-        public Event OnFireEnd { get; set; }
+        public bool IsFirePressed => false;
+        public bool IsDashPressed => false;
 
         public Event OnInteractionBegin { get; set; }
         public Event OnInteractionEnd { get; set; }
-
-        public Event OnMovementSpecialAction { get; set; }
 
         public PlayerIdentifier InputIdentifier => PlayerIdentifier.Default;
     }

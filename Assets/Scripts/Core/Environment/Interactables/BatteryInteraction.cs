@@ -9,11 +9,9 @@ public class BatteryInteraction : MonoBehaviour
     private void Awake()
     {
         Interactable = GetComponent<PlayerInteractable>();
-        Interactable.OnPlayerInteractionStarted += StartCharging;
-    }
-
-    private void StartCharging(Player player)
-    {
-        player.State.TryStartCharging(this);
+        Interactable.OnPlayerInteractionStarted += player =>
+        {
+            Debug.Log("TODO: Should start charging", player);
+        };
     }
 }

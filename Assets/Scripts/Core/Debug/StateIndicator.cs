@@ -11,33 +11,22 @@ public class StateIndicator : MonoBehaviour
 
     [SerializeField]
     [ReadOnly]
-    private string state;
-
-    public string State
-    {
-        get => state;
-        set => SetState(value);
-    }
+    private object state;
 
     public void SetState(string value)
     {
         state = value;
     }
 
-    public void Bind<T>(StateMachine<T> stateMachine)
+    public void SetState(object value)
     {
-        stateMachine.OnStateChanged += (_, newState) =>
-        {
-            SetState(newState.Name);
-        };
-
-        SetState(stateMachine.CurrentState.Name);
+        state = value;
     }
 
     private void OnDrawGizmos()
     {
         Color color;
-        if (state == null || state.Length == 0)
+        if (state == null)
         {
             color = Color.white;
         }

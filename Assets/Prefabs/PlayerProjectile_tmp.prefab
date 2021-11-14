@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5086075006856838917}
   m_RootOrder: 0
@@ -110,6 +111,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5086075006856838917}
   m_RootOrder: 1
@@ -177,7 +179,6 @@ GameObject:
   - component: {fileID: 5086075006856838917}
   - component: {fileID: 5086075006856838926}
   - component: {fileID: 874906761449971344}
-  - component: {fileID: 5765114581109109214}
   - component: {fileID: 4174713653191116010}
   - component: {fileID: 2564065571054891167}
   - component: {fileID: 3947240868342531228}
@@ -203,6 +204,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2323775825409474758}
   - {fileID: 1899192176490664710}
@@ -237,29 +239,6 @@ MonoBehaviour:
   - {fileID: 2323775825409474758}
   - {fileID: 1899192176490664710}
   angleOffset: 180
---- !u!114 &5765114581109109214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5086075006856838916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0c57ccd98460451784d4aae0d81e3ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxSteerForce: 0.95
-  steerForceMultiplier: 4
-  maxSeekVision: 2
-  maxTrackTime: 2
-  targetMask:
-    serializedVersion: 2
-    m_Bits: 256
-  obstructionMask:
-    serializedVersion: 2
-    m_Bits: 128
-  maxTargetSortCount: 4
 --- !u!114 &4174713653191116010
 MonoBehaviour:
   m_ObjectHideFlags: 0

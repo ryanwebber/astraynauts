@@ -3,16 +3,14 @@ using UnityEngine;
 
 public interface IInputSource
 {
-    Event OnFireBegin { get; set; }
-    Event OnFireEnd { get; set; }
+    Vector2 MovementValue { get; }
+    Vector2 AimValue { get; }
+
+    bool IsFirePressed { get; }
+    bool IsDashPressed { get; }
 
     Event OnInteractionBegin { get; set; }
     Event OnInteractionEnd { get; set; }
-
-    Event OnMovementSpecialAction { get; set; }
-
-    Vector2 MovementValue { get; }
-    Vector2 AimValue { get; }
 
     PlayerIdentifier InputIdentifier { get; }
 }

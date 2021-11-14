@@ -14,12 +14,8 @@ public class PlayerManager : MonoBehaviour
     {
         get
         {
-            var alivePlayers = players.Where(player => player.State.IsAlive).ToList();
-            var releventPlayers = alivePlayers.Count == 0 ? players : alivePlayers;
-
-            Assert.IsTrue(releventPlayers.Count > 0, "There are no players?");
-
-            return releventPlayers.Aggregate(Vector2.zero, (accum, player) => accum + player.WorldPosition) / releventPlayers.Count;
+            Assert.IsTrue(players.Count > 0, "There are no players?");
+            return players.Aggregate(Vector2.zero, (accum, player) => accum + player.WorldPosition) / players.Count;
         }
     }
 

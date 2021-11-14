@@ -19,13 +19,26 @@ public class ProjectileRotator : MonoBehaviour
         velocityContainer = GetComponent<Velocity2D>();
     }
 
+    private void Start()
+    {
+        ForceUpdate();
+    }
+
     private void Update()
     {
-        if (spriteTransforms != null && velocityContainer.CurrentVelocity != Vector2.zero)
+        ForceUpdate();
+    }
+
+    private void UpdateRotation(Vector2 vel)
+    {
+        if (spriteTransforms != null && vel != Vector2.zero)
         {
-            float zRot = Mathf.Atan2(velocityContainer.CurrentVelocity.x, -velocityContainer.CurrentVelocity.y) * Mathf.Rad2Deg;
+            float zRot = Mathf.Atan2(vel.x, -vel.y) * Mathf.Rad2Deg;
             foreach (var st in spriteTransforms)
                 st.rotation = Quaternion.Euler(0f, 0f, zRot + angleOffset);
         }
     }
+
+    public void ForceUpdate()
+        => UpdateRotation(velocityContainer.CurrentVelocity);
 }

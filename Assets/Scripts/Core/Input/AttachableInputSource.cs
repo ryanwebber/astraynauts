@@ -78,11 +78,7 @@ public class AttachableInputSource : MonoBehaviour
 
     public void OnPlayerFire(InputSystem.InputAction.CallbackContext ctx)
     {
-        if (ctx.canceled)
-            relayedSource.OnFireEnd?.Invoke();
-
-        if (ctx.started)
-            relayedSource.OnFireBegin?.Invoke();
+        relayedSource.IsFirePressed = ctx.ReadValueAsButton();
     }
 
     public void OnPlayerInteract(InputSystem.InputAction.CallbackContext ctx)
@@ -96,22 +92,18 @@ public class AttachableInputSource : MonoBehaviour
 
     public void OnPlayerMovementSpecialAction(InputSystem.InputAction.CallbackContext ctx)
     {
-        if (ctx.started)
-            relayedSource.OnMovementSpecialAction?.Invoke();
+        relayedSource.IsDashPressed = ctx.ReadValueAsButton();
     }
 
     private class RelayInputSource : IInputSource
     {
-        public Event OnFireBegin { get; set; }
-        public Event OnFireEnd { get; set; }
+        public Vector2 MovementValue { get; set; } = Vector2.zero;
+        public Vector2 AimValue { get; set; } = Vector2.zero;
+        public bool IsFirePressed { get; set; }
+        public bool IsDashPressed { get; set; }
 
         public Event OnInteractionBegin { get; set; }
         public Event OnInteractionEnd { get; set; }
-
-        public Event OnMovementSpecialAction { get; set; }
-
-        public Vector2 MovementValue { get; set; } = Vector2.zero;
-        public Vector2 AimValue { get; set; } = Vector2.zero;
 
         public PlayerIdentifier InputIdentifier { get; set; }
 
@@ -119,6 +111,8 @@ public class AttachableInputSource : MonoBehaviour
         {
             MovementValue = Vector2.zero;
             AimValue = Vector2.zero;
+            IsFirePressed = false;
+            IsDashPressed = false;
         }
     }
 
