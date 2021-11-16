@@ -139,16 +139,12 @@ public class MobManager : MonoBehaviour
     private void SpawnMobDelayed(MobInitializable prefab, Teleporter teleporter, float delay)
     {
         var instance = mobSpawner.SpawnMob(prefab, teleporter.Center);
-        instance.OnWillSpawnIntoWorld?.Invoke(delay);
         instance.OnMobDefeated += () => HandleMobDefeated(instance);
-        aliveMobs.Add(instance);
 
+        aliveMobs.Add(instance);
         OnMobWillSpawn?.Invoke(instance);
 
-        StartCoroutine(Coroutines.After(delay, () =>
-        {
-            instance.OnDidSpawnIntoWorld?.Invoke();
-        }));
+        instance.OnMobSpawn?.Invoke();
     }
 
     private void HandleMobDefeated(Mob mob)

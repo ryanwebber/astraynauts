@@ -2,20 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class NavigationTopologyInfluencer : MonoBehaviour
+public class NavigationTopologyInfluencer : BaseInfluencer
 {
     [SerializeField]
+    private MobInitializable initializer;
+
     private NavigationTopology topology;
-    public NavigationTopology Topology
+
+    private void Awake()
     {
-        get => topology;
-        set => topology = value;
+        initializer.OnMobInitialize += (_, ctx) => topology = ctx.Services.MobManager.NavigationService.NavigationTopology;
     }
 
-    [SerializeField]
-    private float weight;
-
-    public IEnumerable<Vector2> GetInfluences()
+    public override IEnumerable<Vector2> GetInfluences()
     {
         if (topology == null || !topology.IsInitialized)
             yield break;
@@ -31,6 +30,6 @@ public class NavigationTopologyInfluencer : MonoBehaviour
             slope += topology.GetTopology(cell + dir).slope;
         }
 
-        yield return slope.normalized * weight;
+        yield return slope.normalized;
     }
 }

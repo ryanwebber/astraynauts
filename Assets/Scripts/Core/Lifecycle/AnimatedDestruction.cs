@@ -1,8 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(DestructionTrigger))]
-public class AnimatedDestruction: MonoBehaviour
+public class AnimatedDestruction : MonoBehaviour
 {
     private void Awake()
     {

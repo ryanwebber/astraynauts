@@ -14,9 +14,6 @@ public class MobInitializable : MonoBehaviour
         TryInitializeComponent<Boid>(boid =>
             boid.AttachToManager(gameState.Services.MobManager.BoidManager));
 
-        TryInitializeComponent<NavigationTopologyInfluencer>(influencer =>
-            influencer.Topology = gameState.Services.MobManager.NavigationService.NavigationTopology);
-
         // Initialize anything else via the events
         OnMobInitialize?.Invoke(mob, gameState);
 
@@ -29,7 +26,7 @@ public class MobInitializable : MonoBehaviour
             initializer?.Invoke(c);
     }
 
-    private void Start()
+    private void Update()
     {
         Destroy(this);
     }

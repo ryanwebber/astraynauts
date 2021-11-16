@@ -14,42 +14,20 @@ public class Boid : MonoBehaviour
     [SerializeField]
     private Heading2D heading;
 
-    [System.Serializable]
-    public struct Parameters
-    {
-        [Header("Weights")]
-
-        [SerializeField]
-        public float alignmentWeight;
-
-        [SerializeField]
-        public float separationWeight;
-
-        [SerializeField]
-        public float cohesionWeight;
-    }
-
-    [SerializeField]
-    private bool showDebug = false;
-
-    [SerializeField]
-    private Parameters parameters;
-
-    [Header("Body Detection")]
-
     [SerializeField]
     private LayerMask separationLayermask;
 
     [SerializeField]
     private float detectionRadius;
 
+    [SerializeField]
+    private bool showDebug = false;
+
     private BoidManager attachedManager = null;
     private Collider2D[] reusableCollisionResults;
 
     public Vector2 CurrentPosition => transform.position;
     public Vector2 CurrentHeading => heading.CurrentHeading;
-
-    public Parameters Params => parameters;
 
     private void Awake()
     {
@@ -88,7 +66,7 @@ public class Boid : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
 
-    public Force ComputeForces()
+    public Force ComputeForces(float alignmentWeight, float separationWeight, float cohesionWeight)
     {
         if (attachedManager == null)
             return Force.None;
@@ -103,9 +81,9 @@ public class Boid : MonoBehaviour
             if (showDebug)
                 Debug.DrawLine(transform.position, centerOfFlock, Color.blue);
 
-            var alignmentForce = SteerTowards(perception.cumulativeFlockHeading) * parameters.alignmentWeight;
-            var cohesionForce = SteerTowards(deltaFlockCenter) * parameters.cohesionWeight;
-            var seperationForce = SteerTowards(ComputeRawSeparation()) * parameters.separationWeight;
+            var alignmentForce = SteerTowards(perception.cumulativeFlockHeading) * alignmentWeight;
+            var cohesionForce = SteerTowards(deltaFlockCenter) * cohesionWeight;
+            var seperationForce = SteerTowards(ComputeRawSeparation()) * separationWeight;
 
             return new Force
             {

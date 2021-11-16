@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class CollisionAvoidanceInfluencer : MonoBehaviour
+public class CollisionAvoidanceInfluencer : BaseInfluencer
 {
     [SerializeField]
     private Heading2D currentHeading;
@@ -30,10 +30,7 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
     [SerializeField]
     private Vector2 offset;
 
-    [SerializeField]
-    private float collisionAvoidanceWeight = 1f;
-
-    public IEnumerable<Vector2> GetInfluences()
+    public override IEnumerable<Vector2> GetInfluences()
     {
         yield return GetCollisionAvoidanceHeading();
     }
@@ -48,7 +45,7 @@ public class CollisionAvoidanceInfluencer : MonoBehaviour
             return heading.normalized;
 
         if (TryFindCollisionFreeHeading(heading.normalized, out var freeHeading))
-            return freeHeading * collisionAvoidanceWeight;
+            return freeHeading;
 
         return Vector2.zero;
     }
