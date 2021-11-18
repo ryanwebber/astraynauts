@@ -28,6 +28,7 @@ public class DashBehavior: IBehaviorTreeBuildable
 
         // State
         private float startTime;
+        private Vector2 direction;
 
         public DashAction(KinematicBody kinematicBody, Height2D heightComponent, Input input, Properties properties)
         {
@@ -41,6 +42,7 @@ public class DashBehavior: IBehaviorTreeBuildable
         protected override void OnStart()
         {
             startTime = Time.time;
+            direction = input.Direction.normalized;
         }
 
         protected override TaskStatus OnUpdate()
@@ -50,7 +52,7 @@ public class DashBehavior: IBehaviorTreeBuildable
 
             float t = Mathf.Clamp01(Mathf.InverseLerp(startTime, startTime + properties.dashDuration, Time.time));
             heightComponent.Height = PhysicsUtils.LerpGravity(t, properties.jumpHeight);
-            kinematicBody.MoveAndCollide(input.Direction * Time.deltaTime * properties.dashSpeed);
+            kinematicBody.MoveAndCollide(direction * Time.deltaTime * properties.dashSpeed);
 
             return TaskStatus.Continue;
         }

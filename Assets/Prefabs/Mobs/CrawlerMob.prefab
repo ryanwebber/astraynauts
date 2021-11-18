@@ -534,13 +534,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   kinematicBody: {fileID: 138564682830808029}
   properties:
-    movementSpeed: 2.1
+    movementSpeed: 1.5
     movementDampening: 0.1
   influencers:
   - influencer: {fileID: 1689333519931869937}
-    weight: 1
+    weight: 1.5
   - influencer: {fileID: 5806279448646290286}
-    weight: 3
+    weight: 4
   - influencer: {fileID: 8724302188274631025}
     weight: 2
   - influencer: {fileID: 2508919064742089508}
@@ -822,7 +822,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initializer: {fileID: 2234429384227885141}
   alignmentWeight: 1
-  separationWeight: 0.5
+  separationWeight: 3
   cohesionWeight: 1
 --- !u!1001 &8735769639538351207
 PrefabInstance:
