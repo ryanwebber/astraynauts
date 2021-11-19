@@ -5442,7 +5442,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fastHeightCalculationBound: 10
   slowHeightCalculationBound: 5
-  showDebug: 0
+  showDebug: 1
 --- !u!114 &509416141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5547,7 +5547,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 0.46875
+  orthographic size: 7.53125
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -6382,7 +6382,9 @@ MonoBehaviour:
     batteryPrefab: {fileID: 7183515431595988126, guid: 868162efc37cf43ff9f4ca7ad3e90676, type: 3}
   doorSettings:
     horizontalFacingDoorPrefab: {fileID: 61320661533595720, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
-    horizontalFacingDoorOffset: {x: 0, y: 0.5625}
+    horizontalFacingDoorOffset: {x: 0, y: 0}
+    verticalFacingDoorPrefab: {fileID: 61320661533595720, guid: fb2f65846d9a643c2b11acc064f6b15f, type: 3}
+    verticalFacingDoorOffset: {x: 0, y: 0}
 --- !u!1 &1163972694
 GameObject:
   m_ObjectHideFlags: 0
@@ -7188,7 +7190,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.5457517, y: 1}
+    m_SensorSize: {x: 1.4858097, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -7582,6 +7584,7 @@ MonoBehaviour:
   batteryManager: {fileID: 2037969554}
   healthManager: {fileID: 2037969547}
   inputFeedback: {fileID: 2037969541}
+  movementDelay: 0.075
   chargingProperties:
     chargeStepTime: 1
   shootingProperties:

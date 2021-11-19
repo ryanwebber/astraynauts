@@ -120,6 +120,12 @@ public class WorldLoader : MonoBehaviour
 
         [SerializeField]
         public Vector2 horizontalFacingDoorOffset;
+
+        [SerializeField]
+        public DoorController verticalFacingDoorPrefab;
+
+        [SerializeField]
+        public Vector2 verticalFacingDoorOffset;
     }
 
     [SerializeField]
@@ -253,6 +259,13 @@ public class WorldLoader : MonoBehaviour
                     door = door,
                     prefab = doorSettings.horizontalFacingDoorPrefab,
                     offset = doorSettings.horizontalFacingDoorOffset,
+                };
+            else
+                yield return new DoorInitialization
+                {
+                    door = door,
+                    prefab = doorSettings.verticalFacingDoorPrefab,
+                    offset = doorSettings.verticalFacingDoorOffset,
                 };
         }
     }

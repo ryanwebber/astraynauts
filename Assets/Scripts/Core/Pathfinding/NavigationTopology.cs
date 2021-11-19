@@ -35,12 +35,9 @@ public class NavigationTopology: MonoBehaviour
         public int CurrentHeight => currentHeight;
         public bool IsExausted => fringe.Count == 0;
 
-        public SteppableTopologyGenerator(
-            Topology[,] topology,
-            ITraversableGrid traversable,
-            IEnumerable<Vector2Int> initialFringe)
+        public SteppableTopologyGenerator(Topology[,] topology, ITraversableGrid traversable)
         {
-            this.fringe = new List<Vector2Int>(initialFringe);
+            this.fringe = new List<Vector2Int>();
             this.fringeQueue = new List<Vector2Int>(40);
             this.ignoreSet = new HashSet<Vector2Int>();
             this.seenSet = new HashSet<Vector2Int>();
@@ -221,8 +218,11 @@ public class NavigationTopology: MonoBehaviour
 
     private IEnumerator ContinuouslyRecalculateTopology()
     {
-        SteppableTopologyGenerator fastGenerator = new SteppableTopologyGenerator(topology, traversable, Enumerable.Empty<Vector2Int>());
-        SteppableTopologyGenerator slowGenerator = new SteppableTopologyGenerator(topology, traversable, Enumerable.Empty<Vector2Int>());
+        // Fast generator calculates paths from targets each frame to a certain extent
+        SteppableTopologyGenerator fastGenerator = new SteppableTopologyGenerator(topology, traversable);
+
+        // Slow generator continues where the fast generator left off, making additional progress each frame
+        SteppableTopologyGenerator slowGenerator = new SteppableTopologyGenerator(topology, traversable);
 
         while (true)
         {

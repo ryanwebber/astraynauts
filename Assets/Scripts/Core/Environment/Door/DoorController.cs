@@ -15,6 +15,8 @@ public class DoorController : MonoBehaviour
     private string animationProperty;
 
     public bool IsDoorOpen => animator.GetBool(animationProperty);
+    public Door ReferencedDoor { get; set; }
+
     private Animator animator;
 
     private void Awake()
@@ -33,5 +35,15 @@ public class DoorController : MonoBehaviour
                     OnDoorStateChanged?.Invoke(new State { isOpen = isOpen });
             }));
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (IsDoorOpen)
+            Gizmos.color = new Color(0f, 0f, 1f, 0.25f);
+        else
+            Gizmos.color = new Color(0f, 0f, 1f, 0.6f);
+
+        Gizmos.DrawCube(transform.position, new Vector3(2f, 2f, 1f));
     }
 }
