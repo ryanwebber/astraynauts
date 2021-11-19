@@ -16,7 +16,12 @@ public class WorldGridTraversable: ITraversableGrid
     {
         if (grid.TryGetUnit(position, out var unit))
         {
-            return unit.ContainsDescriptor<FloorDescriptor>() && !unit.ContainsDescriptor<FixtureDescriptor>();
+            bool isFloor = unit.ContainsDescriptor<FloorDescriptor>();
+            bool isImpassable =
+                unit.ContainsDescriptor<FixtureDescriptor>() || // Fixture is in the way
+                (unit.TryGetDescriptor(out DoorDescriptor d) && !d.Door.IsOpen); // Is a door which is closed
+
+            return isFloor && !isImpassable;
         }
 
         return false;

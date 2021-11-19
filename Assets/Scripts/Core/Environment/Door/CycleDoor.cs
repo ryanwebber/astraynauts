@@ -1,28 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Animator))]
 public class CycleDoor : MonoBehaviour
 {
     [SerializeField]
     private float cycleDuration;
 
     [SerializeField]
-    private string animationProperty;
+    private DoorController controller;
 
     private void Start()
     {
-        var animator = GetComponent<Animator>();
-        StartCoroutine(OpenCloseDoor(animator));
+        StartCoroutine(OpenCloseDoor());
     }
 
-    private IEnumerator OpenCloseDoor(Animator animator)
+    private IEnumerator OpenCloseDoor()
     {
         yield return new WaitForSeconds(Random.value * cycleDuration * 2);
 
         while (true)
         {
-            animator.SetBool(animationProperty, !animator.GetBool(animationProperty));
+            controller.SetDoorOpen(!controller.IsDoorOpen);
             yield return new WaitForSeconds(cycleDuration);
         }
     }

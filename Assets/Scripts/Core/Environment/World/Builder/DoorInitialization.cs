@@ -11,6 +11,10 @@ public struct DoorInitialization : IOperation
     {
         var doorRef = this.door;
         var instance = UnityEngine.Object.Instantiate(prefab, doorRef.Center + offset, Quaternion.identity);
-        instance.OnDoorStateChanged += state => doorRef.Update(isOpen: state.isOpen);
+        instance.OnDoorStateChanged += state =>
+        {
+            doorRef.Update(isOpen: state.isOpen);
+            Debug.Log($"Door state changed: {state.isOpen}", instance);
+        };
     }
 }

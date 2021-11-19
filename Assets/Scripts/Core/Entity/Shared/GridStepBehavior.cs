@@ -25,8 +25,6 @@ public class GridStepBehavior : IBehaviorTreeBuildable
 
         protected override TaskStatus OnUpdate()
         {
-            Debug.Log("Behavior OnUpdate", body);
-
             if (body.IsMoving)
                 return TaskStatus.Failure;
 
