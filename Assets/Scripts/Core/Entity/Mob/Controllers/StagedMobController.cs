@@ -24,6 +24,9 @@ public class StagedMobController : MonoBehaviour
     [SerializeField]
     private Lifecycle lifecycle;
 
+    [SerializeField, ReadOnly]
+    private string currentStageName;
+
     private void Awake()
     {
         var mob = GetComponent<Mob>();
@@ -37,5 +40,7 @@ public class StagedMobController : MonoBehaviour
         {
             controller.PlayStage(lifecycle.deathStage);
         };
+
+        controller.OnStageChanged += () => currentStageName = controller.CurrentStage.name;
     }
 }

@@ -30,9 +30,6 @@ public class MobManager : MonoBehaviour
     private int minTeleporterPoolSizeForCurvedSelection = 4;
 
     [SerializeField]
-    private float teleportTime = 2.5f;
-
-    [SerializeField]
     private float spawnAttemptRefreshTime = 1f;
 
     [Header("Debug")]
@@ -53,6 +50,9 @@ public class MobManager : MonoBehaviour
     {
         aliveMobs = new HashSet<Mob>();
         spawnBatches = new Queue<MobSpawnBatch>();
+
+        // Add some irrationalness to the spawn loop
+        spawnAttemptRefreshTime += Mathf.PI / 3f;
 
         gameState.OnGameStateInitializationEnd += () =>
         {
@@ -92,7 +92,7 @@ public class MobManager : MonoBehaviour
 
                     if (TryFindSpawnableTeleporter(out var teleporter))
                     {
-                        SpawnMobDelayed(mob, teleporter, teleportTime);
+                        SpawnMobDelayed(mob, teleporter);
                         currentBatch.OnSpawnTriggeredInBatch?.Invoke(mob, new MobSpawnBatch.MobIndex
                         {
                             currentIndex = currentIndex,
@@ -141,7 +141,7 @@ public class MobManager : MonoBehaviour
         return true;
     }
 
-    private void SpawnMobDelayed(MobInitializable prefab, Teleporter teleporter, float delay)
+    private void SpawnMobDelayed(MobInitializable prefab, Teleporter teleporter)
     {
         var instance = mobSpawner.SpawnMob(prefab, teleporter.Center);
         instance.OnMobDefeated += () => HandleMobDefeated(instance);

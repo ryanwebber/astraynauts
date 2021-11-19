@@ -7,28 +7,33 @@ using CleverCrow.Fluid.BTs.Trees;
 public class SwarmMovementStage : MonoBehaviour
 {
     [SerializeField]
-    private KinematicBody kinematicBody;
+    private GridLockedBody body;
 
     [SerializeField]
-    private WalkBehavior.Properties properties;
+    private float movementDelay = 0.075f;
+
+    [SerializeField]
+    private MobInitializable initializer;
 
     [SerializeField]
     private List<WeightedInfluencer> influencers;
 
-    private WalkBehavior.Input input;
+    private GridStepBehavior.Input input;
     private BehaviorTree behaviorTree;
 
     private void Awake()
     {
         var stage = GetComponent<Stage>();
 
-        input = new WalkBehavior.Input();
+        input = new GridStepBehavior.Input();
         behaviorTree = new BehaviorTreeBuilder(gameObject)
             .Sequence()
                 .Condition(() => stage.IsStageActive)
-                .Splice(new WalkBehavior(kinematicBody, input, properties))
+                .Splice(new GridStepBehavior(body, input, movementDelay))
             .End()
             .Build();
+
+        initializer.OnMobInitialize += (_, gs) => body.InitializeInWorld(gs.World);
     }
 
     private void Update()

@@ -12,6 +12,14 @@ public class GridLockedBody : MonoBehaviour
     [SerializeField]
     private Vector2 offset;
 
+    [Header("Optional Jump")]
+
+    [SerializeField]
+    private Height2D heightComponent;
+
+    [SerializeField]
+    private float jumpHeight = 0.25f;
+
     public bool IsInitialized => world != null && traversable != null;
     public bool IsMoving => currentMovement != null;
     public Vector2 WorldPosition
@@ -49,6 +57,9 @@ public class GridLockedBody : MonoBehaviour
         if (!IsInitialized)
             return;
 
+        if (!traversable.IsTraversable(position))
+            return;
+
         if (currentMovement != null)
             return;
 
@@ -74,11 +85,18 @@ public class GridLockedBody : MonoBehaviour
         {
             var t = Mathf.InverseLerp(startTime, endTime, Time.time);
             var p = Vector2.Lerp(startPos, endPos, t);
+
             WorldPosition = p;
+            if (heightComponent != null)
+                heightComponent.Height = PhysicsUtils.LerpGravity(t, jumpHeight);
+
             yield return null;
         }
 
         WorldPosition = endPos;
+        if (heightComponent != null)
+            heightComponent.Height = 0f;
+
         OnMoveEnd?.Invoke(startPos, endPos);
 
         currentMovement = null;

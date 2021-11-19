@@ -6641,9 +6641,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   maxTopTeleporterSelectionCount: 6
   minTeleporterPoolSizeForCurvedSelection: 4
-  teleportTime: 2.5
   spawnAttemptRefreshTime: 1
-  preventMobSpawning: 1
+  preventMobSpawning: 0
 --- !u!114 &1342330583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7578,20 +7577,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 2037969537}
-  kinematicBody: {fileID: 2037969531}
-  gridBody: {fileID: 0}
+  gridBody: {fileID: 2037969555}
   projectileSpawner: {fileID: 2037969542}
   batteryManager: {fileID: 2037969554}
   healthManager: {fileID: 2037969547}
   inputFeedback: {fileID: 2037969541}
-  heightComponent: {fileID: 2037969543}
-  dashProperties:
-    dashSpeed: 8
-    dashDuration: 0.2
-    jumpHeight: 0.2
-  walkProperties:
-    movementSpeed: 2.75
-    movementDampening: 0.08
   chargingProperties:
     chargeStepTime: 1
   shootingProperties:
@@ -7641,6 +7631,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementTime: 0.2
   offset: {x: 0, y: -0.35}
+  heightComponent: {fileID: 2037969543}
+  jumpHeight: 0.12
 --- !u!1 &2072800036
 GameObject:
   m_ObjectHideFlags: 0

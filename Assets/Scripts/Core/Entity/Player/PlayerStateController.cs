@@ -16,14 +16,11 @@ public class PlayerStateController : MonoBehaviour
 
     public struct MovementState
     {
-        public bool isDashing;
+        public bool isMoving;
     }
 
     [SerializeField]
     private Player player;
-
-    [SerializeField]
-    private KinematicBody kinematicBody;
 
     [SerializeField]
     private GridLockedBody gridBody;
@@ -41,13 +38,7 @@ public class PlayerStateController : MonoBehaviour
     private PlayerInputFeedback inputFeedback;
 
     [SerializeField]
-    private Height2D heightComponent;
-
-    [SerializeField]
-    private DashBehavior.Properties dashProperties;
-
-    [SerializeField]
-    private WalkBehavior.Properties walkProperties;
+    private float movementDelay = 0.075f;
 
     [SerializeField]
     private ChargingBehavior.Properties chargingProperties;
@@ -59,8 +50,6 @@ public class PlayerStateController : MonoBehaviour
     private BehaviorTree shootingTree;
     private PlayerInputState inputState;
 
-    private DashBehavior.Input dashInput;
-    private WalkBehavior.Input walkInput;
     private SingleShotBehavior.Input shootingInput;
     private GridStepBehavior.Input gridStepInput;
 
@@ -73,8 +62,6 @@ public class PlayerStateController : MonoBehaviour
     private void Awake()
     {
         inputState = GetComponent<PlayerInputState>();
-        dashInput = new DashBehavior.Input();
-        walkInput = new WalkBehavior.Input();
         shootingInput = new SingleShotBehavior.Input();
         gridStepInput = new GridStepBehavior.Input();
 
@@ -102,11 +89,9 @@ public class PlayerStateController : MonoBehaviour
             gridBody.InitializeInWorld(gameState.World);
         };
 
-        var dashBehavior = new DashBehavior(kinematicBody, heightComponent, dashInput, dashProperties);
-        var walkBehavior = new WalkBehavior(kinematicBody, walkInput, walkProperties);
         var chargeBehavior = new ChargingBehavior(chargingProperties);
         var shootingBehavior = new SingleShotBehavior(shootingInput, shootingProperties);
-        var gridStepBehavior = new GridStepBehavior(gridBody, gridStepInput);
+        var gridStepBehavior = new GridStepBehavior(gridBody, gridStepInput, movementDelay);
 
         shootingBehavior.OnFireShot += FireProjectile;
 
@@ -119,23 +104,6 @@ public class PlayerStateController : MonoBehaviour
                 .Sequence("Player moving state")
                     .Condition(() => currentState == State.FreeMoving)
                     .Selector()
-                        //.Sequence("Dash movement")
-                        //    .Condition(() => inputState.IsDashing)
-                        //    .Success(() =>
-                        //    {
-                        //        movementState.isDashing = true;
-                        //        healthManager.SetState(HealthManager.Damagability.TRANSPARENT);
-                        //    })
-                        //    .Splice(dashBehavior)
-                        //    .Success(() =>
-                        //    {
-                        //        movementState.isDashing = false;
-                        //        healthManager.SetState(HealthManager.Damagability.VULNERABLE);
-                        //    })
-                        //.End()
-                        //.Sequence("Walking movement")
-                        //    .Splice(walkBehavior)
-                        //.End()
                         .Sequence()
                             .Splice(gridStepBehavior)
                         .End()
@@ -158,7 +126,6 @@ public class PlayerStateController : MonoBehaviour
             .Selector()
                 .Sequence()
                     .Condition(() => currentState == State.FreeMoving)
-                    .Condition(() => !movementState.isDashing)
                     .Condition(() => batteryManager.BatteryValue > 0)
                     .Splice(shootingBehavior)
                 .End()
@@ -171,8 +138,6 @@ public class PlayerStateController : MonoBehaviour
     private void Update()
     {
         // Update input
-        dashInput.Direction = inputState.MovementDirection;
-        walkInput.Direction = inputState.MovementDirection;
         shootingInput.Aim = inputState.AimDirection;
         shootingInput.IsFiring = inputState.IsFiring;
         gridStepInput.Direction = inputState.MovementDirection;

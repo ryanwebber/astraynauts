@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class WorldGrid
 {
@@ -78,16 +79,11 @@ public class WorldGrid
 
     public Unit GetOrInsert(Vector2Int position)
     {
+        Assert.IsTrue(position.x >= 0 && position.y >= 0);
         if (!unitMap.ContainsKey(position))
         {
-            if (unitMap.Count == 0)
-                bounds = new RectInt(position, Vector2Int.zero);
-            else if (position.x < bounds.xMin)
-                bounds.xMin = position.x;
-            else if (position.x > bounds.xMax)
+            if (position.x > bounds.xMax)
                 bounds.xMax = position.x;
-            else if (position.y < bounds.yMin)
-                bounds.yMin = position.y;
             else if (position.y > bounds.yMax)
                 bounds.yMax = position.y;
 

@@ -4,8 +4,10 @@ using System.Collections.Generic;
 
 public class StageController : MonoBehaviour
 {
+    public Event OnStageChanged;
+
     private Coroutine currentCoroutine;
-    private Stage currentStage;
+    public Stage CurrentStage { get; private set; }
 
     public void PlayStage(Stage stage)
     {
@@ -20,12 +22,12 @@ public class StageController : MonoBehaviour
             currentCoroutine = null;
         }
 
-        if (currentStage != null)
+        if (CurrentStage != null)
         {
-            if (currentStage.IsStageActive)
-                currentStage.OnStageEnd?.Invoke();
+            if (CurrentStage.IsStageActive)
+                CurrentStage.OnStageEnd?.Invoke();
 
-            currentStage = null;
+            CurrentStage = null;
         }
 
         currentCoroutine = StartCoroutine(PlaySequenceRoutine(stages));
@@ -35,8 +37,9 @@ public class StageController : MonoBehaviour
     {
         foreach (var stage in stages)
         {
-            currentStage = stage;
+            CurrentStage = stage;
             stage.OnStageBegin?.Invoke();
+            OnStageChanged?.Invoke();
             yield return new WaitUntil(() => !stage.IsStageActive);
         }
     }

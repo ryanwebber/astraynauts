@@ -216,6 +216,8 @@ public class WorldLoader : MonoBehaviour
         // Generation complete!
         completion?.Invoke(world);
         this.temp = world;
+
+        Debug.Log($"Size: {temp.Bounds.size}", this);
     }
 
     private IEnumerable<IOperation> GetFixturePopulations(World world, WorldGrid grid)

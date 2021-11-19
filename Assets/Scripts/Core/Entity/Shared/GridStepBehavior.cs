@@ -68,11 +68,13 @@ public class GridStepBehavior : IBehaviorTreeBuildable
 
     private GridLockedBody body;
     private Input input;
+    private float movementDelay;
 
-    public GridStepBehavior(GridLockedBody body, Input input)
+    public GridStepBehavior(GridLockedBody body, Input input, float movementDelay)
     {
         this.body = body;
         this.input = input;
+        this.movementDelay = movementDelay;
     }
 
     public BehaviorTree ToBehaviorTree(GameObject obj)
@@ -82,7 +84,7 @@ public class GridStepBehavior : IBehaviorTreeBuildable
                 .Sequence()
                     .AddNode(new GridStepAction(body, input))
                     .WaitUntil(() => !body.IsMoving)
-                    .WaitTime(0.075f)
+                    .WaitTime(movementDelay)
                 .End()
             .End()
             .Build();
