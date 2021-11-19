@@ -9,6 +9,7 @@ public class FrameDistributedLoader
         public int frameCount;
         public int operationCount;
         public float duration;
+        public bool isDone;
     }
 
     public static float MAXMIMUM_LOAD_TIME_PER_FRAME_MS = 30f;
@@ -39,11 +40,21 @@ public class FrameDistributedLoader
                         operationCount = opCount,
                         duration = Time.time - startTime,
                     };
+
+                    startTime = Time.time;
                 }
 
                 op.Perform();
                 opCount++;
             }
         }
+
+        yield return new LoadState
+        {
+            frameCount = frameCount + 1,
+            operationCount = opCount,
+            duration = Time.time - startTime,
+            isDone = true,
+        };
     }
 }

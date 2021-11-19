@@ -159,8 +159,9 @@ public class WorldLoader : MonoBehaviour
         var tileAssignmentLoader = new FrameDistributedLoader(GetTileAssignments(worldGrid));
         foreach (var state in tileAssignmentLoader.SparseLoad())
         {
-            Debug.Log($"Loaded {state.operationCount} tiles in {state.frameCount} frames ({state.duration}s).");
-            yield return null;
+            Debug.Log($"Loaded {state.operationCount} tiles");
+            if (!state.isDone)
+                yield return null;
         }
 
         // Store the world data
@@ -170,16 +171,18 @@ public class WorldLoader : MonoBehaviour
         var doorDecoration = new FrameDistributedLoader(GetDoorPopulations(world));
         foreach (var state in doorDecoration.SparseLoad())
         {
-            Debug.Log($"Loaded {state.operationCount} doors in {state.frameCount} frames ({state.duration}s).");
-            yield return null;
+            Debug.Log($"Loaded {state.operationCount} doors");
+            if (!state.isDone)
+                yield return null;
         }
 
         // Decorate the world with fixtures
         var fixtureDecoration = new FrameDistributedLoader(GetFixturePopulations(world, worldGrid));
         foreach (var state in fixtureDecoration.SparseLoad())
         {
-            Debug.Log($"Loaded {state.operationCount} fixtures in {state.frameCount} frames ({state.duration}s).");
-            yield return null;
+            Debug.Log($"Loaded {state.operationCount} fixtures");
+            if (!state.isDone)
+                yield return null;
         }
 
         // Setup the player spawn
@@ -216,8 +219,6 @@ public class WorldLoader : MonoBehaviour
         // Generation complete!
         completion?.Invoke(world);
         this.temp = world;
-
-        Debug.Log($"Size: {temp.Bounds.size}", this);
     }
 
     private IEnumerable<IOperation> GetFixturePopulations(World world, WorldGrid grid)
@@ -227,7 +228,7 @@ public class WorldLoader : MonoBehaviour
             // TODO: Determine battery at a more intelligent rate, ensuring there's one in the
             // spawn room
             if (Random.value < 0.5f)
-                break;
+                continue;
 
             var sectionIdx = Random.Range(0, room.SectionCount);
             var section = room.GetSection(sectionIdx);

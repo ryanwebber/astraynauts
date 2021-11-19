@@ -22,6 +22,7 @@ public class GridLockedBody : MonoBehaviour
 
     public bool IsInitialized => world != null && traversable != null;
     public bool IsMoving => currentMovement != null;
+    public Vector2 Offset => offset;
     public Vector2 WorldPosition
     {
         get => (Vector2)transform.position + offset;

@@ -42,9 +42,7 @@ public class PlayerManager : MonoBehaviour
         foreach (var player in GetAlivePlayers())
         {
             var position = teleporter.Center + Random.insideUnitCircle.normalized * 0.2f;
-            var unit = gameState.World.WorldPositionToUnit(position);
-            var snappedPosition = gameState.World.UnitBounds(unit).center;
-            player.transform.position = snappedPosition;
+            player.transform.position = player.GetSnapPointToGrid(gameState.World, position);
         }
     }
 
