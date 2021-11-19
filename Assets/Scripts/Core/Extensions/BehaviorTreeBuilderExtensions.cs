@@ -60,4 +60,12 @@ public static class BehaviorTreeBuilderExtensions
     {
         return builder.AddNodeWithPointer(new ShortCircuitSequence(name, condition));
     }
+
+    public static BehaviorTreeBuilder WaitUntil(this BehaviorTreeBuilder builder, System.Func<bool> condition)
+    {
+        return builder
+            .RepeatUntilSuccess()
+                .Condition(condition)
+            .End();
+    }
 }

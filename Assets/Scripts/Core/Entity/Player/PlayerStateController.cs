@@ -20,7 +20,13 @@ public class PlayerStateController : MonoBehaviour
     }
 
     [SerializeField]
+    private Player player;
+
+    [SerializeField]
     private KinematicBody kinematicBody;
+
+    [SerializeField]
+    private GridLockedBody gridBody;
 
     [SerializeField]
     private ProjectileSpawner projectileSpawner;
@@ -56,6 +62,7 @@ public class PlayerStateController : MonoBehaviour
     private DashBehavior.Input dashInput;
     private WalkBehavior.Input walkInput;
     private SingleShotBehavior.Input shootingInput;
+    private GridStepBehavior.Input gridStepInput;
 
     private State currentState;
     public State CurrentState => currentState;
@@ -69,11 +76,14 @@ public class PlayerStateController : MonoBehaviour
         dashInput = new DashBehavior.Input();
         walkInput = new WalkBehavior.Input();
         shootingInput = new SingleShotBehavior.Input();
+        gridStepInput = new GridStepBehavior.Input();
 
         OnStateChanged += () =>
         {
             movementTree.Reset();
             shootingTree.Reset();
+
+            Debug.Log($"Player state is now {CurrentState}", this);
 
             switch (CurrentState)
             {
@@ -87,10 +97,16 @@ public class PlayerStateController : MonoBehaviour
             }
         };
 
+        player.OnPlayerWillSpawn += gameState =>
+        {
+            gridBody.InitializeInWorld(gameState.World);
+        };
+
         var dashBehavior = new DashBehavior(kinematicBody, heightComponent, dashInput, dashProperties);
         var walkBehavior = new WalkBehavior(kinematicBody, walkInput, walkProperties);
         var chargeBehavior = new ChargingBehavior(chargingProperties);
         var shootingBehavior = new SingleShotBehavior(shootingInput, shootingProperties);
+        var gridStepBehavior = new GridStepBehavior(gridBody, gridStepInput);
 
         shootingBehavior.OnFireShot += FireProjectile;
 
@@ -103,33 +119,37 @@ public class PlayerStateController : MonoBehaviour
                 .Sequence("Player moving state")
                     .Condition(() => currentState == State.FreeMoving)
                     .Selector()
-                        .Sequence("Dash movement")
-                            .Condition(() => inputState.IsDashing)
-                            .Success(() =>
-                            {
-                                movementState.isDashing = true;
-                                healthManager.SetState(HealthManager.Damagability.TRANSPARENT);
-                            })
-                            .Splice(dashBehavior)
-                            .Success(() =>
-                            {
-                                movementState.isDashing = false;
-                                healthManager.SetState(HealthManager.Damagability.VULNERABLE);
-                            })
-                        .End()
-                        .Sequence("Walking movement")
-                            .Splice(walkBehavior)
+                        //.Sequence("Dash movement")
+                        //    .Condition(() => inputState.IsDashing)
+                        //    .Success(() =>
+                        //    {
+                        //        movementState.isDashing = true;
+                        //        healthManager.SetState(HealthManager.Damagability.TRANSPARENT);
+                        //    })
+                        //    .Splice(dashBehavior)
+                        //    .Success(() =>
+                        //    {
+                        //        movementState.isDashing = false;
+                        //        healthManager.SetState(HealthManager.Damagability.VULNERABLE);
+                        //    })
+                        //.End()
+                        //.Sequence("Walking movement")
+                        //    .Splice(walkBehavior)
+                        //.End()
+                        .Sequence()
+                            .Splice(gridStepBehavior)
                         .End()
                     .End()
                 .End()
                 .Sequence("Player charging state")
+                    .Condition(() => currentState == State.Charging)
                     .ShortCircuit("Charging", () => currentState == State.Charging)
                         .Splice(chargeBehavior)
                     .End()
                 .End()
                 .Sequence("Player death state")
                     .Condition(() => currentState == State.Dead)
-                    // TODO
+                // TODO
                 .End()
             .End()
             .Build();
@@ -155,6 +175,7 @@ public class PlayerStateController : MonoBehaviour
         walkInput.Direction = inputState.MovementDirection;
         shootingInput.Aim = inputState.AimDirection;
         shootingInput.IsFiring = inputState.IsFiring;
+        gridStepInput.Direction = inputState.MovementDirection;
 
         // Update movement
         movementTree.Tick();

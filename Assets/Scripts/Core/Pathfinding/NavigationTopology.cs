@@ -29,17 +29,15 @@ public class NavigationTopology: MonoBehaviour
         private HashSet<Vector2Int> seenSet;
         private int currentHeight;
 
-        private Vector2Int dimensions;
         private Topology[,] topology;
-        private PathType[,] traversable;
+        private ITraversableGrid traversable;
 
         public int CurrentHeight => currentHeight;
         public bool IsExausted => fringe.Count == 0;
 
         public SteppableTopologyGenerator(
             Topology[,] topology,
-            PathType[,] traversable,
-            Vector2Int dimensions,
+            ITraversableGrid traversable,
             IEnumerable<Vector2Int> initialFringe)
         {
             this.fringe = new List<Vector2Int>(initialFringe);
@@ -48,9 +46,8 @@ public class NavigationTopology: MonoBehaviour
             this.seenSet = new HashSet<Vector2Int>();
             this.currentHeight = 0;
 
-            this.dimensions = dimensions;
-            this.topology = topology;
             this.traversable = traversable;
+            this.topology = topology;
         }
 
         public bool CalculateNextIteration()
@@ -62,13 +59,13 @@ public class NavigationTopology: MonoBehaviour
             {
                 Assert.AreEqual(steps.Length, 8);
 
-                bool IsTraversable(Vector2Int c) =>
-                        c.x >= 0 && c.x < dimensions.x &&
-                        c.y >= 0 && c.y < dimensions.y &&
-                        traversable[c.x, c.y] == PathType.TRAVERSABLE;
-
                 (Vector2Int cell, Vector2 direction) MakeStep(Vector2Int direction) =>
                     (cell: cell + direction, direction: (((Vector2)direction) * -1f).normalized);
+
+                bool IsTraversable(Vector2Int c) =>
+                    c.x >= 0 && c.x < topology.GetLength(0) &&
+                    c.y >= 0 && c.y < topology.GetLength(1) &&
+                    traversable.IsTraversable(c);
 
                 bool IsTraversableUp = IsTraversable(cell + Vector2Int.up);
                 bool IsTraversableDown = IsTraversable(cell + Vector2Int.down);
@@ -164,7 +161,6 @@ public class NavigationTopology: MonoBehaviour
                 generator.ignoreSet.Add(cell);
 
             generator.currentHeight = currentHeight;
-            generator.dimensions = dimensions;
             generator.topology = topology;
             generator.traversable = traversable;
         }
@@ -191,24 +187,18 @@ public class NavigationTopology: MonoBehaviour
     [SerializeField]
     private bool showDebug;
 
-    private Vector2Int dimensions;
-    private PathType[,] traversable;
     private Topology[,] topology;
+    private ITraversableGrid traversable;
 
     private IEnumerable<Vector2Int> targets;
 
-    public Vector2Int Dimensions => dimensions;
+    public Vector2Int Dimensions => traversable.Dimensions;
     public bool IsInitialized => topology != null;
 
-    public void InitalizeTopology(Vector2Int dimensions)
+    public void InitalizeTopology(ITraversableGrid traversableGrid)
     {
-        int width = dimensions.x;
-        int height = dimensions.y;
-        int nCells = width * height;
-
-        this.dimensions = dimensions;
-        this.traversable = new PathType[width, height];
-        this.topology = new Topology[width, height];
+        this.topology = new Topology[traversableGrid.Dimensions.x, traversableGrid.Dimensions.y];
+        this.traversable = traversableGrid;
         this.targets = new List<Vector2Int>();
 
         StopAllCoroutines();
@@ -221,14 +211,9 @@ public class NavigationTopology: MonoBehaviour
         this.targets = targets;
     }
 
-    public void SetState(Vector2Int position, PathType state)
-    {
-        this.traversable[position.x, position.y] = state;
-    }
-
     public Topology GetTopology(Vector2Int cell)
     {
-        if (cell.x < 0 || cell.y < 0 || cell.x >= dimensions.x || cell.y >= dimensions.y)
+        if (cell.x < 0 || cell.y < 0 || cell.x >= Dimensions.x || cell.y >= Dimensions.y)
             return new Topology { slope = Vector2Int.zero, height = 99999999 };
 
         return topology[cell.x, cell.y];
@@ -236,11 +221,8 @@ public class NavigationTopology: MonoBehaviour
 
     private IEnumerator ContinuouslyRecalculateTopology()
     {
-        SteppableTopologyGenerator fastGenerator = new SteppableTopologyGenerator(
-            topology, traversable, Dimensions, Enumerable.Empty<Vector2Int>());
-
-        SteppableTopologyGenerator slowGenerator = new SteppableTopologyGenerator(
-            topology, traversable, Dimensions, Enumerable.Empty<Vector2Int>());
+        SteppableTopologyGenerator fastGenerator = new SteppableTopologyGenerator(topology, traversable, Enumerable.Empty<Vector2Int>());
+        SteppableTopologyGenerator slowGenerator = new SteppableTopologyGenerator(topology, traversable, Enumerable.Empty<Vector2Int>());
 
         while (true)
         {

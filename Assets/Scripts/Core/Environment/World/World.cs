@@ -95,6 +95,18 @@ public class World
         return cell * Layout.scale;
     }
 
+    public Vector2Int WorldPositionToUnit(Vector2 position)
+    {
+        int x = Mathf.FloorToInt(position.x);
+        int y = Mathf.FloorToInt(position.y);
+        return new Vector2Int(x, y);
+    }
+
+    public Rect UnitBounds(Vector2Int unit)
+    {
+        return new Rect(unit.x, unit.y, 1f, 1f);
+    }
+
     public IEnumerable<Vector2Int> ExpandCellToUnits(Vector2Int cell)
     {
         return ExpandCellToUnits(cell, Layout.scale);
@@ -121,10 +133,8 @@ public class World
         return new RectInt(cell * layoutScale, new Vector2Int(layoutScale, layoutScale));
     }
 
-    public static World Build(CellMapping cellMapping, int scale, WorldGrid grid)
+    public static World Build(LayoutGeneration layout, WorldGrid grid)
     {
-        var layout = new LayoutGeneration(cellMapping, scale);
-
         var components = Profile.Debug("Generate world components", () =>
         {
             return new ComponentSet.Builder(grid)

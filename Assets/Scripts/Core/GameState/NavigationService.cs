@@ -19,14 +19,7 @@ public class NavigationService : MonoBehaviour
 
     private void InitializeNavigationTopology()
     {
-        navigationTopology.InitalizeTopology(gameState.World.Bounds.size);
-
-        var traversableUnits = gameState.World.Grid.GetUnits()
-            .Where(u => u.unit.ContainsDescriptor<FloorDescriptor>() && !u.unit.ContainsDescriptor<FixtureDescriptor>())
-            .Select(u => u.position);
-
-        foreach (var unit in traversableUnits)
-            navigationTopology.SetState(unit, NavigationTopology.PathType.TRAVERSABLE);
+        navigationTopology.InitalizeTopology(new WorldGridTraversable(gameState.World.Grid));
     }
 
     private void BindNavigationToPlayers()

@@ -35,6 +35,11 @@ public class MobManager : MonoBehaviour
     [SerializeField]
     private float spawnAttemptRefreshTime = 1f;
 
+    [Header("Debug")]
+
+    [SerializeField]
+    private bool preventMobSpawning = false;
+
     public Event<Mob> OnMobDefeated;
     public Event<Mob> OnMobWillSpawn;
 
@@ -70,7 +75,7 @@ public class MobManager : MonoBehaviour
 
         while (true)
         {
-            if (spawnBatches.Count > 0)
+            if (spawnBatches.Count > 0 && !preventMobSpawning)
             {
                 var currentBatch = spawnBatches.Dequeue();
                 var mobsToSpawn = currentBatch.SpawnEntries.SelectMany(ExpandBatch);

@@ -10,10 +10,11 @@ public class WorldGrid
 
     public RectInt Bounds => bounds;
 
-    public WorldGrid()
+    public WorldGrid(RectInt bounds)
     {
         this.unitMap = new Dictionary<Vector2Int, Unit>();
-        this.bounds = new RectInt();
+        this.bounds = bounds;
+        Debug.Log($"Created world grid of size {bounds.size.x}x{bounds.size.y}");
     }
 
     public void TryRemove(Unit unit, Vector2Int position)

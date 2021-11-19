@@ -26,6 +26,10 @@ public class GameState: MonoBehaviour
         [SerializeField]
         private BankService bankService;
         public BankService BankService => bankService;
+
+        [SerializeField]
+        private SynchronizationService synchronizationService;
+        public SynchronizationService SynchronizationService => synchronizationService;
     }
 
     public Event OnGameStateInitializationBegin;

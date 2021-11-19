@@ -149,8 +149,10 @@ public class WorldLoader : MonoBehaviour
 
     private IEnumerator LoadWorldDistributed(CellMapping layout, System.Action<World> completion)
     {
+        var layoutGeneration = new World.LayoutGeneration(layout, layoutScale);
+
         // Create the world grid, describing every unit of the map
-        var worldGrid = new WorldGrid();
+        var worldGrid = new WorldGrid(layoutGeneration.ScaledBounds);
         Profile.Debug("Load world descriptors", () => LoadBaseDescriptors(layout, worldGrid));
 
         // Load the world and generate the tilemaps
@@ -162,7 +164,7 @@ public class WorldLoader : MonoBehaviour
         }
 
         // Store the world data
-        World world = World.Build(layout, layoutScale, worldGrid);
+        World world = World.Build(layoutGeneration, worldGrid);
 
         // Decorate the world with doors
         var doorDecoration = new FrameDistributedLoader(GetDoorPopulations(world));
