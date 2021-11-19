@@ -719,7 +719,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   detectionRadius: 1.5
-  showDebug: 0
+  thisCollider: {fileID: 138564682830808026}
+  showDebug: 1
 --- !u!114 &1689333519931869937
 MonoBehaviour:
   m_ObjectHideFlags: 0

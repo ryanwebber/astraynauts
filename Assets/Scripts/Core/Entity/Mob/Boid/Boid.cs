@@ -21,6 +21,9 @@ public class Boid : MonoBehaviour
     private float detectionRadius;
 
     [SerializeField]
+    private Collider2D thisCollider;
+
+    [SerializeField]
     private bool showDebug = false;
 
     private BoidManager attachedManager = null;
@@ -36,7 +39,7 @@ public class Boid : MonoBehaviour
 
     private Vector2 SteerTowards(Vector2 vector)
     {
-        return vector.normalized - CurrentHeading;
+        return vector.normalized;
     }
 
     private Vector2 ComputeRawSeparation()
@@ -45,16 +48,15 @@ public class Boid : MonoBehaviour
         int nCollisions = Physics2D.OverlapCircleNonAlloc(CurrentPosition, detectionRadius, reusableCollisionResults, separationLayermask);
         for (int i = 0; i < nCollisions; i++)
         {
-            if (reusableCollisionResults[i].gameObject == this)
+            if (reusableCollisionResults[i].gameObject == thisCollider.gameObject)
                 continue;
-
-            if (showDebug)
-                Debug.DrawLine(transform.position, reusableCollisionResults[i].gameObject.transform.position, Color.red);
 
             Vector2 offset = reusableCollisionResults[i].gameObject.transform.position - transform.position;
             float sqrMagnitude = offset.sqrMagnitude;
-            if (sqrMagnitude > 0)
+            if (sqrMagnitude > 0.1f)
                 rawSeparationForce -= offset / sqrMagnitude;
+            else
+                rawSeparationForce += Random.insideUnitCircle.normalized;
         }
         
         return rawSeparationForce;
@@ -78,12 +80,16 @@ public class Boid : MonoBehaviour
             var centerOfFlock = perception.FlockCenter;
             var deltaFlockCenter = centerOfFlock - CurrentPosition;
 
-            if (showDebug)
-                Debug.DrawLine(transform.position, centerOfFlock, Color.blue);
-
             var alignmentForce = SteerTowards(perception.cumulativeFlockHeading) * alignmentWeight;
             var cohesionForce = SteerTowards(deltaFlockCenter) * cohesionWeight;
             var seperationForce = SteerTowards(ComputeRawSeparation()) * separationWeight;
+
+            if (showDebug)
+            {
+                Debug.DrawLine(transform.position, (Vector2)transform.position + alignmentForce, Color.cyan);
+                Debug.DrawLine(transform.position, (Vector2)transform.position + cohesionForce, Color.magenta);
+                Debug.DrawLine(transform.position, (Vector2)transform.position + seperationForce, Color.yellow);
+            }
 
             return new Force
             {
