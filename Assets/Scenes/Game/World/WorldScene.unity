@@ -5382,7 +5382,6 @@ MonoBehaviour:
   m_YawDamping: 0
   m_RollDamping: 0
   m_AngularDamping: 0
-  m_HideOffsetInInspector: 0
 --- !u!114 &404368981
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -5547,7 +5546,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7.53125
+  orthographic size: 4.2109375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5624,7 +5623,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ComponentVersion: 1
-  m_AssetsPPU: 64
+  m_AssetsPPU: 32
   m_RefResolutionX: 720
   m_RefResolutionY: 405
   m_CropFrame: 0
@@ -7190,7 +7189,7 @@ MonoBehaviour:
     ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1.4858097, y: 1}
+    m_SensorSize: {x: 1.8196002, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

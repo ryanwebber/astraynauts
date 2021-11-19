@@ -56,9 +56,9 @@ public class World
             public Builder With<T>(Func<WorldGrid.Unit, T> mapFn) where T: ComponentMarker
             {
                 var components = new HashSet<T>();
-                foreach (var u in grid.GetUnits())
+                foreach (var (_, unit) in grid.GetUnits())
                 {
-                    var extractedComponent = mapFn.Invoke(u.unit);
+                    var extractedComponent = mapFn.Invoke(unit);
                     if (extractedComponent != null)
                         components.Add(extractedComponent);
                 }

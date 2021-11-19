@@ -212,15 +212,12 @@ public class WorldLoader : MonoBehaviour
         world.State.PlayerSpawnTeleporter = spawnTeleporter;
 
         // Setup the accessible world region
-        foreach (var room in world.Components.GetAll<Room>())
+        foreach (var teleporter in spawnTeleporter.AttachedRoom.Teleporters)
         {
-            // TODO: Don't use all the rooms in the world, we should
-            // have doors and this should be small to start
-            foreach (var teleporter in room.Teleporters)
-            {
-                world.State.AccessibleTeleporters.Add(teleporter);
-            }    
+            world.State.AccessibleTeleporters.Add(teleporter);
         }
+
+        Debug.Log($"Initial world state contains {world.State.AccessibleTeleporters.Count} accessible teleporters, {world.Components.GetAll<Room>().Count} rooms", this);
 
         // Generation complete!
         completion?.Invoke(world);
@@ -285,8 +282,12 @@ public class WorldLoader : MonoBehaviour
     private void LoadBaseDescriptors(CellMapping layout, WorldGrid grid)
     {
         var rooms = layout.Rooms.AllRooms
-            .SelectMany(r => r.GetAllCells())
-            .Select(c => new Room(World.ExpandCellToUnits(c, layoutScale)));
+            .Select(r =>
+            {
+                var cells = r.GetAllCells();
+                var units = cells.SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+                return new Room(units);
+            });
 
         foreach (var room in rooms)
         {
@@ -298,8 +299,12 @@ public class WorldLoader : MonoBehaviour
         }
 
         var hallways = layout.Hallways
-            .SelectMany(h => h.Path)
-            .Select(c => new Hallway(World.ExpandCellToUnits(c, layoutScale)));
+            .Select(h =>
+            {
+                var cells = h.Path;
+                var units = cells.SelectMany(c => World.ExpandCellToUnits(c, layoutScale));
+                return new Hallway(units);
+            });
 
         foreach (var hallway in hallways)
         {
@@ -309,9 +314,6 @@ public class WorldLoader : MonoBehaviour
                 grid.AddDescriptor(unit, new HallwayDescriptor(hallway));
             }
         }
-
-        var airlockCells = layout.Airlocks
-            .SelectMany(a => World.ExpandCellToUnits(a.Cell, layoutScale));
 
         foreach (var ga in layout.Airlocks)
         {
