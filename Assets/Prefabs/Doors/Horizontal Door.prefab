@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5466089330199158257}
   - component: {fileID: 8352862303197591653}
   - component: {fileID: 4777333523322390144}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 345879949845599086}
   - component: {fileID: 8886153096222819667}
   - component: {fileID: 6241570273671227091}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -276,7 +276,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6048729426001972154}
   - component: {fileID: 1784618345965607581}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -360,7 +360,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1209355186074091881}
   - component: {fileID: 3108457720502308277}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Upper Group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -405,7 +405,7 @@ GameObject:
   m_Component:
   - component: {fileID: 934743920281724403}
   - component: {fileID: 8931769149285002267}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -488,7 +488,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2146177634690683012}
   - component: {fileID: 455945499827966707}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -571,7 +571,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8095784150077361095}
   - component: {fileID: 4876731278699549594}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Lower Group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -619,7 +619,7 @@ GameObject:
   - component: {fileID: 4790364111386774517}
   - component: {fileID: 61320661533595720}
   - component: {fileID: 2027691525404880613}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Horizontal Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}

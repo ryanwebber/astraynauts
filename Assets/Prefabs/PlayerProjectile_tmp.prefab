@@ -267,7 +267,7 @@ MonoBehaviour:
   constantVeclocity: 20
   collisionMask:
     serializedVersion: 2
-    m_Bits: 384
+    m_Bits: 1408
 --- !u!114 &3947240868342531228
 MonoBehaviour:
   m_ObjectHideFlags: 0

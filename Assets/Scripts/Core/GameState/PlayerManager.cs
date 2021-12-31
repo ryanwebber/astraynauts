@@ -5,6 +5,8 @@ using UnityEngine.Assertions;
 
 public class PlayerManager : MonoBehaviour
 {
+    public Event OnPlayerSpawnComplete;
+    
     [SerializeField]
     private GameState gameState;
 
@@ -44,6 +46,8 @@ public class PlayerManager : MonoBehaviour
             var position = teleporter.Center + Random.insideUnitCircle.normalized * 0.2f;
             player.transform.position = player.GetSnapPointToGrid(gameState.World, position);
         }
+
+        OnPlayerSpawnComplete?.Invoke();
     }
 
     public IEnumerable<Player> GetAlivePlayers()
