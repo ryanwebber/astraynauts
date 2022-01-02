@@ -7,13 +7,16 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(RopeSystem))]
 public class Cable : MonoBehaviour
 {
+    [SerializeField] private float distanceBetweenPoints = 0.2f;
+    [SerializeField] private int numPoints = 24;
+    
     [Header("Temporary")]
     
     [SerializeField]
     private GameState gameState;
 
     private RopeSystem ropeSystem;
-    private Transform follow;
+    private Player follow;
 
     private void Awake()
     {
@@ -24,15 +27,15 @@ public class Cable : MonoBehaviour
             var origin = (Vector2)player.transform.position;
             var points = new List<Vector2>();
 
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < numPoints; i++)
             {
                 var position = origin + Random.insideUnitCircle.normalized * Random.Range(0.5f, 1f);
                 points.Add(position);
             }
 
-            ropeSystem.SetPoints(points, 0.4f);
+            ropeSystem.SetPoints(points, distanceBetweenPoints);
             ropeSystem.SetPointLocked(0, true);
-            follow = player.transform;
+            follow = player;
         };
     }
 
@@ -41,7 +44,7 @@ public class Cable : MonoBehaviour
         if (follow == null || ropeSystem == null || ropeSystem.PointCount <= 0)
             return;
         
-        ropeSystem.SetPoint(0, follow.position);
+        ropeSystem.SetPoint(0, follow.WorldPosition);
         ropeSystem.Solve();
     }
 }

@@ -21,7 +21,7 @@ public static class StaticBoot
 
 #if UNITY_EDITOR_OSX
         Debug.Log("On MacOS editor. Limiting framerate to prevent stutter");
-        Application.targetFrameRate = 50;
+        Application.targetFrameRate = 40;
 #endif
 
         if (SceneManager.sceneCount > 0)

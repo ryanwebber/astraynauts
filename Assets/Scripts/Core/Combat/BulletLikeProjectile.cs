@@ -62,7 +62,7 @@ public class BulletLikeProjectile : MonoBehaviour
     private void HandleImpact(Collider2D collider)
     {
         Debug.Log($"Bullet trigger: {collider.name}");
-        
+
         if (damageDealer.TryDealDamage(collider.gameObject, out var result))
         {
             if (result.totalDamageDealt > 0 || result.targetWasShielded)
